@@ -47,3 +47,54 @@ format_twfe_oja_data <- function(oja, ai_exposure) {
       #log_ai_product_exposure_score = log(ai_product_exposure_score + 1)
     )
 }
+
+derive_sectoral_exposure <- function(ai_exposure, cedefop_sectoral) {
+  cedefop_sectoral %>%
+    filter(str_detect(occupation_code, "\\.")) %>%
+    mutate(
+      isco_level_2 = substr(occupation_code, 3, 4)
+    ) %>%
+    left_join(ai_exposure, by = c("isco_level_2" = "isco_level_2")) %>%
+    group_by(country_code, nace_rev2_code, sector_name) %>%
+    summarise(
+      ai_product_exposure_score = weighted.mean(
+        ai_product_exposure_score, n, na.rm = TRUE
+      ),
+      felten_exposure_score = weighted.mean(
+        felten_exposure_score, n, na.rm = TRUE
+      ),
+      webb_exposure_score = weighted.mean(
+        webb_exposure_score, n, na.rm = TRUE
+      ),
+      beta_eloundou = weighted.mean(
+        beta_eloundou, n, na.rm = TRUE
+      )
+    ) %>%
+    ungroup()
+}
+
+prep_nama_data <- function(nama_data, sectoral_exposure) {
+  nama_data %>%
+    select(
+      nace_rev2_code = nace_r2,
+      country_code = geo,
+      value_qualifier,
+      year = t,
+      value,
+    ) %>%
+    left_join(
+      sectoral_exposure,
+      by = c("nace_rev2_code", "country_code")
+    ) %>%
+    filter(!is.na(ai_product_exposure_score)) %>%
+    filter(year >= 2021) %>%
+    group_by(country_code, nace_rev2_code) %>%
+    mutate(max_year = max(year)) %>%
+    filter(max_year == 2023) %>%
+    ungroup() %>%
+    select(-max_year) %>%
+    mutate(
+      post_chatgpt = ifelse(year > 2022, 1, 0),
+      log_value = log(value) # no +1 needed, as this is a 100-based index
+    )
+}

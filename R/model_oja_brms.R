@@ -1,4 +1,3 @@
-# Load necessary libraries
 library(brms)
 library(tidybayes)
 library(tidyverse)
@@ -28,45 +27,46 @@ oja_twfe <- oja_twfe %>%
 
 # Function to set up and run the model for different exposure scores
 run_exposure_model <- function(exposure_var, data) {
-  cat("Training brms model for", exposure_var, "\n")
+  data$exposure_var <- data[[exposure_var]]
   
-  formula <- bf(
-    log_OJA ~ 0 + {{exposure_var}} + time_factor +
-      (1 | idcountry) + (1 | idesco_level_2)
-  )
-  
-  priors <- c(
-    prior(normal(0, 0.5), class = "b", coef = as.character(substitute(exposure_var))),
-    prior(exponential(1), class = "sd", group = "idcountry"),
-    prior(exponential(1), class = "sd", group = "idesco_level_2"),
-    prior(exponential(1), class = "sigma")
-  )
-  
-  model <- brm(
-    formula = formula,
-    data = data,
-    family = gaussian(),
-    prior = priors,
-    cores = 4,
-    chains = 4,
-    iter = 4000,
-    warmup = 2000,
-    control = list(adapt_delta = 0.95)
-  )
-  
-  return(model)
+	formula <- bf(
+		log_OJA ~ 0 + exposure_var + time_factor +
+			(1 | idcountry) + (1 | idesco_level_2)
+	)
+	
+	priors <- c(
+		prior(normal(0, 0.5), class = "b", coef = "exposure_var"),
+		prior(exponential(1), class = "sd", group = "idcountry"),
+		prior(exponential(1), class = "sd", group = "idesco_level_2"),
+		prior(exponential(1), class = "sigma")
+	)
+	
+	model <- brm(
+		formula = formula,
+		data = data,
+		family = gaussian(),
+		prior = priors,
+		cores = 4,
+		chains = 4,
+		iter = 4000,
+		warmup = 2000,
+		control = list(adapt_delta = 0.95)
+	)
+	
+	return(model)
 }
 
 # Run models for different exposure scores
 exposure_vars <- c(
-  "ai_exposure_post_chatgpt",
-  "felten_exposure_post_chatgpt",
-  "webb_exposure_post_chatgpt",
-  "beta_eloundou_post_chatgpt"
+	"ai_exposure_post_chatgpt",
+	"felten_exposure_post_chatgpt",
+	"webb_exposure_post_chatgpt",
+	"beta_eloundou_post_chatgpt"
 )
 
-models <- map(exposure_vars, ~run_exposure_model(!!sym(.x), oja_twfe))
+models <- map(exposure_vars, ~run_exposure_model(.x, oja_twfe))
 names(models) <- exposure_vars
+saveRDS(models, file = "chkp/oja_exposure_models.RDS")
 
 # Summarize and plot results for each model
 map(names(models), function(name) {
@@ -74,7 +74,7 @@ map(names(models), function(name) {
   print(summary(models[[name]]))
   
   cat("\nPlotting posterior distribution for", name, ":\n")
-  print(mcmc_plot(models[[name]], type = "areas", regex_pars = paste0("b_", name)))
+  print(mcmc_plot(models[[name]], type = "areas", regex_pars = paste0("b_exposure_var")))
   
   cat("\nPlotting time effects for", name, "model:\n")
   time_effects <- conditional_effects(models[[name]], effects = "time_factor")

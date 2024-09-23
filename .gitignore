@@ -138,3 +138,5 @@ checkpoints/
 Thumbs.db
 .Rproj.user
 
+chkp/
+.Rhistory
