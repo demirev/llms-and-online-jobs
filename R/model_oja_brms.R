@@ -5,7 +5,7 @@ library(tidyverse)
 source("R/helpers.R")
 
 # read data ---------------------------------------------------------------
-oja <- list.files("data/cedefop_skills_ovate/csv", full.names = TRUE) %>%
+oja <- list.files("data/cedefop_skills_ovate_oja/csv", full.names = TRUE) %>%
   map_dfr(read_csv)
 
 ai_exposure <- read_ai_exposure_file(
