@@ -26,11 +26,15 @@ read_ai_exposure_file <- function(file, level = 2) {
   res
 }
 
-format_twfe_oja_data <- function(oja, ai_exposure, level = 2) {
+format_twfe_oja_data <- function(
+  oja, ai_exposure, level = 2, t0 = as.Date("2022-11-30")
+) {
 	oja %>%
-		select(OJA, dmax, idcountry, 
-			   matches(paste0("esco_level_", level, "_short")), 
-			   matches(paste0("idesco_level_", level))) %>%
+		select(
+		  OJA, dmax, idcountry, 
+			matches(paste0("esco_level_", level, "_short")), 
+			matches(paste0("idesco_level_", level))
+		) %>%
 		mutate(
 			post_chatgpt = ifelse(
 				dmax >= as.Date("2022-11-30"),
@@ -57,12 +61,89 @@ format_twfe_oja_data <- function(oja, ai_exposure, level = 2) {
 			webb_exposure_score = scale_zero_to_one(webb_exposure_score),
 			beta_eloundou = scale_zero_to_one(beta_eloundou)
 		) %>%
-		select(OJA, log_OJA, dmax, post_chatgpt, idcountry, 
-			   matches(paste0("esco_level_", level, "_short")), 
-			   matches(paste0("idesco_level_", level)),
-			   country_occupation_pair,
-			   ai_product_exposure_score, felten_exposure_score, 
-			   webb_exposure_score, beta_eloundou)
+		select(
+		  OJA, log_OJA, dmax, post_chatgpt, idcountry, 
+			matches(paste0("esco_level_", level, "_short")), 
+			matches(paste0("idesco_level_", level)),
+			country_occupation_pair,
+			ai_product_exposure_score, felten_exposure_score, 
+			webb_exposure_score, beta_eloundou
+		) %>%
+    mutate(
+      dmax = as.Date(dmax),
+      event_time = as.integer((year(dmax) - year(t0)) * 4 + (quarter(dmax) - quarter(t0)))
+    )
+}
+
+format_delta_data <- function(
+  data, n_periods = -1, base_date = "2022-11-30", level = 3, across_countries = TRUE
+) {
+ periods <- if (n_periods == -1) {
+   c(min(data$dmax), max(data$dmax))
+ } else if (is.infinite(n_periods)) {
+   unique(data$dmax)
+ } else {
+   t0 <- as.Date(base_date) 
+   all_periods <- sort(unique(data$dmax))
+   t0_idx <- which.min(abs(all_periods - t0))
+   if (all_periods[t0_idx] < t0) {
+     period_range <- (t0_idx - n_periods - 1):(t0_idx + n_periods) # to_idx is post, add 1 period to pre to be equal
+   } else {
+     period_range <- (t0_idx - n_periods):(t0_idx + n_periods + 1) # to_idx is pre, add 1 period to post to be equal
+   }
+   periods <- all_periods[period_range[period_range > 0 & period_range <= length(all_periods)]]
+ }
+ 
+ # Define grouping variables based on level and across_countries
+ esco_short_col <- paste0("esco_level_", level, "_short")
+ idesco_col <- paste0("idesco_level_", level)
+ group_cols <- c(esco_short_col, idesco_col)
+ if (!across_countries) {
+   group_cols <- c("idcountry", group_cols)
+ }
+ 
+ data %>%
+   filter(dmax %in% periods) %>%
+   group_by(
+     post_chatgpt,
+     across(all_of(group_cols)),
+     dmax
+   ) %>%
+   summarize(
+     OJA = sum(OJA),
+     ai_product_exposure_score = mean(ai_product_exposure_score),
+     felten_exposure_score = mean(felten_exposure_score),
+     webb_exposure_score = mean(webb_exposure_score),
+     beta_eloundou = mean(beta_eloundou),
+     .groups = "drop"
+   ) %>%
+   group_by(
+     post_chatgpt, 
+     across(all_of(group_cols))
+   ) %>%
+   summarise(
+     OJA = mean(OJA),
+     ai_product_exposure_score = mean(ai_product_exposure_score),
+     felten_exposure_score = mean(felten_exposure_score),
+     webb_exposure_score = mean(webb_exposure_score),
+     beta_eloundou = mean(beta_eloundou),
+     .groups = "drop"
+   ) %>%
+   arrange(across(all_of(group_cols)), post_chatgpt) %>%
+   group_by(across(all_of(group_cols))) %>%
+   filter(n() == 2) %>%
+   summarise(
+    pre_OJA = OJA[1],
+    post_OJA = OJA[2],
+    delta_OJA = post_OJA - pre_OJA,
+    delta_OJA_relative = delta_OJA / pre_OJA,
+    delta_OJA_log = log(post_OJA / pre_OJA),
+    ai_product_exposure_score = mean(ai_product_exposure_score),
+    felten_exposure_score = mean(felten_exposure_score),
+    webb_exposure_score = mean(webb_exposure_score),
+    beta_eloundou = mean(beta_eloundou),
+    .groups = "drop"
+  )
 }
 
 derive_sectoral_exposure <- function(ai_exposure, cedefop_sectoral) {
