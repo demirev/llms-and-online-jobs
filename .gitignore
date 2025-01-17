@@ -132,6 +132,7 @@ logs/
 # Data
 data/
 checkpoints/
+results/RDS/ 
 
 # Others
 .DS_Store

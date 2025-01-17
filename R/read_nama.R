@@ -1,18 +1,25 @@
 library(tidyverse)
+library(restatapi)
 
 # initial data ----------------------------------------------------------------=
-nama_10_lp <- read_delim(
-  "data/eurostat_nama_10_prod/estat_nama_10_lp_a21.tsv", delim = "\t"
-)
-nama_10_lp_ulc <- read_delim(
-  "data/eurostat_nama_10_prod/estat_nama_10_lp_ulc.tsv", delim = "\t"
-)
-nama_10_cp <- read_delim(
-  "data/eurostat_nama_10_prod/estat_nama_10_cp_a21.tsv", delim = "\t"
-)
-nama_10_a10 <- read_delim(
-  "data/eurostat_nama_10_prod/estat_nama_10_a10.tsv", delim = "\t"
-)
+# nama_10_lp <- read_delim(
+#   "data/eurostat_nama_10_prod/estat_nama_10_lp_a21.tsv", delim = "\t"
+# )
+# nama_10_lp_ulc <- read_delim(
+#   "data/eurostat_nama_10_prod/estat_nama_10_lp_ulc.tsv", delim = "\t"
+# )
+# nama_10_cp <- read_delim(
+#   "data/eurostat_nama_10_prod/estat_nama_10_cp_a21.tsv", delim = "\t"
+# )
+# nama_10_a10 <- read_delim(
+#   "data/eurostat_nama_10_prod/estat_nama_10_a10.tsv", delim = "\t"
+# )
+
+# read data directly from eurostat -------------------------------------------
+nama_10_lp <- as_tibble(get_eurostat_raw(id = "nama_10_lp_a21", mode = "txt"))
+nama_10_lp_ulc <- as_tibble(get_eurostat_raw(id = "nama_10_lp_ulc", mode = "txt")) # NB no nace_r2
+nama_10_cp <- as_tibble(get_eurostat_raw(id = "nama_10_cp_a21", mode = "txt"))
+nama_10_a10 <- as_tibble(get_eurostat_raw(id = "nama_10_a10", mode = "txt"))
 
 # tidu up data ----------------------------------------------------------------
 tidy_up_data <- function(df) {
@@ -33,39 +40,35 @@ tidy_up_data <- function(df) {
     ) 
 }
 
-nama_10_lp_tidy <- tidy_up_data(nama_10_lp)
-nama_10_lp_ulc_tidy <- tidy_up_data(nama_10_lp_ulc) # NB no nace_r2
-nama_10_cp_tidy <- tidy_up_data(nama_10_cp)
 # NB asset 10 takes values Asset types N11N (net fixed assets), N11KN (net construction), N11MN (net machinery and equipment and weapon systems), N115N (net cultivated biological resources) and N117N (net intellectual property products) as well as N1132N (net ICT equipment).
-nama_10_a10_tidy <- tidy_up_data(nama_10_a10)
 
-nama_10_lp_rlrphw <- nama_10_lp_tidy %>%
+nama_10_lp_rlrphw <- nama_10_lp %>%
   filter(na_item == "RLPR_HW" & unit == "I15") %>%
-  mutate(t = as.numeric(trimws(t))) %>%
+  mutate(time = as.numeric(trimws(time))) %>%
   mutate(
     # check if value ends in u or p
     value_qualifier = case_when(
-      str_detect(value, "u$") ~ "unrevised",
-      str_detect(value, "p$") ~ "provisional",
+      str_detect(values, "u$") ~ "unrevised",
+      str_detect(values, "p$") ~ "provisional",
       TRUE ~ "final"
     ),
-    value = value %>% str_remove("u|p|\\:") %>% trimws() %>% as.numeric()
+    values = values %>% str_remove("u|p|\\:") %>% trimws() %>% as.numeric()
   ) %>%
-  filter(!is.na(value))
+  filter(!is.na(values))
 
-nama_10_cp_gvancs <- nama_10_cp_tidy %>%
+nama_10_cp_gvancs <- nama_10_cp %>%
   filter(na_item == "GVA_NCS" & unit == "I15") %>%
-  mutate(t = as.numeric(trimws(t))) %>%
+  mutate(time = as.numeric(trimws(time))) %>%
   mutate(
     # check if value ends in u or p
     value_qualifier = case_when(
-      str_detect(value, "u$") ~ "unrevised",
-      str_detect(value, "p$") ~ "provisional",
+      str_detect(values, "u$") ~ "unrevised",
+      str_detect(values, "p$") ~ "provisional",
       TRUE ~ "final"
     ),
-    value = value %>% str_remove("u|p|\\:") %>% trimws() %>% as.numeric()
+    values = values %>% str_remove("u|p|\\:") %>% trimws() %>% as.numeric()
   ) %>%
-  filter(!is.na(value))
+  filter(!is.na(values))
 
 # dictionaries ----------------------------------------------------------------
 asset10_dictionary <- c(
@@ -95,7 +98,7 @@ na_item_dictionary <- c(
   "NCS_HW" = "Net fixed assets per hour worked"
 )
 
-table(nama_10_lp_tidy$unit, nama_10_lp_tidy$na_item)
+table(nama_10_lp$unit, nama_10_lp$na_item)
   #                       D1_SAL_HW HW_EMP NULC_HW RLPR_HW RLPR_PER
   # EUR                      35280      0       0       0        0
   # HW                           0  35966       0       0        0
@@ -137,8 +140,8 @@ max(nama_10_cp_tidy$t)  # 2023
 
 # plots ------------------------------------------------------------------------
 nama_10_lp_rlrphw %>%
-  filter(t >= 2015) %>%
-  ggplot(aes(x = t, y = value, color = geo, linetype = nace_r2)) +
+  filter(time >= 2015) %>%
+  ggplot(aes(x = time, y = values, color = geo, linetype = nace_r2)) +
   geom_line() +
   facet_wrap(~ nace_r2, scales = "free_y", ncol = 2) +
   labs(title = "Labor Productivity Over Time by Country and Industry",
@@ -152,7 +155,7 @@ nama_10_lp_rlrphw %>%
   # hide legend
   theme(legend.position = "none") +
   scale_x_continuous(
-    breaks = seq(min(nama_10_lp_rlrphw$t), max(nama_10_lp_rlrphw$t), by = 5)
+    breaks = seq(min(nama_10_lp_rlrphw$time), max(nama_10_lp_rlrphw$time), by = 5)
   )
 
 # save data -------------------------------------------------------------------

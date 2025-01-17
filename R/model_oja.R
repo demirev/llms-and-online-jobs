@@ -2,50 +2,20 @@ library(tidyverse)
 library(fixest)
 library(broom)
 library(lubridate)
+library(patchwork)
 
 source("R/helpers.R")
 
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
 exposure_vars <- c(
-  "ai_product_exposure_score",
-  "felten_exposure_score",
-  "webb_exposure_score",
-  "beta_eloundou"
+  "AI Product Exposure Score" = "ai_product_exposure_score",
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score",
+  "Eloundou Beta Score" = "beta_eloundou"
 )
 
 results <- list()
-
-# > oja_twfe %>% filter(idesco_level_2 == "OC31") %>% group_by(dmax) %>% summarize(n = sum(OJA))
-# # A tibble: 11 × 2
-# dmax             n
-# <date>       <dbl>
-# 1 2021-12-31 1917107
-# 2 2022-03-31 1917179
-# 3 2022-06-30 1950048
-# 4 2022-09-30 1875103
-# 5 2022-12-31 1907044
-# 6 2023-03-31 1990550
-# 7 2023-06-30 1249340
-# 8 2023-09-30 1283299
-# 9 2023-12-31 1131832
-# 10 2024-03-31  934778
-# 11 2024-06-30  313085
-# > oja_twfe_l3 %>% filter(substr(idesco_level_3,1,4) == "OC31") %>% group_by(dmax) %>% summarize(n = sum(OJA))
-# # A tibble: 10 × 2
-# dmax             n
-# <date>       <dbl>
-# 1 2022-03-31 5483762
-# 2 2022-06-30 5553403
-# 3 2022-09-30 5332835
-# 4 2022-12-31 5447859
-# 5 2023-03-31 1990550
-# 6 2023-06-30 1249340
-# 7 2023-09-30 1283299
-# 8 2023-12-31 1131832
-# 9 2024-03-31  934778
-# 10 2024-06-30  908375
-# TODO: only matching from 2022-03-31 - 2024-03-31
 
 
 # functions ---------------------------------------------------------------
@@ -91,13 +61,16 @@ extract_event_study_coefs <- function(model, exposure_var) {
 }
 
 plot_event_study <- function(coefs, exposure_var) {
+  # Get the name for the exposure variable
+  var_name <- names(exposure_vars)[exposure_vars == exposure_var]
+  
   ggplot(coefs, aes(x = event_time, y = estimate)) +
     geom_point() +
     geom_line() +
     geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
                       ymax = estimate + 1.96 * std.error), width = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
-    labs(title = paste("Event Study for", exposure_var),
+    labs(title = paste("Event Study for", var_name),
          x = "Event Time (quarters since ChatGPT release)",
          y = "Coefficient Estimate") +
     theme_minimal()
@@ -105,10 +78,11 @@ plot_event_study <- function(coefs, exposure_var) {
 
 
 plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
-  # Calculate z-score based on confidence level
+  # Get the name for the exposure variable
+  var_name <- names(exposure_vars)[exposure_vars == exposure_var]
+  
   z_score <- qnorm(1 - (1 - conf_level)/2)
   
-  # Extract coefficients and create tidy dataframe
   coefs <- tidy(model) %>%
     mutate(
       decile = as.numeric(str_extract(term, "\\d+")),
@@ -116,14 +90,13 @@ plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
       conf_high = estimate + z_score * std.error
     )
   
-  # Create the plot
   ggplot(coefs, aes(x = decile, y = estimate)) +
     geom_point() +
     geom_line() +
     geom_errorbar(aes(ymin = conf_low, ymax = conf_high), width = 0.2) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
     labs(
-      title = paste("Decile Effects for", exposure_var),
+      title = paste("Decile Effects for", var_name),
       subtitle = paste0(conf_level * 100, "% Confidence Intervals"),
       x = "Exposure Score Decile",
       y = "Coefficient Estimate"
@@ -260,7 +233,7 @@ results$twfe <- twfe_models
 
 # Print summaries
 walk(seq_along(exposure_vars), function(i) {
-  cat("\nModels for", exposure_vars[i], ":\n")
+  cat("\nModels for", names(exposure_vars)[i], ":\n")
   print(summary(twfe_models[[i]]))
 })
 
@@ -269,7 +242,7 @@ event_study_models <- map(
   exposure_vars, ~run_event_study_model(.x, oja_twfe$l3, level = 3)
 )
 
-result$event_study <- event_study_models
+results$event_study <- event_study_models
 
 event_study_coefs <- map2(
   event_study_models, exposure_vars, ~extract_event_study_coefs(.x, .y)
@@ -277,23 +250,84 @@ event_study_coefs <- map2(
 
 plots <- map2(event_study_coefs, exposure_vars, ~plot_event_study(.x, .y))
 
-for (i in seq_along(plots)) {
-	print(plots[[i]])
-}
+# Combine plots into a 2x2 grid using patchwork
+combined_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]]) +
+  plot_layout(guides = "collect") +  # Combine legends
+  plot_annotation(
+    title = "Event Study Results Across Different AI Exposure Measures",
+    theme = theme_minimal()
+  )
+
+# Print combined plot
+print(combined_plot)
 
 # delta models ----
 delta_models <- map(
   exposure_vars, function(exposure_var) {
+    dat <- oja_delta$l3_ap %>%
+      filter(pre_OJA > 20 & post_OJA > 20)
+    
     feols(
       as.formula(paste("delta_OJA_log ~", exposure_var, " | idcountry")),
-      data = oja_delta$l3_ap
+      data = oja_delta$l3_ap,
+      cluster = "idcountry"
     )
   }
 )
 
 names(delta_models) <- exposure_vars
 
-result$delta <- delta_models
+results$delta <- delta_models
+
+partial_plots <- map(
+  exposure_vars,
+  ~ {
+    var_name <- names(exposure_vars)[exposure_vars == .x]
+    
+    data_filtered <- oja_delta$l3_ap %>%
+      filter(
+        !is.na(delta_OJA_log),
+        !is.na(!!sym(.x)),
+        !is.na(idesco_level_3)
+      ) %>%
+      filter(pre_OJA > 20 & post_OJA > 20)
+    
+    py <- resid(feols(delta_OJA_log ~ 1 | idcountry, data = data_filtered))
+    px <- resid(feols(as.formula(paste(.x, "~ 1 | idcountry")), data = data_filtered))
+    
+    df_partial <- tibble(
+      px = px,
+      py = py,
+      idesco_level_3 = data_filtered$idesco_level_3
+    )
+    
+    df_means <- df_partial %>%
+      group_by(idesco_level_3) %>%
+      summarize(
+        px_mean = mean(px, na.rm = TRUE),
+        py_mean = mean(py, na.rm = TRUE)
+      )
+    
+    ggplot(df_partial, aes(px, py)) +
+      # make the points faint and gray
+      geom_point(color = "gray", alpha = 0.3) +
+      geom_smooth(method = "lm", se = TRUE, color = "blue") +
+      geom_point(
+        data = df_means,
+        aes(x = px_mean, y = py_mean),
+        color = "gray10",
+        shape = 4,
+        size = 2,
+        stroke = 1
+      ) +
+      geom_hline(yintercept = 0, color = "black", alpha = 0.5) +
+      # limit the y-axis from -1 to 1
+      coord_cartesian(ylim = c(-1, 1)) +
+      labs(x = var_name, y = "log (OJA Post / OJA Pre)") +
+      theme_minimal()
+  }
+)
+
 
 # decile models ----
 decile_models <- map(
@@ -301,7 +335,8 @@ decile_models <- map(
     feols(
       as.formula(paste("delta_OJA_log ~", exposure_var, " | idcountry")),
       data = oja_delta$l3_ap %>%
-        mutate(!!exposure_var := as.factor(ntile(!!sym(exposure_var), 10)))
+        mutate(!!exposure_var := as.factor(ntile(!!sym(exposure_var), 10))),
+      cluster = "idcountry"
     )
   }
 )
@@ -316,12 +351,29 @@ decile_plots <- map2(
   ~plot_decile_coefficients(.x, .y, .95)
 )
 
-for (i in seq_along(decile_plots)) {
-  print(decile_plots[[i]])
-}
+# Combine partial plots into 2x2 grid
+combined_partial_plots <- (partial_plots[[1]] + partial_plots[[2]]) / 
+  (partial_plots[[3]] + partial_plots[[4]]) +
+  plot_layout(guides = "collect") +
+  plot_annotation(
+    title = "Partial Regression Plots Across Different AI Exposure Measures",
+    theme = theme_minimal()
+  )
 
-results$decile_plots <- decile_plots
+# Print combined partial plots
+print(combined_partial_plots)
 
+# Replace individual decile plot printing with combined 2x2 grid
+combined_decile_plots <- (decile_plots[[1]] + decile_plots[[2]]) / 
+  (decile_plots[[3]] + decile_plots[[4]]) +
+  plot_layout(guides = "collect") +
+  plot_annotation(
+    title = "Decile Effects Across Different AI Exposure Measures",
+    theme = theme_minimal()
+  )
+
+# Print combined decile plots
+print(combined_decile_plots)
 
 # sensitivity to occupations ----------------------------------------------
 # Run sensitivity analysis

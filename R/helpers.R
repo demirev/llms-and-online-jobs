@@ -146,8 +146,10 @@ format_delta_data <- function(
   )
 }
 
-derive_sectoral_exposure <- function(ai_exposure, cedefop_sectoral) {
-  cedefop_sectoral %>%
+derive_sectoral_exposure <- function(
+    ai_exposure, cedefop_sectoral, zero_to_one = T
+) {
+  res <- cedefop_sectoral %>%
     filter(str_detect(occupation_code, "\\.")) %>%
     mutate(
       isco_level_2 = substr(occupation_code, 3, 4)
@@ -169,6 +171,18 @@ derive_sectoral_exposure <- function(ai_exposure, cedefop_sectoral) {
       )
     ) %>%
     ungroup()
+  
+  if (zero_to_one) {
+    res <- res %>%
+      mutate(
+        ai_product_exposure_score = scale_zero_to_one(ai_product_exposure_score),
+        felten_exposure_score = scale_zero_to_one(felten_exposure_score),
+        webb_exposure_score = scale_zero_to_one(webb_exposure_score),
+        beta_eloundou = scale_zero_to_one(beta_eloundou)
+      )
+  }
+  
+  res
 }
 
 prep_nama_data <- function(nama_data, sectoral_exposure) {
@@ -177,8 +191,8 @@ prep_nama_data <- function(nama_data, sectoral_exposure) {
       nace_rev2_code = nace_r2,
       country_code = geo,
       value_qualifier,
-      year = t,
-      value,
+      year = time,
+      value = values,
     ) %>%
     left_join(
       sectoral_exposure,

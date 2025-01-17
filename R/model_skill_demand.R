@@ -1,8 +1,15 @@
 library(tidyverse)
 library(lubridate)
 library(fixest)
+library(tidymodels)
 
 source("R/helpers.R")
+
+t0 <- as.Date("2022-11-30") # chatgpt release date
+
+results <- list()
+
+# functions ---------------------------------------------------------------
 
 # read data ---------------------------------------------------------------
 skills <- read_skill_mentions(
@@ -45,127 +52,222 @@ skills_exposure <- skill_hierarchy %>%
   ungroup() %>%
   mutate(
     ai_product_exposure = (ai_product_exposure - mean(ai_product_exposure)) / sd(ai_product_exposure)
+    #ai_product_exposure = scale_zero_to_one(ai_product_exposure) 
   ) %>%
   right_join(skills, by = c("esco_skill_level_2", "esco_skill_level_3"))
 
-
-# plots -------------------------------------------------------------------
-skills_exposure %>%
-  filter(dmax == max(dmax)) %>%
+# format data -------------------------------------------------------------
+skill_delta <- skills_exposure %>%
+  filter(!str_detect(idcountry, "EU")) %>% # remove EU aggregates
   group_by(
-    esco_skill_level_3, 
-    #idcountry,  
-    #isco_level_3,
+    esco_skill_level_3,
+    isco_level_3,
+    idcountry,
     ai_product_exposure
   ) %>%
   summarise(
-    mentions_end = sum(mentions)
-  ) %>%
-  inner_join(
-    skills_exposure %>% 
-      filter(dmax == min(dmax)) %>%
-      group_by(
-        esco_skill_level_3, 
-        #idcountry,  
-        #isco_level_3,
-        ai_product_exposure
-      ) %>%
-      summarise(
-        mentions_start = sum(mentions)
-      ),
-    by = c("esco_skill_level_3", "ai_product_exposure")
-  ) %>%
-  mutate(
-    mentions_change = abs(mentions_end - mentions_start) / mentions_start
-  ) %>%
-  filter(mentions_change < 10) %>% # what's going on here?
-  ggplot(aes(x = ai_product_exposure, y = mentions_change)) +
-  geom_point() +
-  geom_smooth(method = "lm") + # 0.03 unsig
-  labs(
-    x = "AI product exposure",
-    y = "Change in mentions"
-  ) +
-  theme_minimal()
-  
-skills_exposure %>%
-  group_by(esco_skill_level_3, ai_product_exposure, dmax) %>%
-  filter(!is.na(ai_product_exposure)) %>%
-  summarise(
-    mentions = sum(mentions),
+    mentions_pre = mean(mentions[dmax <= t0]),
+    mentions_post = mean(mentions[dmax > t0]),
     .groups = "drop"
   ) %>%
+  filter(
+    mentions_pre > 10 & mentions_post > 10 # remove infrequent skills
+  ) %>%
   mutate(
-    score_percentile = ntile(ai_product_exposure, 7)
+    delta_mentions_log = log(mentions_post) - log(mentions_pre)
   ) %>%
-  mutate(score_percentile = factor(score_percentile, levels = 1:7)) %>%
-  group_by(score_percentile, dmax) %>%
-  arrange(dmax) %>%
-  summarise(
-    mentions = sum(mentions)
-  ) %>%
-  group_by(score_percentile) %>%
-  mutate(
-    mentions_index = mentions / first(mentions) * 100
-  ) %>%
-  ggplot(
-    aes(
-      x = dmax, 
-      #y = mentions,
-      y = mentions_index, 
-      color = score_percentile, 
-      lty = score_percentile
-    )
-  ) +
-  geom_line() +
-  geom_vline(xintercept = as.Date("2022-11-30"), linetype = "dashed") +
+  filter(!is.na(delta_mentions_log))
+
+# plots -------------------------------------------------------------------
+plot_skill_delta <- skill_delta %>%
+  ggplot(aes(x = ai_product_exposure, y = delta_mentions_log)) +
+  geom_point(color = "gray", alpha = 0.3) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") + 
+  # geom_point(
+  #   data = df_means,
+  #   aes(x = px_mean, y = py_mean),
+  #   color = "gray10",
+  #   shape = 4,
+  #   size = 2,
+  #   stroke = 1
+  # ) +
+  geom_hline(yintercept = 0, color = "black", alpha = 0.5) +
+  coord_cartesian(ylim = c(-1, 1)) +
   labs(
-    title = paste("Mentions Index by Exposure Quintiles"),
-    x = "Date",
-    y = "Mentions Index",
-    color = "-tiles",
-    linetype = "-tiles"
+    x = "AI product exposure",
+    y = "Change in log mentions"
   ) +
   theme_minimal()
 
+summary(lm(delta_mentions_log ~ ai_product_exposure, data = skill_delta))
+skill_detla_cor <- cor.test(skill_delta$ai_product_exposure, skill_delta$delta_mentions_log)
 
-# twfe --------------------------------------------------------------------
-t0 <- as.Date("2022-11-30")
+results$plot_skill_delta <- plot_skill_delta
+results$skill_detla_cor <- skill_detla_cor
 
-skills_twfe <- skills_exposure %>%
-  group_by(
-    esco_skill_level_3, 
-    #idcountry,
-    dmax,
-    ai_product_exposure
-  ) %>%
+skill_delta %>%
+  group_by(esco_skill_level_3) %>%
   summarise(
-    mentions = sum(mentions)
+    mean_delta_mentions_log = mean(delta_mentions_log),
+    ai_product_exposure = mean(ai_product_exposure, na.rm = TRUE)
   ) %>%
+  filter(!is.na(ai_product_exposure)) %>%
+  arrange(ai_product_exposure) %>%
+  print(n = Inf)
+
+# models --------------------------------------------------------------------
+skills_twfe <- skills_exposure %>%
+  # group_by(
+  #   esco_skill_level_3, 
+  #   idcountry,
+  #   dmax,
+  #   ai_product_exposure
+  # ) %>%
+  # summarise(
+  #   mentions = sum(mentions)
+  # ) %>%
   mutate(
     log_mentions = log(mentions + 1),
     post_chatgpt = (dmax > t0)*1,
     event_time = as.integer((year(dmax) - year(t0)) * 4 + (quarter(dmax) - quarter(t0)))
   )
 
+# event study ----
+extract_event_study_coefs <- function(model, exposure_var) {
+  tidy_model <- tidy(model)
+  
+  # The interaction terms will be of the form exposure_var:event_time::X
+  interaction_pattern <- paste0(exposure_var, ":event_time::")
+  
+  coefs <- tidy_model %>%
+    filter(str_detect(term, interaction_pattern)) %>%
+    mutate(
+      event_time = as.numeric(str_extract(term, "(?<=event_time::)-?\\d+"))
+    ) %>%
+    arrange(event_time)
+  
+  return(coefs)
+}
+
+plot_event_study <- function(coefs, exposure_var) {
+  var_name <- "AI Product Exposure"
+  
+  ggplot(coefs, aes(x = event_time, y = estimate)) +
+    geom_point() +
+    geom_line() +
+    geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
+                      ymax = estimate + 1.96 * std.error), width = 0.2) +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    labs(title = paste("Event Study for", var_name, "against log mentions of skills"),
+         x = "Event Time (quarters since ChatGPT release)",
+         y = "Coefficient Estimate") +
+    theme_minimal()
+}
+
 model_event_study <- feols(
-  log_mentions ~ ai_product_exposure:i(event_time, ref = 0) | esco_skill_level_3, #+ idcountry,
+  log_mentions ~ ai_product_exposure:i(event_time, ref = 0) | esco_skill_level_3 + isco_level_3 + idcountry,
   data = skills_twfe,
   cluster = c(
-    #"idcountry", 
-    "esco_skill_level_3"
+    "idcountry", 
+    "esco_skill_level_3",
+    "isco_level_3"
   )
 )
 
 summary(model_event_study)
 
+extract_event_study_coefs(model_event_study, "ai_product_exposure") %>%
+  plot_event_study() +
+  geom_hline(yintercept = 0, color = "black", alpha = 0.5)
+
+results$model_event_study <- model_event_study
+
+# twfe ----
 model_twfe <- feols(
-  log_mentions ~ ai_product_exposure:post_chatgpt | esco_skill_level_3, #+ idcountry,
+  log_mentions ~ ai_product_exposure:post_chatgpt | esco_skill_level_3 + isco_level_3  + idcountry,
   data = skills_twfe,
   cluster = c(
-    #"idcountry", 
-    "esco_skill_level_3"
+    "idcountry", 
+    "esco_skill_level_3",
+    "isco_level_3"
   )
 )
 
 summary(model_twfe)
+
+results$model_twfe <- model_twfe
+
+# delta ----
+model_delta <- feols(
+  delta_mentions_log ~ ai_product_exposure | isco_level_3 + idcountry,
+  data = skill_delta,
+  cluster = c(
+    "idcountry", 
+    "isco_level_3"
+  )
+)
+
+summary(model_delta)
+
+results$model_delta <- model_delta
+
+skill_delta %>%
+  group_by(esco_skill_level_3, ai_product_exposure) %>%
+  summarise(
+    mean_delta_mentions_log = mean(delta_mentions_log)
+  ) %>%
+  filter(!is.na(ai_product_exposure)) %>%
+  arrange(desc(ai_product_exposure)) %>%
+  print(n = Inf)
+
+# decile ----
+model_decile <- feols(
+  delta_mentions_log ~ exposure_decile | isco_level_3 + idcountry,
+  data = skill_delta %>%
+    mutate(
+      exposure_decile = factor(ntile(ai_product_exposure, 10))
+    ),
+  cluster = c(
+    "idcountry", 
+    "isco_level_3"
+  )
+)
+
+summary(model_decile)
+
+
+plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
+  # Get the name for the exposure variable
+  var_name <- "AI Product Exposure"
+  
+  z_score <- qnorm(1 - (1 - conf_level)/2)
+  
+  coefs <- tidy(model) %>%
+    mutate(
+      decile = as.numeric(str_extract(term, "\\d+")),
+      conf_low = estimate - z_score * std.error,
+      conf_high = estimate + z_score * std.error
+    )
+  
+  ggplot(coefs, aes(x = decile, y = estimate)) +
+    geom_point() +
+    geom_line() +
+    geom_errorbar(aes(ymin = conf_low, ymax = conf_high), width = 0.2) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    labs(
+      title = paste("Decile Effects for", var_name),
+      subtitle = paste0(conf_level * 100, "% Confidence Intervals"),
+      x = "Exposure Score Decile",
+      y = "Coefficient Estimate"
+    ) +
+    theme_minimal()
+}
+
+plot_decile_coefficients(model_decile, "ai_product_exposure")
+
+results$model_decile <- model_decile
+
+
+# save results ------------------------------------------------------------
+saveRDS(results, file = "results/RDS/skill_models.RDS")
+

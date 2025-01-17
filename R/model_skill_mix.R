@@ -3,6 +3,10 @@ library(lubridate)
 
 source("R/helpers.R")
 
+t0 <- as.Date("2022-11-30") # chatgpt release date
+
+results <- list()
+
 # read data ---------------------------------------------------------------
 skills <- read_skill_mentions(
   "data/cedefop_skills_ovate_skill_demand/csv/05_esco_skill_skill_across_occupations_hyper"
@@ -32,9 +36,9 @@ cosine_similarity <- function(x, y) {
 
 find_skill_mix <- function(skills, which_date) {
   skills %>%
-    filter(dmax == which_date) %>%
+    filter(dmax %in% which_date) %>%
     group_by(isco_level_3, esco_skill_level_3) %>%
-    summarise(n = n(), mentions = sum(mentions)) %>% # ensure n = 1 here
+    summarise(n = n(), mentions = mean(mentions)) %>% 
     group_by(isco_level_3) %>%
     mutate(
       relative_mentions = mentions / sum(mentions)
@@ -83,7 +87,7 @@ calculate_skill_change <- function(
           relative_mentions) > 0.05
       )
     ) %>%
-    mutate(date = target_period) %>%
+    mutate(date = max(target_period)) %>%
     select(
       date,
       isco_level_3,
@@ -94,7 +98,11 @@ calculate_skill_change <- function(
     )
 }
 
-skill_change_total <- calculate_skill_change(skills, min(skills$dmax), max(skills$dmax))
+skill_change_total <- calculate_skill_change(
+  skills, 
+  unique(skills$dmax[skills$dmax <= t0]), 
+  unique(skills$dmax[skills$dmax > t0])
+)
 skill_change_by_month <- map(
   unique(skills$dmax),
   ~ calculate_skill_change(skills, min(skills$dmax), .x)
@@ -138,6 +146,6 @@ skill_change_total %>%
   #ggplot(aes(y = distance, x = beta_eloundou)) +
   #ggplot(aes(y = similarity, x = beta_eloundou)) +
   #ggplot(aes(y = added_skills, x = beta_eloundou)) +
-  #ggplot(aes(y = removed_skills, x = beta_eloundou)) +
+  ggplot(aes(y = distance, x = beta_eloundou)) +
   geom_point() +
   geom_smooth(method = "lm")
