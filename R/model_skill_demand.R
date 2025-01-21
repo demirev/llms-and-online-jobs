@@ -2,6 +2,8 @@ library(tidyverse)
 library(lubridate)
 library(fixest)
 library(tidymodels)
+library(showtext)
+library(sysfonts)
 
 source("R/helpers.R")
 
@@ -9,7 +11,8 @@ t0 <- as.Date("2022-11-30") # chatgpt release date
 
 results <- list()
 
-# functions ---------------------------------------------------------------
+font_add_google("Merriweather", "merriweather")
+showtext_auto()
 
 # read data ---------------------------------------------------------------
 skills <- read_skill_mentions(
@@ -97,7 +100,8 @@ plot_skill_delta <- skill_delta %>%
     x = "AI product exposure",
     y = "Change in log mentions"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(text = element_text(family = "merriweather"))
 
 summary(lm(delta_mentions_log ~ ai_product_exposure, data = skill_delta))
 skill_detla_cor <- cor.test(skill_delta$ai_product_exposure, skill_delta$delta_mentions_log)
@@ -105,7 +109,7 @@ skill_detla_cor <- cor.test(skill_delta$ai_product_exposure, skill_delta$delta_m
 results$plot_skill_delta <- plot_skill_delta
 results$skill_detla_cor <- skill_detla_cor
 
-skill_delta %>%
+results$most_exposed_skills <- skill_delta %>%
   group_by(esco_skill_level_3) %>%
   summarise(
     mean_delta_mentions_log = mean(delta_mentions_log),
@@ -113,7 +117,7 @@ skill_delta %>%
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(ai_product_exposure) %>%
-  print(n = Inf)
+  print(n = Inf) # used in manuscript
 
 # models --------------------------------------------------------------------
 skills_twfe <- skills_exposure %>%
@@ -158,10 +162,11 @@ plot_event_study <- function(coefs, exposure_var) {
     geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
                       ymax = estimate + 1.96 * std.error), width = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
-    labs(title = paste("Event Study for", var_name, "against log mentions of skills"),
+    labs(title = paste("Event Study for", var_name, "against Log Mentions of Skills"),
          x = "Event Time (quarters since ChatGPT release)",
          y = "Coefficient Estimate") +
-    theme_minimal()
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
 }
 
 model_event_study <- feols(
@@ -176,7 +181,9 @@ model_event_study <- feols(
 
 summary(model_event_study)
 
-extract_event_study_coefs(model_event_study, "ai_product_exposure") %>%
+results$even_study_plot <- extract_event_study_coefs(
+  model_event_study, "ai_product_exposure"
+) %>%
   plot_event_study() +
   geom_hline(yintercept = 0, color = "black", alpha = 0.5)
 
@@ -211,14 +218,14 @@ summary(model_delta)
 
 results$model_delta <- model_delta
 
-skill_delta %>%
+results$exposure_and_change_in_mentions <- skill_delta %>%
   group_by(esco_skill_level_3, ai_product_exposure) %>%
   summarise(
     mean_delta_mentions_log = mean(delta_mentions_log)
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(desc(ai_product_exposure)) %>%
-  print(n = Inf)
+  print(n = Inf) # used in manuscript
 
 # decile ----
 model_decile <- feols(
@@ -234,7 +241,6 @@ model_decile <- feols(
 )
 
 summary(model_decile)
-
 
 plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
   # Get the name for the exposure variable
@@ -260,14 +266,22 @@ plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
       x = "Exposure Score Decile",
       y = "Coefficient Estimate"
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
 }
 
 plot_decile_coefficients(model_decile, "ai_product_exposure")
 
 results$model_decile <- model_decile
 
-
 # save results ------------------------------------------------------------
 saveRDS(results, file = "results/RDS/skill_models.RDS")
+
+ggsave(
+  file.path("results/plots", "event_study_skills.eps"),
+  results$even_study_plot,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
 

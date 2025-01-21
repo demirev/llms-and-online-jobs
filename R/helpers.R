@@ -254,3 +254,226 @@ read_skill_mentions <- function(dir) {
       mentions = Mention
     )
 }
+
+run_twfe_exposure_models <- function(exposure_var, data, level) {
+  esco_level <- paste0("idesco_level_", level)
+  
+  # Log-linear model with separate fixed effects
+  model <- feols(
+    as.formula(paste("log_OJA ~", exposure_var, ": post_chatgpt |", esco_level, "+ idcountry + dmax")),
+    data = data,
+    cluster = c("idcountry", esco_level)
+  )
+  
+  return(model)
+}
+
+run_event_study_model <- function(exposure_var, data, level) {
+  esco_level <- paste0("idesco_level_", level)
+  
+  model_event_study <- feols(
+    as.formula(paste("log_OJA ~", exposure_var, ": i(event_time, ref = 0) |", esco_level, "+ idcountry")),
+    data = data,
+    cluster = c("idcountry", esco_level)
+  )
+  
+  return(model_event_study)
+}
+
+extract_event_study_coefs <- function(model, exposure_var) {
+  tidy_model <- tidy(model)
+  
+  # The interaction terms will be of the form exposure_var:event_time::X
+  interaction_pattern <- paste0(exposure_var, ":event_time::")
+  
+  coefs <- tidy_model %>%
+    filter(str_detect(term, interaction_pattern)) %>%
+    mutate(
+      event_time = as.numeric(str_extract(term, "(?<=event_time::)-?\\d+"))
+    ) %>%
+    arrange(event_time)
+  
+  return(coefs)
+}
+
+plot_event_study <- function(coefs, exposure_var) {
+  # Get the name for the exposure variable
+  var_name <- names(exposure_vars)[exposure_vars == exposure_var]
+  
+  ggplot(coefs, aes(x = event_time, y = estimate)) +
+    geom_point() +
+    geom_line() +
+    geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
+                      ymax = estimate + 1.96 * std.error), width = 0.2) +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    labs(title = paste("Event Study for", var_name),
+         x = "Event Time (quarters since ChatGPT release)",
+         y = "Coefficient Estimate") +
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
+}
+
+
+plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
+  # Get the name for the exposure variable
+  var_name <- names(exposure_vars)[exposure_vars == exposure_var]
+  
+  z_score <- qnorm(1 - (1 - conf_level)/2)
+  
+  coefs <- tidy(model) %>%
+    mutate(
+      decile = as.numeric(str_extract(term, "\\d+")),
+      conf_low = estimate - z_score * std.error,
+      conf_high = estimate + z_score * std.error
+    )
+  
+  ggplot(coefs, aes(x = decile, y = estimate)) +
+    geom_point() +
+    geom_line() +
+    geom_errorbar(aes(ymin = conf_low, ymax = conf_high), width = 0.2) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    labs(
+      title = paste("Decile Effects for", var_name),
+      subtitle = paste0(conf_level * 100, "% Confidence Intervals"),
+      x = "Exposure Score Decile",
+      y = "Coefficient Estimate"
+    ) +
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
+}
+
+# sensitivity analysis function
+run_occupation_sensitivity <- function(data, exposure_vars, level = 3) {
+  if (!(level %in% c(2, 3))) {
+    stop("level must be either 2 or 3")
+  }
+  
+  # Get unique occupations at specified level
+  if (level == 2) {
+    # Get level 2 occupations by removing last character
+    occupations <- unique(substr(data$idesco_level_3, 1, nchar(data$idesco_level_3)-1))
+  } else {
+    occupations <- unique(data$idesco_level_3)
+  }
+  
+  # For each occupation and exposure measure, run model excluding that occupation
+  results <- expand_grid(
+    occupation = occupations,
+    exposure_var = exposure_vars
+  ) %>%
+    mutate(
+      model = map2(occupation, exposure_var, function(occ, exp_var) {
+        # Filter data differently based on level
+        if (level == 2) {
+          data_filtered <- data %>% 
+            filter(substr(idesco_level_3, 1, nchar(occupation)) != occ)
+        } else {
+          data_filtered <- data %>% 
+            filter(idesco_level_3 != occ)
+        }
+        
+        model <- feols(
+          as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
+          data = data_filtered
+        )
+        
+        # Extract coefficient, SE, and p-value
+        coef_data <- tidy(model) %>%
+          filter(term == exp_var) %>%
+          select(estimate, std.error, p.value)
+        
+        return(coef_data)
+      })
+    ) %>%
+    unnest(model)
+  
+  # Add baseline models for comparison
+  baseline_results <- map_dfr(exposure_vars, function(exp_var) {
+    model <- feols(
+      as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
+      data = data
+    )
+    
+    tidy(model) %>%
+      filter(term == exp_var) %>%
+      select(estimate, std.error, p.value) %>%
+      mutate(
+        exposure_var = exp_var,
+        occupation = "Baseline (All)"
+      )
+  })
+  
+  # Combine and format results
+  results_table <- bind_rows(
+    baseline_results,
+    results
+  ) %>%
+    mutate(
+      conf_low = estimate - 1.96 * std.error,
+      conf_high = estimate + 1.96 * std.error
+    ) %>%
+    arrange(exposure_var, occupation != "Baseline (All)", abs(estimate))
+  
+  return(results_table)
+}
+
+run_country_sensitivity <- function(data, exposure_vars) {
+  
+  # Get unique countries at specified level
+  countries <- unique(data$idcountry)
+  
+  # For each occupation and exposure measure, run model excluding that occupation
+  results <- expand_grid(
+    country = countries,
+    exposure_var = exposure_vars
+  ) %>%
+    mutate(
+      model = map2(country, exposure_var, function(cnt, exp_var) {
+        # Filter data differently based on level
+        data_filtered <- data %>% 
+          filter(idcountry != cnt)
+        
+        model <- feols(
+          as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
+          data = data_filtered
+        )
+        
+        # Extract coefficient, SE, and p-value
+        coef_data <- tidy(model) %>%
+          filter(term == exp_var) %>%
+          select(estimate, std.error, p.value)
+        
+        return(coef_data)
+      })
+    ) %>%
+    unnest(model)
+  
+  # Add baseline models for comparison
+  baseline_results <- map_dfr(exposure_vars, function(exp_var) {
+    model <- feols(
+      as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
+      data = data
+    )
+    
+    tidy(model) %>%
+      filter(term == exp_var) %>%
+      select(estimate, std.error, p.value) %>%
+      mutate(
+        exposure_var = exp_var,
+        country = "Baseline (All)"
+      )
+  })
+  
+  # Combine and format results
+  results_table <- bind_rows(
+    baseline_results,
+    results
+  ) %>%
+    mutate(
+      conf_low = estimate - 1.96 * std.error,
+      conf_high = estimate + 1.96 * std.error
+    ) %>%
+    arrange(exposure_var, country != "Baseline (All)", abs(estimate))
+  
+  return(results_table)
+}

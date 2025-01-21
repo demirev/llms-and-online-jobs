@@ -3,6 +3,8 @@ library(fixest)
 library(broom)
 library(lubridate)
 library(patchwork) # remotes::install_github("thomasp85/patchwork")
+library(showtext)
+library(sysfonts)
 
 source("R/helpers.R")
 
@@ -16,6 +18,9 @@ exposure_vars <- c(
 )
 
 results <- list()
+
+font_add_google("Merriweather", "merriweather")
+showtext_auto()
 
 # functions --------------------------------------------------------------
 plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5) {
@@ -66,7 +71,8 @@ plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5) {
       color = paste(n_tiles, "-tiles"),
       linetype = paste(n_tiles, "-tiles")
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
 }
 
 # read data ---------------------------------------------------------------
@@ -127,7 +133,7 @@ oja_delta <- list(
   l3_ap = format_delta_data(
     oja_twfe$l3, n_periods = Inf, 
     base_date = t0, level = 3, across_countries = FALSE
-  ),
+  ), # seems most sensible to use this one
   l2_ap_ac = format_delta_data(
     oja_twfe$l2, n_periods = Inf, 
     base_date = t0, level = 2, across_countries = TRUE
@@ -137,6 +143,146 @@ oja_delta <- list(
     base_date = t0, level = 3, across_countries = TRUE
   )
 )
+
+skills <- list.files(
+  "data/cedefop_skills_ovate_skill_demand/csv/05_esco_skill_skill_across_occupations_hyper", 
+  full.names = TRUE
+) %>%
+  map(function(file_name) {
+    date <- str_extract(file_name, "\\d{4}_q\\d{1}") %>%
+      str_replace("_q1", "-03-31") %>%
+      str_replace("_q2", "-06-30") %>%
+      str_replace("_q3", "-09-30") %>%
+      str_replace("_q4", "-12-31") %>%
+      as.Date()
+    data <- read_csv(file_name)
+    data <- data %>%
+      mutate(dmax = date, dmin = date - months(12))
+    data
+  }) %>%
+  bind_rows() %>%
+  mutate(
+    idcountry = ifelse(
+      is.na(idcountry),
+      countryset,
+      idcountry
+    )
+  ) %>%
+  select(-countryset)
+
+# Calculate correlation matrix across exposure scores ------------------------
+results$l3_exposure_correlation <- ai_exposure$l3 %>%
+  select(
+    ai_product_exposure_score,
+    felten_exposure_score,
+    webb_exposure_score,
+    beta_eloundou
+  ) %>%
+  cor(use = "complete.obs") # used in manuscript
+
+# Create correlation plot using corrplot
+l3_exposure_correlation_plot <- corrplot::corrplot(
+  results$l3_exposure_correlation,
+  method = "color",
+  type = "upper",
+  order = "hclust",
+  addCoef.col = "black",
+  tl.col = "black",
+  tl.srt = 45,
+  diag = FALSE,
+  number.cex = 0.8,
+  tl.cex = 0.8
+)
+
+results$l3_exposure_correlation_plot_2 <- PerformanceAnalytics::chart.Correlation(
+  ai_exposure$l3 %>%
+    select(
+      "Demirev 2024" = ai_product_exposure_score,
+      "Felten et al 2018" = felten_exposure_score,
+      "Webb 2022" = webb_exposure_score,
+      "Eloundou et al 2023" = beta_eloundou
+    ) %>%
+    na.omit(), 
+  histogram = TRUE,
+  pch = 19
+) # used in manuscript
+
+# biggest changes ---------------------------------------------------------
+results$oja_changes_table <- oja_delta$l3_ap %>% 
+  group_by(
+    idesco_level_3, esco_level_3_short
+  ) %>% 
+  summarise(
+    mean_delta_OJA = exp(mean(delta_OJA_log))#,
+    # ai_product_exposure_score = mean(ai_product_exposure_score),
+    # felten_exposure_score = mean(felten_exposure_score),
+    # webb_exposure_score = mean(webb_exposure_score),
+    # beta_eloundou = mean(beta_eloundou)
+  ) %>% 
+  ungroup() %>%
+  select(esco_level_3_short, mean_delta_OJA) %>%
+  arrange(mean_delta_OJA) %>% print(n = Inf) # used in manuscript
+
+# OJA time series ---------------------------------------------------------
+results$oja_time_series <- oja$l3 %>%
+  group_by(idesco_level_1, dmax) %>%
+  summarise(
+    total_oja = sum(OJA)
+  ) %>%
+  left_join(
+    bind_rows(
+      tibble(idesco_level_1 = "OC1", idesco_label = "Managers"),
+      tibble(idesco_level_1 = "OC2", idesco_label = "Professionals"),
+      tibble(idesco_level_1 = "OC3", idesco_label = "Technical professionals"), # shortened from "Technicians and associate professionals"
+      tibble(idesco_level_1 = "OC4", idesco_label = "Clerical support workers"), # shortened from "Clerical and support workers"
+      tibble(idesco_level_1 = "OC5", idesco_label = "Service and sales workers"),
+      tibble(idesco_level_1 = "OC6", idesco_label = "Agricultural workers"), # shortened from "Skilled agricultural, forestry and fishery workers"
+      tibble(idesco_level_1 = "OC7", idesco_label = "Craft and trades workers"), # shortened from "Craft and related trades workers"
+      tibble(idesco_level_1 = "OC8", idesco_label = "Plant and machine operators"), # shortened from "Plant and machine operators, and assemblers"
+      tibble(idesco_level_1 = "OC9", idesco_label = "Elementary occupations")
+    ),
+    by = "idesco_level_1"
+  ) %>%
+  ggplot(
+    aes(
+      x = dmax, 
+      y = total_oja, 
+      color = idesco_label, 
+      lty = idesco_label
+    )
+  ) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_grey(start = 0, end = .7) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    x = "Date",
+    y = "Total Online Job Adverts"
+  ) +
+  ggtitle("Total Online Job Adverts by ISCO Major Group") +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank()
+  ) +
+  theme(text = element_text(family = "merriweather"))
+
+# two-fold reduction
+# idesco_level_1 change
+# <chr>           <dbl>
+#   1 OC1              2.41
+# 2 OC2              2.40
+# 3 OC3              2.13
+# 4 OC4              2.17
+# 5 OC5              2.09
+# 6 OC6              2.22
+# 7 OC7              1.99
+# 8 OC8              2.08
+# 9 OC9              1.88
+
+# > oja$l3 %>% filter(dmax == max(dmax)) %>% pull(OJA) %>% sum()
+# [1] 18505936
+# > oja$l3 %>% filter(dmax == min(dmax)) %>% pull(OJA) %>% sum()
+# [1] 40277646
 
 # base correlations ------------------------------------------------------
 correlation_results <- map(exposure_vars, function(var) {
@@ -161,7 +307,7 @@ correlation_table <- map_dfr(names(correlation_results), function(var) {
   )
 })
 
-results$correlation_table <- correlation_table
+results$correlation_table <- correlation_table # used
 
 # scatter plots -----------------------------------------------------------
 exposure_plots <- map(exposure_vars, function(var) {
@@ -173,14 +319,15 @@ exposure_plots <- map(exposure_vars, function(var) {
       y = "Log Change in Job Ads",
       title = paste("Correlation between", names(exposure_vars)[exposure_vars == var], "and Change in Job Ads")
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(text = element_text(family = "merriweather"))
 })
 
 names(exposure_plots) <- exposure_vars
 
 exposure_plots$combined <- wrap_plots(exposure_plots, ncol = 2)
 
-results$exposure_plots <- exposure_plots
+results$exposure_plots <- exposure_plots # not used in manuscript
 
 # change by n-tile --------------------------------------------------------
 plot_change_by_ntile <- function(data, exposure_var) {
@@ -216,7 +363,7 @@ names(ntile_plots) <- exposure_vars
 # Optional: display all plots in a grid
 ntile_plots$combined <- wrap_plots(ntile_plots, ncol = 2)
 
-results$ntile_plots <- ntile_plots
+results$ntile_plots <- ntile_plots # not used in manuscript
 
 # Plot time series --------------------------------------------------------
 # Level 3 plots
@@ -245,9 +392,14 @@ names(l2_time_plots) <- exposure_vars
 l3_time_plots$combined <- wrap_plots(l3_time_plots, ncol = 2)
 l2_time_plots_combined <- wrap_plots(l2_time_plots, ncol = 2)
 
-results$l3_time_plots <- l3_time_plots
-
+results$l3_time_plots <- l3_time_plots # not used in manuscript
 
 # save results ------------------------------------------------------------
 saveRDS(results, "results/RDS/descriptive.RDS")
 
+ggsave(
+  file.path("results/plots", "oja_time_series.eps"),
+  results$oja_time_series,
+  width = 12,
+  height = 5
+)
