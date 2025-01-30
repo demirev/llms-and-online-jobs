@@ -317,6 +317,14 @@ ggsave(
   device = cairo_ps
 )
 
+ggsave(
+  file.path("results/plots", "partial_plots_all.svg"),
+  results$partial_plots$combined,
+  width = 10,
+  height = 6,
+  device = svg
+)
+
 # partial plots
 ggsave(
   file.path("results/plots", "partial_plots_eloundou.eps"),
