@@ -23,7 +23,9 @@ These plots illustrate the relationship between changes in job postings (post vs
 
 ![Partial Correlation (All)](results/plots/partial_plots_all.svg)
 
-Each dot is a country-occupation observation. X-axis is the given exposure measure , rescaled 0 to 1. Y-axis is the change (in logs) in the number of job postings in the CEDEFOP dataset. Cross markers are occupation means. The negative slopes show higher AI exposure correlates with a steeper decline in online job ads.
+Each dot is a country-occupation observation. X-axis is the given exposure measure , rescaled 0 to 1. Y-axis is the change (in logs) in the number of job postings in the CEDEFOP dataset. Cross markers are occupation means. 
+
+The negative slopes show higher AI exposure correlates with a steeper decline in online job ads. Despite the significant result, note that the effect is not large relative to the overall dispersion in the data.
 
 ## Full text
 
