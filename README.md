@@ -1,4 +1,4 @@
-# Generative AI and Job Displacement: README
+# Generative AI and Job Displacement
 
 This repository contains the materials for the working paper **Generative AI and Job Displacement: Initial Evidence from EU Online Job Markets** by Georgi Demirev (Sofia University).
 
