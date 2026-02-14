@@ -99,16 +99,17 @@ na_item_dictionary <- c(
 )
 
 table(nama_10_lp$unit, nama_10_lp$na_item)
-  #                       D1_SAL_HW HW_EMP NULC_HW RLPR_HW RLPR_PER
-  # EUR                      35280      0       0       0        0
-  # HW                           0  35966       0       0        0
-  # I15                          0  35035   34398   34594    36309
-  # NAC                      35280      0       0       0        0
-  # PC_EU27_2020_MEUR_CP     35280      0       0       0        0
-  # PCH_10Y                      0      0   34398   34594    35868
-  # PCH_3Y                       0      0   34398   34594    36309
-  # PCH_5Y                       0      0   34398   34594    36309
-  # PCH_PRE                      0  35966   34839   35035    36309
+  # D1_SAL_HW HW_EMP NULC_HW RLPR_HW RLPR_PER
+  # EUR                      21374      0       0       0        0
+  # HW                           0  21862       0       0        0
+  # I15                          0  21805   21252   21584    22091
+  # I20                          0  21710   21157   21489    22019
+  # NAC                      21374      0       0       0        0
+  # PC_EU27_2020_MEUR_CP     19786      0       0       0        0
+  # PCH_10Y                      0      0   14544   15100    15345
+  # PCH_3Y                       0      0   19290   19673    20096
+  # PCH_5Y                       0      0   17954   18399    18766
+  # PCH_PRE                      0  21206   20616   20965    21426
 
 table(nama_10_lp_ulc_tidy$unit, nama_10_lp_ulc_tidy$na_item)
   #                     D1_SAL_HW D1_SAL_PER EMP_HAB HW_EMP HW_HAB NLPR_HW NLPR_PER NULC_HW NULC_PER RLPR_HW RLPR_PER

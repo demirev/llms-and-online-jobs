@@ -202,7 +202,7 @@ prep_nama_data <- function(nama_data, sectoral_exposure) {
     filter(year >= 2021) %>%
     group_by(country_code, nace_rev2_code) %>%
     mutate(max_year = max(year)) %>%
-    filter(max_year == 2023) %>%
+    filter(max_year >= 2023) %>%
     ungroup() %>%
     select(-max_year) %>%
     mutate(
@@ -296,11 +296,11 @@ extract_event_study_coefs <- function(model, exposure_var) {
   return(coefs)
 }
 
-plot_event_study <- function(coefs, exposure_var) {
+plot_event_study <- function(coefs, exposure_var, ylims = NULL) {
   # Get the name for the exposure variable
   var_name <- names(exposure_vars)[exposure_vars == exposure_var]
   
-  ggplot(coefs, aes(x = event_time, y = estimate)) +
+  p <- ggplot(coefs, aes(x = event_time, y = estimate)) +
     geom_point() +
     geom_line() +
     geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
@@ -311,6 +311,12 @@ plot_event_study <- function(coefs, exposure_var) {
          y = "Coefficient Estimate") +
     theme_minimal() +
     theme(text = element_text(family = "merriweather"))
+  
+  if (!is.null(ylims)) {
+    p <- p + ylim(ylims)
+  }
+  
+  return(p)
 }
 
 

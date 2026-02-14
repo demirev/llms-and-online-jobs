@@ -67,6 +67,9 @@ oja_delta <- list(
     filter(pre_OJA > 20 & post_OJA > 20) # filter out infrequent occupations - around 14% of obs 2817/3270
 )
 
+# examples of highly exposed occupations
+#oja_delta$l3_ap %>% distinct(esco_level_3_short, beta_eloundou, ai_product_exposure_score, felten_exposure_score, webb_exposure_score) %>% arrange(desc(beta_eloundou)) %>% print(n = 20)
+
 # run models --------------------------------------------------------------
 # TWFE ----
 twfe_models <- map(
@@ -92,7 +95,10 @@ event_study_coefs <- map2(
   event_study_models, exposure_vars, ~extract_event_study_coefs(.x, .y)
 )
 
-plots <- map2(event_study_coefs, exposure_vars, ~plot_event_study(.x, .y))
+plots <- map2(
+  event_study_coefs, exposure_vars, 
+  ~plot_event_study(.x, .y, ylims = c(-3.2,0.4))
+)
 
 # Combine plots into a 2x2 grid using patchwork
 combined_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]]) +
@@ -123,6 +129,58 @@ delta_models <- map(
 names(delta_models) <- exposure_vars
 
 results$delta <- delta_models
+
+delta_plots <- map(
+  exposure_vars,
+  ~ {
+    var_name <- names(exposure_vars)[exposure_vars == .x]
+    
+    data_filtered <- oja_delta$l3_ap %>%
+      filter(
+        !is.na(delta_OJA_log),
+        !is.na(!!sym(.x)),
+        !is.na(idesco_level_3)
+      ) 
+    
+    data_filtered[["x"]] <- data_filtered[[.x]]
+    
+    df_means <- data_filtered %>%
+      group_by(idesco_level_3) %>%
+      summarize(
+        px_mean = mean(x, na.rm = TRUE),
+        py_mean = mean(delta_OJA_log, na.rm = TRUE)
+      )
+    
+    ggplot(data_filtered, aes(x, delta_OJA_log)) +
+      # make the points faint and gray
+      geom_point(color = "lightgray") +
+      geom_smooth(method = "lm", se = TRUE, color = "blue") +
+      geom_point(
+        data = df_means,
+        aes(x = px_mean, y = py_mean),
+        color = "gray10",
+        shape = 4,
+        size = 2,
+        stroke = 1
+      ) +
+      geom_hline(yintercept = 0, color = "black") +
+      # limit the y-axis from -1 to 1
+      coord_cartesian(ylim = c(-1, 1)) +
+      labs(x = var_name, y = "log (OJA Post / OJA Pre)") +
+      theme_minimal() +
+      theme(text = element_text(family = "merriweather"))
+  }
+)
+
+delta_plots$combined <- (delta_plots[[1]] + delta_plots[[2]]) / 
+  (delta_plots[[3]] + delta_plots[[4]]) +
+  plot_layout(guides = "collect") +  # Combine legends
+  plot_annotation(
+    title = "Delta OJA Log vs AI Exposure Measures",
+    theme = theme_minimal()
+  )
+
+results$delta_plots <- delta_plots
 
 partial_plots <- map(
   exposure_vars,
@@ -217,6 +275,82 @@ partial_plots$combined <- (partial_plots[[1]] + partial_plots[[2]]) /
   )
 
 results$partial_plots <- partial_plots
+
+# delta models untreated adjustment ----
+delta_models_adj <- map(
+  exposure_vars, function(exposure_var) {
+    dat <- oja_delta$l3_ap 
+    
+    mean_change_untreated <- dat %>%
+      filter(dat[[exposure_var]] <= 0.1) %>%
+      group_by(idcountry) %>%
+      filter(!is.na(delta_OJA_log)) %>%
+      summarize(
+        mean_change = mean(delta_OJA_log, na.rm = TRUE)
+      )
+    
+    dat <- dat %>%
+      left_join(mean_change_untreated, by = "idcountry") %>%
+      mutate(
+        delta_OJA_log = delta_OJA_log - mean_change
+      )
+    
+    feols(
+      as.formula(paste("delta_OJA_log ~", exposure_var, " | idcountry")),
+      data = dat,
+      cluster = "idcountry"
+    )
+  }
+)
+
+results$delta_models_adj <- delta_models_adj
+
+# delta models by country ----
+delta_models_cntry <- map(
+  exposure_vars, function(exposure_var) {
+    dat <- oja_delta$l3_ap 
+    
+    dat %>%
+      split(~.$idcountry) %>%
+      map(function(country_dat) {
+        feols(
+          as.formula(paste("delta_OJA_log ~", exposure_var)),
+          data = country_dat
+        ) %>%
+          broom::tidy()
+      }) %>%
+      bind_rows() %>%
+      filter(term!="(Intercept)")
+  }
+)
+
+results$delta_models_cntry <- delta_models_cntry
+
+hist(delta_models_cntry[[1]]$estimate)
+hist(delta_models_cntry[[2]]$estimate)
+hist(delta_models_cntry[[3]]$estimate)
+hist(delta_models_cntry[[4]]$estimate)
+
+delta_plots_cntry <- map(
+  exposure_vars, function(exposure_var) {
+    dat <- oja_delta$l3_ap 
+    
+    dat %>%
+      split(~.$idcountry) %>%
+      map(function(country_dat) {
+        country_dat %>%
+          ggplot(aes_string(x = exposure_var, y = "delta_OJA_log")) +
+          geom_point(alpha = 0.5) +
+          geom_smooth(method = "lm", se = TRUE, color = "blue") +
+          labs(
+            title = paste("Country:", unique(country_dat$idcountry)),
+            x = exposure_var,
+            y = "log (OJA Post / OJA Pre)"
+          ) +
+          theme_minimal()
+      })
+  }
+)
 
 # decile models ----
 decile_models <- map(
@@ -334,6 +468,10 @@ ggsave(
   device = cairo_ps
 )
 
+# top five exposed: OC413 (up), OC251, OC252, OC264, OC212 (all down)
+# "keyboard operators" (up), "software developers", "database professionals", "authors and journalists", "mathematicians and statisticians" (down)
+# biggest drop in OJA is OC815 (Mining plant operators), OC622 (Textile machine operators), OC811 (fishery workers and hunters) despite low exposure
+
 ggsave(
   file.path("results/plots", "partial_plots_demirev.eps"),
   results$partial_plots$`Demirev Exposure Score`,
@@ -353,6 +491,47 @@ ggsave(
 ggsave(
   file.path("results/plots", "partial_plots_felten.eps"),
   results$partial_plots$`Felten AI Exposure Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+# delta plots
+ggsave(
+  file.path("results/plots", "delta_plots_all.eps"),
+  results$delta_plots$combined,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+ggsave(
+  file.path("results/plots", "delta_plots_eloundou.eps"),
+  results$delta_plots$`Eloundou Exposure Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+ggsave(
+  file.path("results/plots", "delta_plots_demirev.eps"),
+  results$delta_plots$`Demirev Exposure Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+ggsave(
+  file.path("results/plots", "delta_plots_felten.eps"),
+  results$delta_plots$`Felten AI Exposure Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+ggsave(
+  file.path("results/plots", "delta_plots_webb.eps"),
+  results$delta_plots$`Webb AI Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
@@ -439,3 +618,4 @@ ggsave(
   height = 6,
   device = cairo_ps
 )
+

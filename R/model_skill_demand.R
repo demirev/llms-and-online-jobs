@@ -50,13 +50,13 @@ skills_exposure <- skill_hierarchy %>%
   group_by(esco_skill_level_2, esco_skill_level_3) %>%
   filter(!is.na(esco_skill_level_3)) %>%
   summarise(
-    ai_product_exposure = mean(max_similarity) 
+    ai_product_exposure = mean(n_similar_l3 > 2) # cut-off from original paper
   ) %>%
   ungroup() %>%
-  mutate(
-    ai_product_exposure = (ai_product_exposure - mean(ai_product_exposure)) / sd(ai_product_exposure)
-    #ai_product_exposure = scale_zero_to_one(ai_product_exposure) 
-  ) %>%
+  # mutate(
+  #   ai_product_exposure = (ai_product_exposure - mean(ai_product_exposure)) / sd(ai_product_exposure)
+  #   #ai_product_exposure = scale_zero_to_one(ai_product_exposure) 
+  # ) %>%
   right_join(skills, by = c("esco_skill_level_2", "esco_skill_level_3"))
 
 # format data -------------------------------------------------------------
@@ -112,12 +112,17 @@ results$skill_detla_cor <- skill_detla_cor
 results$most_exposed_skills <- skill_delta %>%
   group_by(esco_skill_level_3) %>%
   summarise(
-    mean_delta_mentions_log = mean(delta_mentions_log),
+    mean_delta_mentions_log = mean(exp(delta_mentions_log)),
     ai_product_exposure = mean(ai_product_exposure, na.rm = TRUE)
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(ai_product_exposure) %>%
   print(n = Inf) # used in manuscript
+
+set.seed(121)
+results$most_exposed_skills %>%
+  filter(ai_product_exposure == 0) %>%
+  sample_n(7) # for table with examples
 
 # models --------------------------------------------------------------------
 skills_twfe <- skills_exposure %>%

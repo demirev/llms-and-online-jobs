@@ -264,7 +264,8 @@ results$oja_time_series <- oja$l3 %>%
     legend.position = "bottom",
     legend.title = element_blank()
   ) +
-  theme(text = element_text(family = "merriweather"))
+  theme(text = element_text(family = "merriweather")) +
+  theme_bw()
 
 # two-fold reduction
 # idesco_level_1 change
