@@ -16,6 +16,10 @@ exposure_vars <- c(
   "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Exposure Score" = "beta_eloundou"
 )
+breakdown_vars <- c(
+  "Automation Exposure Score" = "ai_product_automation_score",
+  "Augmentation Exposure Score" = "ai_product_augmentation_score"
+)
 
 results <- list()
 
@@ -50,8 +54,21 @@ ai_exposure <- list(
   l3 = read_ai_exposure_file(
     "data/ai_exposure_scores/scored_esco_occupations_matched.csv",
     level = 3
+  ),
+  l4 = read_ai_exposure_file(
+    "data/ai_exposure_scores/scored_esco_occupations_matched.csv",
+    level = 4
   )
 )
+
+eures <- list.files(
+  "data/cedefop_eures_job_vacancy_insights/csv/14_exp_occupation_skill_country_hyper",
+  full.names = TRUE
+) %>%
+  map_df(read_csv) %>%
+  format_eures_data(
+    ai_exposure = ai_exposure$l4
+  )
 
 # format data -------------------------------------------------------------
 oja_twfe <- list(
@@ -75,6 +92,7 @@ oja_delta <- list(
 twfe_models <- map(
   exposure_vars, ~run_twfe_exposure_models(.x, oja_twfe$l3, level = 3)
 )
+twfe_model_breakdown <- run_twfe_exposure_models(breakdown_vars, oja_twfe$l3, level = 3) # if we run separately, both are significant on their own. Together, only augmentation (negative)
 
 results$twfe <- twfe_models
 
@@ -88,6 +106,7 @@ walk(seq_along(exposure_vars), function(i) {
 event_study_models <- map(
   exposure_vars, ~run_event_study_model(.x, oja_twfe$l3, level = 3)
 )
+event_study_model_breakdown <- run_event_study_model(breakdown_vars, oja_twfe$l3, level = 3) 
 
 results$event_study <- event_study_models
 
@@ -100,6 +119,12 @@ plots <- map2(
   ~plot_event_study(.x, .y, ylims = c(-3.2,0.4))
 )
 
+plots_breakdown <- map2(
+  extract_event_study_coefs(event_study_model_breakdown, breakdown_vars),
+  breakdown_vars,
+  ~plot_event_study(.x, .y, exposure_vars = breakdown_vars, ylims = c(-3.9,0.4))
+)
+
 # Combine plots into a 2x2 grid using patchwork
 combined_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]]) +
   plot_layout(guides = "collect") +  # Combine legends
@@ -107,6 +132,8 @@ combined_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]]) +
     title = "Event Study Results Across Different AI Exposure Measures",
     theme = theme_minimal()
   )
+
+plots_breakdown[[1]] + plots_breakdown[[2]]
 
 # Print combined plot
 print(combined_plot)
@@ -129,6 +156,24 @@ delta_models <- map(
 names(delta_models) <- exposure_vars
 
 results$delta <- delta_models
+
+delta_models_breakdown <- list(
+  combined = feols(
+    as.formula(paste("delta_OJA_log ~ ai_product_automation_score + ai_product_augmentation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
+  ),
+  automation = feols(
+    as.formula(paste("delta_OJA_log ~ ai_product_automation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
+  ),
+  augmentation = feols(
+    as.formula(paste("delta_OJA_log ~ ai_product_augmentation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
+  )
+)
 
 delta_plots <- map(
   exposure_vars,
@@ -172,8 +217,51 @@ delta_plots <- map(
   }
 )
 
+delta_plots_breakdown <- map(
+  breakdown_vars,
+  ~ {
+    var_name <- names(breakdown_vars)[breakdown_vars == .x]
+    
+    data_filtered <- oja_delta$l3_ap %>%
+      filter(
+        !is.na(delta_OJA_log),
+        !is.na(!!sym(.x)),
+        !is.na(idesco_level_3)
+      ) 
+    
+    data_filtered[["x"]] <- data_filtered[[.x]]
+    
+    df_means <- data_filtered %>%
+      group_by(idesco_level_3) %>%
+      summarize(
+        px_mean = mean(x, na.rm = TRUE),
+        py_mean = mean(delta_OJA_log, na.rm = TRUE)
+      )
+    
+    ggplot(data_filtered, aes(x, delta_OJA_log)) +
+      # make the points faint and gray
+      geom_point(color = "lightgray") +
+      geom_smooth(method = "lm", se = TRUE, color = "blue") +
+      geom_point(
+        data = df_means,
+        aes(x = px_mean, y = py_mean),
+        color = "gray10",
+        shape = 4,
+        size = 2,
+        stroke = 1
+      ) +
+      geom_hline(yintercept = 0, color = "black") +
+      # limit the y-axis from -1 to 1
+      coord_cartesian(ylim = c(-1, 1)) +
+      labs(x = var_name, y = "log (OJA Post / OJA Pre)") +
+      theme_minimal() +
+      theme(text = element_text(family = "merriweather"))
+  }
+)
+
 delta_plots$combined <- (delta_plots[[1]] + delta_plots[[2]]) / 
   (delta_plots[[3]] + delta_plots[[4]]) +
+  # (delta_plots_breakdown[[1]] + delta_plots_breakdown[[2]]) +
   plot_layout(guides = "collect") +  # Combine legends
   plot_annotation(
     title = "Delta OJA Log vs AI Exposure Measures",
@@ -183,9 +271,9 @@ delta_plots$combined <- (delta_plots[[1]] + delta_plots[[2]]) /
 results$delta_plots <- delta_plots
 
 partial_plots <- map(
-  exposure_vars,
+  c(exposure_vars, breakdown_vars),
   ~ {
-    var_name <- names(exposure_vars)[exposure_vars == .x]
+    var_name <- names(c(exposure_vars, breakdown_vars))[c(exposure_vars, breakdown_vars) == .x]
     
     data_filtered <- oja_delta$l3_ap %>%
       filter(
@@ -268,6 +356,7 @@ partial_plots <- map(
 
 partial_plots$combined <- (partial_plots[[1]] + partial_plots[[2]]) / 
   (partial_plots[[3]] + partial_plots[[4]]) +
+  # (partial_plots[[5]] + partial_plots[[6]]) +
   plot_layout(guides = "collect") +
   plot_annotation(
     title = "Partial Regression Plots Across Different AI Exposure Measures",
@@ -317,7 +406,8 @@ delta_models_cntry <- map(
           as.formula(paste("delta_OJA_log ~", exposure_var)),
           data = country_dat
         ) %>%
-          broom::tidy()
+          broom::tidy() %>%
+          mutate(country = country_dat$idcountry[1])
       }) %>%
       bind_rows() %>%
       filter(term!="(Intercept)")
@@ -326,10 +416,36 @@ delta_models_cntry <- map(
 
 results$delta_models_cntry <- delta_models_cntry
 
+# Country maps ----
+map_plots_cntry <- map2(
+  delta_models_cntry, names(exposure_vars),
+  ~plot_country_map(.x, title = .y)
+)
+
+map_plots_cntry$combined <- wrap_plots(map_plots_cntry[1:4], nrow = 2) +
+  plot_annotation(
+    title = "AI Exposure Effect by Country (significant estimates highlighted)",
+    theme = theme_minimal()
+  )
+
+avg_cntry_coefs <- bind_rows(delta_models_cntry) %>%
+  group_by(country) %>%
+  summarise(estimate = mean(estimate), p.value = mean(p.value), .groups = "drop")
+
+map_plot_avg <- plot_country_map(avg_cntry_coefs, title = "Average across exposure measures")
+
+results$map_plots_cntry <- map_plots_cntry
+results$map_plot_avg    <- map_plot_avg
+
 hist(delta_models_cntry[[1]]$estimate)
 hist(delta_models_cntry[[2]]$estimate)
 hist(delta_models_cntry[[3]]$estimate)
 hist(delta_models_cntry[[4]]$estimate)
+
+delta_models_cntry[[1]] %>% filter(p.value < 0.05) %>% arrange(desc(estimate))
+delta_models_cntry[[2]] %>% filter(p.value < 0.05) %>% arrange(desc(estimate))
+delta_models_cntry[[3]] %>% filter(p.value < 0.05) %>% arrange(desc(estimate))
+delta_models_cntry[[4]] %>% filter(p.value < 0.05) %>% arrange(desc(estimate))
 
 delta_plots_cntry <- map(
   exposure_vars, function(exposure_var) {
@@ -383,6 +499,87 @@ decile_plots$combined <- (decile_plots[[1]] + decile_plots[[2]]) /
   )
 
 results$decile_plots <- decile_plots
+
+# EURES by experience -----------------------------------------------------
+# just checking - we don't have data before 2024
+delta_eures <- eures %>%
+  group_by(
+    idcountry, idesco_level_4, experience
+  ) %>%
+  arrange(dmax) %>%
+  summarise(
+    delta_log_OJA = last(log_OJA) - first(log(OJA)),
+    beta_eloundou = last(beta_eloundou),
+    ai_product_exposure_score = last(ai_product_exposure_score),
+    ai_product_automation_score = last(ai_product_automation_score),
+    ai_product_augmentation_score = last(ai_product_augmentation_score),
+    webb_exposure_score = last(webb_exposure_score),
+    felten_exposure_score = last(felten_exposure_score)
+  )
+
+eures_models <- setNames(c(exposure_vars, breakdown_vars), c(exposure_vars, breakdown_vars)) %>%
+  map(~ feols(
+    as.formula(paste0("delta_log_OJA ~ i(experience, ", .x, ") | idcountry")),
+    data = delta_eures,
+    cluster = ~idcountry
+  )) %>%
+  map(broom::tidy) %>%
+  map2_dfr(names(.), function(md,nm) mutate(md, var = nm))
+
+exp_levels <- c("No experience", "Up to 1 year", "From 1 to 2 years",
+                "From 2 to 4 years", "From 4 to 6 years", "From 6 to 8 years",
+                "From 8 to 10 years", "Over 10 years")
+
+# Nicer facet labels for the exposure measures
+var_labels <- c(
+  ai_product_exposure_score = "AI Product Exposure",
+  beta_eloundou            = "Eloundou et al.",
+  felten_exposure_score    = "Felten Exposure",
+  webb_exposure_score      = "Webb Exposure",
+  ai_product_augmentation_score = "Augmentation Exposure",
+  ai_product_automation_score = "Automation Exposure"
+)
+
+eures_plot_df <- eures_models %>%
+  mutate(
+    experience = str_extract(term, "(?<=::)[^:]+(?=:)"),
+    experience = factor(experience, levels = exp_levels),
+    sig = case_when(
+      p.value < 0.01 ~ "p < 0.01",
+      p.value < 0.05 ~ "p < 0.05",
+      p.value < 0.10 ~ "p < 0.10",
+      TRUE           ~ "n.s."
+    ),
+    sig = factor(sig, levels = c("p < 0.01", "p < 0.05", "p < 0.10", "n.s.")),
+    ci_lo = estimate - 1.96 * std.error,
+    ci_hi = estimate + 1.96 * std.error,
+    var_label = var_labels[var]
+  )
+
+results$eures_plot <- eures_plot_df %>% 
+  filter(var_label %in% var_labels[1:4]) %>% # no automation / augmentation breakdown here
+  ggplot(aes(x = experience, y = estimate, colour = sig)) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
+  scale_colour_manual(
+    values = c("p < 0.01" = "#d62728", "p < 0.05" = "#ff7f0e",
+               "p < 0.10" = "#2ca02c", "n.s." = "grey60"),
+    name = "Significance"
+  ) +
+  facet_wrap(~ var_label, scales = "free_y") +
+  labs(
+    x = NULL,
+    y = "coefficient estimate",
+    title = "Association between AI Exposure and Job Ad Growth by Experience Level"
+    #, subtitle = "Country fixed effects, SEs clustered by country"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 40, hjust = 1, size = 8),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
 
 # sensitivity to occupations ----------------------------------------------
 # Run sensitivity analysis
@@ -614,6 +811,14 @@ ggsave(
 ggsave(
   file.path("results/plots", "event_study_felten.eps"),
   results$event_study_plots$`Felten AI Exposure Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+ggsave(
+  file.path("results/plots", "by_experience.eps"),
+  results$eures_plot,
   width = 10,
   height = 6,
   device = cairo_ps

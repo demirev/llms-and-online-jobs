@@ -17,6 +17,8 @@ read_ai_exposure_file <- function(file, level = 2) {
     group_by(isco_level) %>%
     summarise(
       ai_product_exposure_score = mean(ai_product_exposure_score, na.rm = TRUE),
+      ai_product_automation_score = mean(ai_product_automation_score, na.rm = TRUE),
+      ai_product_augmentation_score = mean(ai_product_augmentation_score, na.rm = TRUE),
       felten_exposure_score = mean(felten_exposure_score, na.rm = TRUE),
       webb_exposure_score = mean(webb_exposure_score, na.rm = TRUE),
       beta_eloundou = mean(beta_eloundou, na.rm = TRUE)
@@ -25,6 +27,63 @@ read_ai_exposure_file <- function(file, level = 2) {
   colnames(res)[1] <- paste0("isco_level_", level)
   res
 }
+
+format_eures_data <- function(
+    eures, ai_exposure, level = 4, t0 = as.Date("2022-11-30")
+) {
+  eures %>%
+    filter(str_length(idesco_level_4) == 6 & !is.na(experience)) %>% # only full occupation info
+    select(
+      OJA, dmax, idcountry, experience,
+      # matches(paste0("esco_level_", level, "_short")),  # level 4 doesn't have names in this file
+      matches(paste0("idesco_level_", level))
+    ) %>%
+    mutate(
+      post_chatgpt = ifelse(
+        dmax >= as.Date("2022-11-30"),
+        1,
+        0
+      )
+    ) %>%
+    left_join(
+      ai_exposure %>%
+        rename_with(~ paste0("idesco_level_", level), matches(paste0("isco_level_", level))) %>%
+        mutate(across(matches(paste0("idesco_level_", level)), ~ paste0("OC", .))),
+      by = paste0("idesco_level_", level)
+    ) %>%
+    mutate(
+      country_occupation_pair = paste0(idcountry, "_", get(paste0("idesco_level_", level)))
+    ) %>%
+    filter(
+      !is.na(ai_product_exposure_score) 
+    ) %>%
+    mutate(
+      log_OJA = log(OJA + 1), # +1 just in case to handle potential 0s
+      ai_product_exposure_score = scale_zero_to_one(ai_product_exposure_score),
+      ai_product_automation_score = scale_zero_to_one(ai_product_automation_score),
+      ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
+      felten_exposure_score = scale_zero_to_one(felten_exposure_score),
+      webb_exposure_score = scale_zero_to_one(webb_exposure_score),
+      beta_eloundou = scale_zero_to_one(beta_eloundou)
+    ) %>%
+    select(
+      OJA, log_OJA, dmax, post_chatgpt, idcountry, experience,
+      #matches(paste0("esco_level_", level, "_short")), 
+      matches(paste0("idesco_level_", level)),
+      country_occupation_pair,
+      ai_product_exposure_score, 
+      ai_product_automation_score,
+      ai_product_augmentation_score,
+      felten_exposure_score, 
+      webb_exposure_score, 
+      beta_eloundou
+    ) %>%
+    mutate(
+      dmax = as.Date(dmax),
+      event_time = as.integer((year(dmax) - year(t0)) * 4 + (quarter(dmax) - quarter(t0)))
+    )
+}
+
 
 format_twfe_oja_data <- function(
   oja, ai_exposure, level = 2, t0 = as.Date("2022-11-30")
@@ -57,6 +116,8 @@ format_twfe_oja_data <- function(
 		mutate(
 			log_OJA = log(OJA + 1), # +1 just in case to handle potential 0s
 			ai_product_exposure_score = scale_zero_to_one(ai_product_exposure_score),
+			ai_product_automation_score = scale_zero_to_one(ai_product_automation_score),
+			ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
 			felten_exposure_score = scale_zero_to_one(felten_exposure_score),
 			webb_exposure_score = scale_zero_to_one(webb_exposure_score),
 			beta_eloundou = scale_zero_to_one(beta_eloundou)
@@ -66,8 +127,12 @@ format_twfe_oja_data <- function(
 			matches(paste0("esco_level_", level, "_short")), 
 			matches(paste0("idesco_level_", level)),
 			country_occupation_pair,
-			ai_product_exposure_score, felten_exposure_score, 
-			webb_exposure_score, beta_eloundou
+			ai_product_exposure_score, 
+			ai_product_automation_score,
+			ai_product_augmentation_score,
+			felten_exposure_score, 
+			webb_exposure_score, 
+			beta_eloundou
 		) %>%
     mutate(
       dmax = as.Date(dmax),
@@ -112,6 +177,8 @@ format_delta_data <- function(
    summarize(
      OJA = sum(OJA),
      ai_product_exposure_score = mean(ai_product_exposure_score),
+     ai_product_automation_score = mean(ai_product_automation_score),
+     ai_product_augmentation_score = mean(ai_product_augmentation_score),
      felten_exposure_score = mean(felten_exposure_score),
      webb_exposure_score = mean(webb_exposure_score),
      beta_eloundou = mean(beta_eloundou),
@@ -124,6 +191,8 @@ format_delta_data <- function(
    summarise(
      OJA = mean(OJA),
      ai_product_exposure_score = mean(ai_product_exposure_score),
+     ai_product_automation_score = mean(ai_product_automation_score),
+     ai_product_augmentation_score = mean(ai_product_augmentation_score),
      felten_exposure_score = mean(felten_exposure_score),
      webb_exposure_score = mean(webb_exposure_score),
      beta_eloundou = mean(beta_eloundou),
@@ -139,6 +208,8 @@ format_delta_data <- function(
     delta_OJA_relative = delta_OJA / pre_OJA,
     delta_OJA_log = log(post_OJA / pre_OJA),
     ai_product_exposure_score = mean(ai_product_exposure_score),
+    ai_product_automation_score = mean(ai_product_automation_score),
+    ai_product_augmentation_score = mean(ai_product_augmentation_score),,
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
     beta_eloundou = mean(beta_eloundou),
@@ -160,6 +231,12 @@ derive_sectoral_exposure <- function(
       ai_product_exposure_score = weighted.mean(
         ai_product_exposure_score, n, na.rm = TRUE
       ),
+      ai_product_automation_score = weighted.mean(
+        ai_product_automation_score, n, na.rm = TRUE
+      ),
+      ai_product_augmentation_score = weighted.mean(
+        ai_product_augmentation_score, n, na.rm = TRUE
+      ),
       felten_exposure_score = weighted.mean(
         felten_exposure_score, n, na.rm = TRUE
       ),
@@ -176,6 +253,8 @@ derive_sectoral_exposure <- function(
     res <- res %>%
       mutate(
         ai_product_exposure_score = scale_zero_to_one(ai_product_exposure_score),
+        ai_product_automation_score = scale_zero_to_one(ai_product_automation_score),
+        ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
         felten_exposure_score = scale_zero_to_one(felten_exposure_score),
         webb_exposure_score = scale_zero_to_one(webb_exposure_score),
         beta_eloundou = scale_zero_to_one(beta_eloundou)
@@ -207,7 +286,8 @@ prep_nama_data <- function(nama_data, sectoral_exposure) {
     select(-max_year) %>%
     mutate(
       post_chatgpt = ifelse(year > 2022, 1, 0),
-      log_value = log(value) # no +1 needed, as this is a 100-based index
+      log_value = log(value), # no +1 needed, as this is a 100-based index
+      event_time = as.integer(year - 2022)
     )
 }
 
@@ -257,46 +337,57 @@ read_skill_mentions <- function(dir) {
 
 run_twfe_exposure_models <- function(exposure_var, data, level) {
   esco_level <- paste0("idesco_level_", level)
-  
+
+  rhs <- paste(paste0(exposure_var, ":post_chatgpt"), collapse = " + ")
+  fml <- paste("log_OJA ~", rhs, "|", esco_level, "+ idcountry + dmax")
+  cat("Formula:", fml, "\n")
+
   # Log-linear model with separate fixed effects
   model <- feols(
-    as.formula(paste("log_OJA ~", exposure_var, ": post_chatgpt |", esco_level, "+ idcountry + dmax")),
+    as.formula(fml),
     data = data,
     cluster = c("idcountry", esco_level)
   )
-  
+
   return(model)
 }
 
 run_event_study_model <- function(exposure_var, data, level) {
   esco_level <- paste0("idesco_level_", level)
-  
+
+  rhs <- paste(paste0(exposure_var, ":i(event_time, ref = 0)"), collapse = " + ")
+  fml <- paste("log_OJA ~", rhs, "|", esco_level, "+ idcountry")
+  cat("Formula:", fml, "\n")
+
   model_event_study <- feols(
-    as.formula(paste("log_OJA ~", exposure_var, ": i(event_time, ref = 0) |", esco_level, "+ idcountry")),
+    as.formula(fml),
     data = data,
     cluster = c("idcountry", esco_level)
   )
-  
+
   return(model_event_study)
 }
 
 extract_event_study_coefs <- function(model, exposure_var) {
   tidy_model <- tidy(model)
-  
-  # The interaction terms will be of the form exposure_var:event_time::X
-  interaction_pattern <- paste0(exposure_var, ":event_time::")
-  
-  coefs <- tidy_model %>%
-    filter(str_detect(term, interaction_pattern)) %>%
-    mutate(
-      event_time = as.numeric(str_extract(term, "(?<=event_time::)-?\\d+"))
-    ) %>%
-    arrange(event_time)
-  
-  return(coefs)
+
+  extract_one <- function(var) {
+    tidy_model %>%
+      filter(str_detect(term, fixed(var)) & str_detect(term, "event_time::")) %>%
+      mutate(
+        event_time = as.numeric(str_extract(term, "(?<=event_time::)-?\\d+"))
+      ) %>%
+      arrange(event_time)
+  }
+
+  if (length(exposure_var) == 1) {
+    extract_one(exposure_var)
+  } else {
+    setNames(lapply(exposure_var, extract_one), exposure_var)
+  }
 }
 
-plot_event_study <- function(coefs, exposure_var, ylims = NULL) {
+plot_event_study <- function(coefs, exposure_var, exposure_vars = exposure_vars, ylims = NULL) {
   # Get the name for the exposure variable
   var_name <- names(exposure_vars)[exposure_vars == exposure_var]
   
@@ -319,6 +410,54 @@ plot_event_study <- function(coefs, exposure_var, ylims = NULL) {
   return(p)
 }
 
+
+plot_country_map <- function(cntry_coefs, title = NULL, sig_level = 0.05) {
+  iso2_to_region <- c(
+    AT = "Austria",      BE = "Belgium",        BG = "Bulgaria",
+    CY = "Cyprus",       CZ = "Czech Republic", DE = "Germany",
+    DK = "Denmark",      EE = "Estonia",        EL = "Greece",
+    ES = "Spain",        FI = "Finland",        FR = "France",
+    HR = "Croatia",      HU = "Hungary",        IE = "Ireland",
+    IT = "Italy",        LT = "Lithuania",      LU = "Luxembourg",
+    LV = "Latvia",       MT = "Malta",          NL = "Netherlands",
+    PL = "Poland",       PT = "Portugal",       RO = "Romania",
+    SE = "Sweden",       SI = "Slovenia",       SK = "Slovakia",
+    UK = "UK",           NO = "Norway",         IS = "Iceland",
+    CH = "Switzerland",  LI = "Liechtenstein"
+  )
+
+  plot_data <- cntry_coefs %>%
+    mutate(
+      region   = iso2_to_region[country],
+      fill_val = ifelse(p.value < sig_level, estimate, NA_real_)
+    )
+
+  europe <- map_data("world") %>%
+    filter(region %in% iso2_to_region)
+
+  map_df <- europe %>%
+    left_join(plot_data, by = "region")
+
+  abs_max <- max(abs(plot_data$fill_val), na.rm = TRUE)
+
+  ggplot(map_df, aes(long, lat, group = group, fill = fill_val)) +
+    geom_polygon(color = "white", linewidth = 0.2) +
+    scale_fill_gradient2(
+      low = "#d62728", mid = "white", high = "#1f77b4",
+      midpoint = 0, limits = c(-abs_max, abs_max),
+      na.value = "gray85",
+      name = expression(hat(beta)),
+      guide = guide_colorbar(barwidth = 8, barheight = 0.5, title.position = "top")
+    ) +
+    coord_fixed(ratio = 1.6, xlim = c(-25, 45), ylim = c(34, 72)) +
+    labs(title = title) +
+    theme_void() +
+    theme(
+      text = element_text(family = "merriweather"),
+      legend.position = "bottom",
+      plot.title = element_text(hjust = 0.5, size = 10)
+    )
+}
 
 plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
   # Get the name for the exposure variable

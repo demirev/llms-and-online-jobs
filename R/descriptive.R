@@ -100,8 +100,37 @@ ai_exposure <- list(
   l3 = read_ai_exposure_file(
     "data/ai_exposure_scores/scored_esco_occupations_matched.csv",
     level = 3
+  ),
+  l4 = read_ai_exposure_file(
+    "data/ai_exposure_scores/scored_esco_occupations_matched.csv",
+    level = 4
   )
 )
+
+eures <- list.files(
+  "data/cedefop_eures_job_vacancy_insights/csv/14_exp_occupation_skill_country_hyper",
+  full.names = TRUE
+) %>%
+  map_df(read_csv) %>%
+  format_eures_data(
+    ai_exposure = ai_exposure$l4
+  )
+
+eures_skills <- list.files(
+  "data/cedefop_eures_job_vacancy_insights/csv/14_exp_occupation_skill_country_copy_1_hyper",
+  full.names = TRUE
+) %>%
+  map_df(function(fl) {
+    read_csv(fl) %>%                                                                                       
+      mutate(       
+        year    = str_extract(fl, "\\d{4}(?=_q)") %>% as.integer(),
+        quarter = str_extract(fl, "(?<=_q)\\d")   %>% as.integer(),
+        dmax    = make_date(year, quarter * 3, 1) + months(1) - days(1),
+        dmin    = dmax - years(1) + days(1)
+      )
+  })
+
+# eures %>% filter(str_length(idesco_level_4) == 6 & !is.na(experience))
 
 # format data -------------------------------------------------------------
 oja_twfe <- list(
@@ -394,6 +423,39 @@ l3_time_plots$combined <- wrap_plots(l3_time_plots, ncol = 2)
 l2_time_plots_combined <- wrap_plots(l2_time_plots, ncol = 2)
 
 results$l3_time_plots <- l3_time_plots # not used in manuscript
+
+
+# EURES by experience -----------------------------------------------------
+# just checking - we don't have data before 2024
+eures %>%
+  group_by(
+    idcountry, idesco_level_4, experience
+  ) %>%
+  arrange(dmax) %>%
+  summarise(
+    delta_log_OJA = last(log_OJA) - first(log(OJA)),
+    exposure_score = last(beta_eloundou)
+  ) %>%
+  filter(!is.na(exposure_score)) %>%
+  group_by(idcountry, experience) %>%
+  mutate(
+    country_mean_oja = mean(delta_log_OJA),
+    country_mean_exposure = mean(exposure_score)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    delta_log_OJA = delta_log_OJA - country_mean_oja,
+    exposure_score = exposure_score - country_mean_exposure
+  ) %>%
+  ggplot(
+    aes(y = delta_log_OJA, x = exposure_score)
+  ) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_abline(slope = 0, intercept = 0) +
+  ylim(c(-1,1)) +
+  facet_wrap(~experience)
+
 
 # save results ------------------------------------------------------------
 saveRDS(results, "results/RDS/descriptive.RDS")

@@ -19,6 +19,20 @@ skills <- read_skill_mentions(
   "data/cedefop_skills_ovate_skill_demand/csv/05_esco_skill_skill_across_occupations_hyper"
 )
 
+eures_skills <- list.files(
+  "data/cedefop_eures_job_vacancy_insights/csv/14_exp_occupation_skill_country_copy_1_hyper",
+  full.names = TRUE
+) %>%
+  map_df(function(fl) {
+    read_csv(fl) %>%                                                                                       
+      mutate(       
+        year    = str_extract(fl, "\\d{4}(?=_q)") %>% as.integer(),
+        quarter = str_extract(fl, "(?<=_q)\\d")   %>% as.integer(),
+        dmax    = make_date(year, quarter * 3, 1) + months(1) - days(1),
+        dmin    = dmax - years(1) + days(1)
+      )
+  })
+
 skill_exposure <- read_csv(
   "data/ai_exposure_scores/scored_esco_skills.csv"
 )
@@ -50,7 +64,21 @@ skills_exposure <- skill_hierarchy %>%
   group_by(esco_skill_level_2, esco_skill_level_3) %>%
   filter(!is.na(esco_skill_level_3)) %>%
   summarise(
-    ai_product_exposure = mean(n_similar_l3 > 2) # cut-off from original paper
+    ai_product_exposure = mean(n_similar_l3 > 2), # cut-off from original paper
+    ai_automation_exposure = mean(
+      ifelse(
+        n_similar_l3 > 2, 
+        (n_similar_l3_automation_intent / n_similar_l3), 
+        0
+      )
+    ), # ratio for exposed
+    ai_augmentation_exposure = mean(
+      ifelse(
+        n_similar_l3 > 2, 
+        (n_similar_l3_augmentation_intent / n_similar_l3), 
+        0
+      )
+    )
   ) %>%
   ungroup() %>%
   # mutate(
@@ -66,7 +94,9 @@ skill_delta <- skills_exposure %>%
     esco_skill_level_3,
     isco_level_3,
     idcountry,
-    ai_product_exposure
+    ai_product_exposure,
+    ai_automation_exposure,
+    ai_augmentation_exposure
   ) %>%
   summarise(
     mentions_pre = mean(mentions[dmax <= t0]),
@@ -80,6 +110,52 @@ skill_delta <- skills_exposure %>%
     delta_mentions_log = log(mentions_post) - log(mentions_pre)
   ) %>%
   filter(!is.na(delta_mentions_log))
+
+eures_skills <- eures_skills %>%
+  mutate(
+    esco_skill_level_3 = tolower(escoskill_level_3)
+  ) %>%
+  left_join(
+    skill_exposure %>%
+      select(
+        esco_skill_level_3 = esco_skill_label,
+        n_similar_l3,
+        n_similar_l3_automation_intent,
+        n_similar_l3_augmentation_intent
+      ),
+    by = "esco_skill_level_3"
+  ) 
+
+eures_skills_delta <- eures_skills %>%
+  mutate(
+    ai_product_exposure = (n_similar_l3 > 2), # cut-off from original paper
+    ai_automation_exposure = (
+      ifelse(
+        n_similar_l3 > 2, 
+        (n_similar_l3_automation_intent / n_similar_l3), 
+        0
+      )
+    ), # ratio for exposed
+    ai_augmentation_exposure = (
+      ifelse(
+        n_similar_l3 > 2, 
+        (n_similar_l3_augmentation_intent / n_similar_l3), 
+        0
+      )
+    )
+  ) %>%
+  group_by(
+    idcountry, idesco_level_4, experience, esco_skill_level_3
+  ) %>%
+  arrange(dmax) %>%
+  summarise(
+    mean_mentions = mean(Mention),
+    min_mentions = min(Mention),
+    delta_mentions_log = last(log(Mention)) - first(log(Mention)),
+    ai_product_exposure_score = last(ai_product_exposure),
+    ai_automation_exposure_score = last(ai_automation_exposure),
+    ai_augmentation_exposure_score = last(ai_augmentation_exposure)
+  )
 
 # plots -------------------------------------------------------------------
 plot_skill_delta <- skill_delta %>%
@@ -113,7 +189,9 @@ results$most_exposed_skills <- skill_delta %>%
   group_by(esco_skill_level_3) %>%
   summarise(
     mean_delta_mentions_log = mean(exp(delta_mentions_log)),
-    ai_product_exposure = mean(ai_product_exposure, na.rm = TRUE)
+    ai_product_exposure = mean(ai_product_exposure, na.rm = TRUE),
+    ai_augmentation_exposure = mean(ai_augmentation_exposure, na.rm = TRUE),
+    ai_automation_exposure = mean(ai_augmentation_exposure, na.rm = TRUE)
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(ai_product_exposure) %>%
@@ -183,8 +261,19 @@ model_event_study <- feols(
     "isco_level_3"
   )
 )
+model_event_study_breakdown <- feols(
+  log_mentions ~ ai_automation_exposure:i(event_time, ref = 0) +
+    ai_augmentation_exposure:i(event_time, ref = 0) | esco_skill_level_3 + isco_level_3 + idcountry,
+  data = skills_twfe,
+  cluster = c(
+    "idcountry", 
+    "esco_skill_level_3",
+    "isco_level_3"
+  )
+)
 
 summary(model_event_study)
+summary(model_event_study_breakdown)
 
 results$even_study_plot <- extract_event_study_coefs(
   model_event_study, "ai_product_exposure"
@@ -222,6 +311,17 @@ model_delta <- feols(
 summary(model_delta)
 
 results$model_delta <- model_delta
+
+model_delta_breakdown <- feols(
+  delta_mentions_log ~ ai_augmentation_exposure + ai_automation_exposure | isco_level_3 + idcountry,
+  data = skill_delta,
+  cluster = c(
+    "idcountry", 
+    "isco_level_3"
+  )
+)
+
+summary(model_delta_breakdown)
 
 results$exposure_and_change_in_mentions <- skill_delta %>%
   group_by(esco_skill_level_3, ai_product_exposure) %>%
@@ -278,6 +378,73 @@ plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
 plot_decile_coefficients(model_decile, "ai_product_exposure")
 
 results$model_decile <- model_decile
+
+# EURES by experience -----------------------------------------------------
+# just checking - we don't have data before 2024
+exposure_vars <- c(
+  "ai_product_exposure_score",
+  "ai_automation_exposure_score",
+  "ai_augmentation_exposure_score"
+)
+
+eures_skills_models <- setNames(exposure_vars, exposure_vars) %>%
+  map(~ feols(
+    as.formula(paste0("delta_mentions_log ~ i(experience, ", .x, ") | idcountry + idesco_level_4")),
+    data = eures_skills_delta,
+    cluster = ~idcountry + idesco_level_4
+  )) %>%
+  map(broom::tidy) %>%
+  map2_dfr(names(.), function(md,nm) mutate(md, var = nm))
+
+exp_levels <- c("No experience", "Up to 1 year", "From 1 to 2 years",
+                "From 2 to 4 years", "From 4 to 6 years", "From 6 to 8 years",
+                "From 8 to 10 years", "Over 10 years")
+
+# Nicer facet labels for the exposure measures
+var_labels <- c(
+  ai_product_exposure_score = "AI Product Exposure",
+  ai_automation_exposure_score            = "AI Automation Exposure",
+  ai_augmentation_exposure_score    = "AI Augmentation Exposure"
+)
+
+eures_skills_plot_df <- eures_skills_models %>%
+  mutate(
+    experience = str_extract(term, "(?<=::)[^:]+(?=:)"),
+    experience = factor(experience, levels = exp_levels),
+    sig = case_when(
+      p.value < 0.01 ~ "p < 0.01",
+      p.value < 0.05 ~ "p < 0.05",
+      p.value < 0.10 ~ "p < 0.10",
+      TRUE           ~ "n.s."
+    ),
+    sig = factor(sig, levels = c("p < 0.01", "p < 0.05", "p < 0.10", "n.s.")),
+    ci_lo = estimate - 1.96 * std.error,
+    ci_hi = estimate + 1.96 * std.error,
+    var_label = var_labels[var]
+  )
+
+ggplot(eures_skills_plot_df, aes(x = experience, y = estimate, colour = sig)) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
+  scale_colour_manual(
+    values = c("p < 0.01" = "#d62728", "p < 0.05" = "#ff7f0e",
+               "p < 0.10" = "#2ca02c", "n.s." = "grey60"),
+    name = "Significance"
+  ) +
+  facet_wrap(~ var_label, scales = "free_y") +
+  labs(
+    x = NULL,
+    y = expression(hat(beta) ~ "(effect on " * Delta * " log Mentions)"),
+    title = "AI Exposure Effect on Job Ad Skill composition by Experience Level",
+    subtitle = "Country and occupation fixed effects, SEs clustered by country, occupation"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 40, hjust = 1, size = 8),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
 
 # save results ------------------------------------------------------------
 saveRDS(results, file = "results/RDS/skill_models.RDS")

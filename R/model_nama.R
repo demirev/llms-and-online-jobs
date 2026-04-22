@@ -1,7 +1,13 @@
 library(tidyverse)
 library(fixest)
+library(patchwork)
+library(showtext)
+library(sysfonts)
 
 source("R/helpers.R")
+
+font_add_google("Merriweather", "merriweather")
+showtext_auto()
 
 run_twfe_models <- function(data, exposure_vars) {
   map(exposure_vars, function(var) {
@@ -12,6 +18,17 @@ run_twfe_models <- function(data, exposure_vars) {
     )
   })
 }
+
+run_nama_event_study_model <- function(data, exposure_var) {
+  rhs <- paste(paste0(exposure_var, ":i(event_time, ref = 0)"), collapse = " + ")
+  fml <- paste("log_value ~", rhs, "| nace_rev2_code + country_code")
+  cat("Formula:", fml, "\n")
+  feols(
+    as.formula(fml),
+    data = data,
+    cluster = c("country_code", "nace_rev2_code")
+  )
+} # not run -- too few data periods
 
 print_model_summaries <- function(models, model_name) {
   walk(seq_along(models), function(i) {
@@ -26,7 +43,10 @@ exposure_vars <- c(
   "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Beta Score" = "beta_eloundou"
 )
-
+breakdown_vars <- c(
+  "Automation Exposure Score" = "ai_product_automation_score",
+  "Augmentation Exposure Score" = "ai_product_augmentation_score"
+)
 
 # read data ---------------------------------------------------------------
 nama_10_cp <- read_csv("results/intermediate_datasets/nama_10_cp_gvancs.csv")
@@ -44,6 +64,8 @@ sectoral_exposure %>%
   group_by(nace_rev2_code, sector_name) %>%
   summarise(
     ai_product_exposure_score = mean(ai_product_exposure_score), 
+    ai_product_automation_score = mean(ai_product_automation_score),
+    ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score), 
     webb_exposure_score = mean(webb_exposure_score), 
     beta_eloundou = mean(beta_eloundou)
@@ -58,6 +80,8 @@ nama_10_lp_delta <- nama_10_lp_prep %>%
   summarise(
     log_value = log(mean(value)),
     ai_product_exposure_score = mean(ai_product_exposure_score),
+    ai_product_automation_score = mean(ai_product_automation_score),
+    ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
     beta_eloundou = mean(beta_eloundou)
@@ -73,6 +97,8 @@ nama_10_cp_delta <- nama_10_cp_prep %>%
   summarise(
     log_value = log(mean(value)),
     ai_product_exposure_score = mean(ai_product_exposure_score),
+    ai_product_automation_score = mean(ai_product_automation_score),
+    ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
     beta_eloundou = mean(beta_eloundou)
@@ -86,7 +112,7 @@ nama_10_cp_delta <- nama_10_cp_prep %>%
 # plot delta -------------------------------------------------------------
 nama_10_lp_delta %>%
   ggplot(
-    aes(x = webb_exposure_score, y = delta_log_value)
+    aes(x = ai_product_automation_score, y = delta_log_value)
   ) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -97,22 +123,15 @@ nama_10_lp_delta %>%
   )
 
 # run models --------------------------------------------------------------
-exposure_vars <- c(
-  "ai_product_exposure_score",
-  "felten_exposure_score",
-  "webb_exposure_score",
-  "beta_eloundou"
-)
-
-lp_models <- run_twfe_models(nama_10_lp_prep, exposure_vars)
-cp_models <- run_twfe_models(nama_10_cp_prep, exposure_vars)
+lp_models <- run_twfe_models(nama_10_lp_prep, c(exposure_vars, breakdown_vars))
+cp_models <- run_twfe_models(nama_10_cp_prep, c(exposure_vars, breakdown_vars))
 
 # Print summaries
 print_model_summaries(lp_models, "Labor Productivity")
 print_model_summaries(cp_models, "Capital Productivity")
 
 # delta models ------------------------------------------------------------
-delta_lp_models <- map(exposure_vars, function(var) {
+delta_lp_models <- map(c(exposure_vars, breakdown_vars), function(var) {
   feols(
     as.formula(paste("delta_log_value ~", var, "| country_code")),
     data = nama_10_lp_delta,
@@ -120,11 +139,12 @@ delta_lp_models <- map(exposure_vars, function(var) {
   )
 })
 
-delta_cp_models <- map(exposure_vars, function(var) {
+delta_cp_models <- map(c(exposure_vars, breakdown_vars), function(var) {
   feols(
     as.formula(paste("delta_log_value ~", var, "| country_code")),
     data = nama_10_cp_delta,
     cluster = c("country_code", "nace_rev2_code")
   )
 })
+
 
