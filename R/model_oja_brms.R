@@ -3,6 +3,7 @@ library(tidybayes)
 library(tidyverse)
 
 source("R/helpers.R")
+init_text_log("oja_brms.txt")
 
 # read data ---------------------------------------------------------------
 oja <- list.files("data/cedefop_skills_ovate_oja/csv", full.names = TRUE) %>%
@@ -22,7 +23,8 @@ oja_twfe <- oja_twfe %>%
     ai_exposure_post_chatgpt = ai_product_exposure_score * post_chatgpt,
     felten_exposure_post_chatgpt = felten_exposure_score * post_chatgpt,
     webb_exposure_post_chatgpt = webb_exposure_score * post_chatgpt,
-    beta_eloundou_post_chatgpt = beta_eloundou * post_chatgpt
+    beta_eloundou_post_chatgpt = beta_eloundou * post_chatgpt,
+    anthropic_usage_post_chatgpt = anthropic_usage_score * post_chatgpt
   )
 
 # Function to set up and run the model for different exposure scores
@@ -61,7 +63,8 @@ exposure_vars <- c(
 	"ai_exposure_post_chatgpt",
 	"felten_exposure_post_chatgpt",
 	"webb_exposure_post_chatgpt",
-	"beta_eloundou_post_chatgpt"
+	"beta_eloundou_post_chatgpt",
+	"anthropic_usage_post_chatgpt"
 )
 
 models <- map(exposure_vars, ~run_exposure_model(.x, oja_twfe))
@@ -70,9 +73,8 @@ saveRDS(models, file = "chkp/oja_exposure_models.RDS")
 
 # Summarize and plot results for each model
 map(names(models), function(name) {
-  cat("\nSummary for", name, "model:\n")
-  print(summary(models[[name]]))
-  
+  log_text(summary(models[[name]]), paste("brms:", name))
+
   cat("\nPlotting posterior distribution for", name, ":\n")
   print(mcmc_plot(models[[name]], type = "areas", regex_pars = paste0("b_exposure_var")))
   

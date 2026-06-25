@@ -1,3 +1,40 @@
+save_plot <- function(filename, plot, ..., dirs = c("results/plots", "tex/img")) {
+  for (dir in dirs) {
+    if (!dir.exists(dir)) dir.create(dir, recursive = TRUE)
+    ggsave(file.path(dir, filename), plot, ...)
+  }
+}
+
+init_text_log <- function(file, dir = "results/logs", overwrite = FALSE) {
+  if (!dir.exists(dir)) dir.create(dir, recursive = TRUE)
+  path <- file.path(dir, file)
+  if (file.exists(path) & overwrite) {
+    file.remove(path) 
+  } else {
+    warning("File ", path, " already exists. Appending")
+  }
+  writeLines(
+    paste0("# Generated ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
+    path
+  )
+  options(text_log_path = path)
+  invisible(path)
+}
+
+log_text <- function(x, label = NULL, ...) {
+  path <- getOption("text_log_path")
+  if (!is.null(path)) {
+    out <- capture.output(print(x, ...))
+    header <- if (!is.null(label)) {
+      c("", paste0("## ", label), strrep("-", nchar(label) + 3))
+    } else character(0)
+    footer <- strrep("-", 180)
+    cat(c(header, out, footer, ""), sep = "\n", file = path, append = TRUE)
+  }
+  print(x, ...)
+  invisible(x)
+}
+
 scale_zero_to_one <- function(x) {
 	if (all(is.na(x) | is.nan(x))) {
 		return(x)  # Return the original vector if all values are NA or NaN
@@ -11,8 +48,37 @@ scale_zero_to_one <- function(x) {
 	return(result)
 }
 
-read_ai_exposure_file <- function(file, level = 2) {
-  res <- read_csv(file) %>%
+read_ai_exposure_file <- function(
+    file,
+    level = 2,
+    anthropic_file = "data/anthropic/anthropic_exposure_esco.csv"
+) {
+  base <- read_csv(file)
+
+  # Bring in the Anthropic Economic Index per-occupation scores. The file is
+  # keyed by ESCO occupation_uri (1:1 with the matched file's URIs), so we
+  # left-join before any ISCO-level aggregation. Columns are renamed to the
+  # `anthropic_*` namespace to avoid clashing with the existing `ai_product_*`
+  # columns (which come from a different upstream model).
+  if (!is.null(anthropic_file) && file.exists(anthropic_file)) {
+    anthropic <- read_csv(anthropic_file) %>%
+      select(
+        occupation_uri,
+        anthropic_usage_score      = usage_score,
+        anthropic_automation_score = automation_score,
+        anthropic_augmentation_score = augmentation_score
+      )
+    base <- base %>% left_join(anthropic, by = "occupation_uri")
+  } else {
+    base <- base %>%
+      mutate(
+        anthropic_usage_score = NA_real_,
+        anthropic_automation_score = NA_real_,
+        anthropic_augmentation_score = NA_real_
+      )
+  }
+
+  res <- base %>%
     mutate(isco_level = substr(isco_group, 1, level)) %>%
     group_by(isco_level) %>%
     summarise(
@@ -21,9 +87,12 @@ read_ai_exposure_file <- function(file, level = 2) {
       ai_product_augmentation_score = mean(ai_product_augmentation_score, na.rm = TRUE),
       felten_exposure_score = mean(felten_exposure_score, na.rm = TRUE),
       webb_exposure_score = mean(webb_exposure_score, na.rm = TRUE),
-      beta_eloundou = mean(beta_eloundou, na.rm = TRUE)
+      beta_eloundou = mean(beta_eloundou, na.rm = TRUE),
+      anthropic_usage_score = mean(anthropic_usage_score, na.rm = TRUE),
+      anthropic_automation_score = mean(anthropic_automation_score, na.rm = TRUE),
+      anthropic_augmentation_score = mean(anthropic_augmentation_score, na.rm = TRUE)
     )
-  
+
   colnames(res)[1] <- paste0("isco_level_", level)
   res
 }
@@ -64,19 +133,25 @@ format_eures_data <- function(
       ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
       felten_exposure_score = scale_zero_to_one(felten_exposure_score),
       webb_exposure_score = scale_zero_to_one(webb_exposure_score),
-      beta_eloundou = scale_zero_to_one(beta_eloundou)
+      beta_eloundou = scale_zero_to_one(beta_eloundou),
+      anthropic_usage_score = scale_zero_to_one(anthropic_usage_score),
+      anthropic_automation_score = scale_zero_to_one(anthropic_automation_score),
+      anthropic_augmentation_score = scale_zero_to_one(anthropic_augmentation_score)
     ) %>%
     select(
       OJA, log_OJA, dmax, post_chatgpt, idcountry, experience,
-      #matches(paste0("esco_level_", level, "_short")), 
+      #matches(paste0("esco_level_", level, "_short")),
       matches(paste0("idesco_level_", level)),
       country_occupation_pair,
-      ai_product_exposure_score, 
+      ai_product_exposure_score,
       ai_product_automation_score,
       ai_product_augmentation_score,
-      felten_exposure_score, 
-      webb_exposure_score, 
-      beta_eloundou
+      felten_exposure_score,
+      webb_exposure_score,
+      beta_eloundou,
+      anthropic_usage_score,
+      anthropic_automation_score,
+      anthropic_augmentation_score
     ) %>%
     mutate(
       dmax = as.Date(dmax),
@@ -120,19 +195,25 @@ format_twfe_oja_data <- function(
 			ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
 			felten_exposure_score = scale_zero_to_one(felten_exposure_score),
 			webb_exposure_score = scale_zero_to_one(webb_exposure_score),
-			beta_eloundou = scale_zero_to_one(beta_eloundou)
+			beta_eloundou = scale_zero_to_one(beta_eloundou),
+			anthropic_usage_score = scale_zero_to_one(anthropic_usage_score),
+			anthropic_automation_score = scale_zero_to_one(anthropic_automation_score),
+			anthropic_augmentation_score = scale_zero_to_one(anthropic_augmentation_score)
 		) %>%
 		select(
-		  OJA, log_OJA, dmax, post_chatgpt, idcountry, 
-			matches(paste0("esco_level_", level, "_short")), 
+		  OJA, log_OJA, dmax, post_chatgpt, idcountry,
+			matches(paste0("esco_level_", level, "_short")),
 			matches(paste0("idesco_level_", level)),
 			country_occupation_pair,
-			ai_product_exposure_score, 
+			ai_product_exposure_score,
 			ai_product_automation_score,
 			ai_product_augmentation_score,
-			felten_exposure_score, 
-			webb_exposure_score, 
-			beta_eloundou
+			felten_exposure_score,
+			webb_exposure_score,
+			beta_eloundou,
+			anthropic_usage_score,
+			anthropic_automation_score,
+			anthropic_augmentation_score
 		) %>%
     mutate(
       dmax = as.Date(dmax),
@@ -182,10 +263,13 @@ format_delta_data <- function(
      felten_exposure_score = mean(felten_exposure_score),
      webb_exposure_score = mean(webb_exposure_score),
      beta_eloundou = mean(beta_eloundou),
+     anthropic_usage_score = mean(anthropic_usage_score),
+     anthropic_automation_score = mean(anthropic_automation_score),
+     anthropic_augmentation_score = mean(anthropic_augmentation_score),
      .groups = "drop"
    ) %>%
    group_by(
-     post_chatgpt, 
+     post_chatgpt,
      across(all_of(group_cols))
    ) %>%
    summarise(
@@ -196,6 +280,9 @@ format_delta_data <- function(
      felten_exposure_score = mean(felten_exposure_score),
      webb_exposure_score = mean(webb_exposure_score),
      beta_eloundou = mean(beta_eloundou),
+     anthropic_usage_score = mean(anthropic_usage_score),
+     anthropic_automation_score = mean(anthropic_automation_score),
+     anthropic_augmentation_score = mean(anthropic_augmentation_score),
      .groups = "drop"
    ) %>%
    arrange(across(all_of(group_cols)), post_chatgpt) %>%
@@ -209,10 +296,13 @@ format_delta_data <- function(
     delta_OJA_log = log(post_OJA / pre_OJA),
     ai_product_exposure_score = mean(ai_product_exposure_score),
     ai_product_automation_score = mean(ai_product_automation_score),
-    ai_product_augmentation_score = mean(ai_product_augmentation_score),,
+    ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
     beta_eloundou = mean(beta_eloundou),
+    anthropic_usage_score = mean(anthropic_usage_score),
+    anthropic_automation_score = mean(anthropic_automation_score),
+    anthropic_augmentation_score = mean(anthropic_augmentation_score),
     .groups = "drop"
   )
 }
@@ -245,10 +335,19 @@ derive_sectoral_exposure <- function(
       ),
       beta_eloundou = weighted.mean(
         beta_eloundou, n, na.rm = TRUE
+      ),
+      anthropic_usage_score = weighted.mean(
+        anthropic_usage_score, n, na.rm = TRUE
+      ),
+      anthropic_automation_score = weighted.mean(
+        anthropic_automation_score, n, na.rm = TRUE
+      ),
+      anthropic_augmentation_score = weighted.mean(
+        anthropic_augmentation_score, n, na.rm = TRUE
       )
     ) %>%
     ungroup()
-  
+
   if (zero_to_one) {
     res <- res %>%
       mutate(
@@ -257,7 +356,10 @@ derive_sectoral_exposure <- function(
         ai_product_augmentation_score = scale_zero_to_one(ai_product_augmentation_score),
         felten_exposure_score = scale_zero_to_one(felten_exposure_score),
         webb_exposure_score = scale_zero_to_one(webb_exposure_score),
-        beta_eloundou = scale_zero_to_one(beta_eloundou)
+        beta_eloundou = scale_zero_to_one(beta_eloundou),
+        anthropic_usage_score = scale_zero_to_one(anthropic_usage_score),
+        anthropic_automation_score = scale_zero_to_one(anthropic_automation_score),
+        anthropic_augmentation_score = scale_zero_to_one(anthropic_augmentation_score)
       )
   }
   
@@ -397,11 +499,16 @@ plot_event_study <- function(coefs, exposure_var, exposure_vars = exposure_vars,
     geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
                       ymax = estimate + 1.96 * std.error), width = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
-    labs(title = paste("Event Study for", var_name),
-         x = "Event Time (quarters since ChatGPT release)",
-         y = "Coefficient Estimate") +
+    labs(
+      title = paste(
+        #"Event Study for", 
+        var_name
+      ),
+       x = "Event Time (quarters since ChatGPT release)",
+       y = "Coefficient Estimate") +
     theme_minimal() +
-    theme(text = element_text(family = "merriweather"))
+    theme(text = element_text(family = "merriweather")) +
+    geom_hline(yintercept = 0, color = "grey35")
   
   if (!is.null(ylims)) {
     p <- p + ylim(ylims)

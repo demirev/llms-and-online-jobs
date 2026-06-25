@@ -6,6 +6,7 @@ library(showtext)
 library(sysfonts)
 
 source("R/helpers.R")
+init_text_log("skill_demand.txt")
 
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
@@ -179,8 +180,14 @@ plot_skill_delta <- skill_delta %>%
   theme_minimal() +
   theme(text = element_text(family = "merriweather"))
 
-summary(lm(delta_mentions_log ~ ai_product_exposure, data = skill_delta))
+log_text(summary(lm(delta_mentions_log ~ ai_product_exposure, data = skill_delta)),
+         "OLS: delta_mentions_log ~ ai_product_exposure")
+
 skill_detla_cor <- cor.test(skill_delta$ai_product_exposure, skill_delta$delta_mentions_log)
+log_text(
+  skill_detla_cor,
+  "delta_metnions_log vs ai_product exposure correlation"
+)
 
 results$plot_skill_delta <- plot_skill_delta
 results$skill_detla_cor <- skill_detla_cor
@@ -195,7 +202,7 @@ results$most_exposed_skills <- skill_delta %>%
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(ai_product_exposure) %>%
-  print(n = Inf) # used in manuscript
+  log_text("Most exposed skills (ESCO skill Level 3)", n = Inf) # used in manuscript
 
 set.seed(121)
 results$most_exposed_skills %>%
@@ -272,8 +279,9 @@ model_event_study_breakdown <- feols(
   )
 )
 
-summary(model_event_study)
-summary(model_event_study_breakdown)
+log_text(summary(model_event_study), "Event study: log_mentions ~ ai_product_exposure x event_time")
+log_text(summary(model_event_study_breakdown),
+         "Event study breakdown: automation + augmentation x event_time")
 
 results$even_study_plot <- extract_event_study_coefs(
   model_event_study, "ai_product_exposure"
@@ -294,7 +302,8 @@ model_twfe <- feols(
   )
 )
 
-summary(model_twfe)
+log_text(summary(model_twfe),
+         "TWFE: log_mentions ~ ai_product_exposure x post_chatgpt")
 
 results$model_twfe <- model_twfe
 
@@ -308,7 +317,8 @@ model_delta <- feols(
   )
 )
 
-summary(model_delta)
+log_text(summary(model_delta),
+         "Delta: delta_mentions_log ~ ai_product_exposure")
 
 results$model_delta <- model_delta
 
@@ -321,7 +331,8 @@ model_delta_breakdown <- feols(
   )
 )
 
-summary(model_delta_breakdown)
+log_text(summary(model_delta_breakdown),
+         "Delta breakdown: delta_mentions_log ~ automation + augmentation")
 
 results$exposure_and_change_in_mentions <- skill_delta %>%
   group_by(esco_skill_level_3, ai_product_exposure) %>%
@@ -330,7 +341,7 @@ results$exposure_and_change_in_mentions <- skill_delta %>%
   ) %>%
   filter(!is.na(ai_product_exposure)) %>%
   arrange(desc(ai_product_exposure)) %>%
-  print(n = Inf) # used in manuscript
+  log_text("Exposure and change in mentions by skill", n = Inf) # used in manuscript
 
 # decile ----
 model_decile <- feols(
@@ -345,7 +356,8 @@ model_decile <- feols(
   )
 )
 
-summary(model_decile)
+log_text(summary(model_decile),
+         "Decile: delta_mentions_log ~ exposure_decile")
 
 plot_decile_coefficients <- function(model, exposure_var, conf_level = 0.95) {
   # Get the name for the exposure variable
@@ -423,7 +435,7 @@ eures_skills_plot_df <- eures_skills_models %>%
     var_label = var_labels[var]
   )
 
-ggplot(eures_skills_plot_df, aes(x = experience, y = estimate, colour = sig)) +
+eures_skills_plot <- ggplot(eures_skills_plot_df, aes(x = experience, y = estimate, colour = sig)) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
   geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
   scale_colour_manual(
@@ -446,12 +458,22 @@ ggplot(eures_skills_plot_df, aes(x = experience, y = estimate, colour = sig)) +
     panel.grid.minor = element_blank()
   )
 
+results$eures_skills_plot <- eures_skills_plot
+
 # save results ------------------------------------------------------------
 saveRDS(results, file = "results/RDS/skill_models.RDS")
 
-ggsave(
-  file.path("results/plots", "event_study_skills.eps"),
+save_plot(
+  "event_study_skills.eps",
   results$even_study_plot,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
+  "eures_skills_plot.eps",
+  results$eures_skills_plot,
   width = 10,
   height = 6,
   device = cairo_ps

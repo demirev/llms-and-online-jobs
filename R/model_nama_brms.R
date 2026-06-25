@@ -3,6 +3,7 @@ library(brms)
 library(tidybayes)
 
 source("R/helpers.R")
+init_text_log("nama_brms.txt")
 
 # read and prep data ------------------------------------------------------
 nama_10_cp <- read_csv("results/intermediate_datasets/nama_10_cp_gvancs.csv")
@@ -55,7 +56,8 @@ exposure_vars <- c(
   "ai_product_exposure_score",
   "felten_exposure_score",
   "webb_exposure_score",
-  "beta_eloundou"
+  "beta_eloundou",
+  "anthropic_usage_score"
 )
 
 lp_bayesian_models <- map(exposure_vars, ~run_bayesian_model(nama_10_lp_prep, .x))
@@ -69,9 +71,8 @@ saveRDS(cp_bayesian_models, file = "chkp/cp_bayesian_models.RDS")
 # Summarize and plot results ----------------------------------------------
 summarize_and_plot_bayesian_models <- function(models, model_name) {
   walk(seq_along(models), function(i) {
-    cat("\nSummary for", model_name, "-", names(models)[i], "model:\n")
-    print(summary(models[[i]]))
-    
+    log_text(summary(models[[i]]), paste(model_name, "-", names(models)[i]))
+
     cat("\nPlotting posterior distribution for", names(models)[i], ":\n")
     print(mcmc_plot(models[[i]], type = "areas", regex_pars = "b_"))
     

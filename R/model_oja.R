@@ -7,6 +7,7 @@ library(showtext)
 library(sysfonts)
 
 source("R/helpers.R")
+init_text_log("oja_models.txt", overwrite = TRUE)
 
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
@@ -14,11 +15,14 @@ exposure_vars <- c(
   "Demirev Exposure Score" = "ai_product_exposure_score",
   "Felten AI Exposure Score" = "felten_exposure_score",
   "Webb AI Exposure Score" = "webb_exposure_score",
-  "Eloundou Exposure Score" = "beta_eloundou"
+  "Eloundou Exposure Score" = "beta_eloundou",
+  "Anthropic Usage Score" = "anthropic_usage_score"
 )
 breakdown_vars <- c(
   "Automation Exposure Score" = "ai_product_automation_score",
-  "Augmentation Exposure Score" = "ai_product_augmentation_score"
+  "Augmentation Exposure Score" = "ai_product_augmentation_score",
+  "Anthropic Automation Score" = "anthropic_automation_score",
+  "Anthropic Augmentation Score" = "anthropic_augmentation_score"
 )
 
 results <- list()
@@ -98,8 +102,7 @@ results$twfe <- twfe_models
 
 # Print summaries
 walk(seq_along(exposure_vars), function(i) {
-  cat("\nModels for", names(exposure_vars)[i], ":\n")
-  print(summary(twfe_models[[i]]))
+  log_text(summary(twfe_models[[i]]), paste("TWFE:", names(exposure_vars)[i]))
 })
 
 # Event studies ----
@@ -110,35 +113,43 @@ event_study_model_breakdown <- run_event_study_model(breakdown_vars, oja_twfe$l3
 
 results$event_study <- event_study_models
 
+log_text(
+  event_study_models,
+  label = "Event study models:"
+)
+
 event_study_coefs <- map2(
   event_study_models, exposure_vars, ~extract_event_study_coefs(.x, .y)
 )
 
 plots <- map2(
   event_study_coefs, exposure_vars, 
-  ~plot_event_study(.x, .y, ylims = c(-3.2,0.4))
+  ~plot_event_study(.x, .y, exposure_vars = exposure_vars, ylims = c(-4.8,0.4))
 )
 
 plots_breakdown <- map2(
   extract_event_study_coefs(event_study_model_breakdown, breakdown_vars),
   breakdown_vars,
-  ~plot_event_study(.x, .y, exposure_vars = breakdown_vars, ylims = c(-3.9,0.4))
+  ~plot_event_study(.x, .y, exposure_vars = breakdown_vars, ylims = c(-1.5,0.4))
 )
 
 # Combine plots into a 2x2 grid using patchwork
-combined_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]]) +
+combined_plot <- (plots[[1]] + plots[[2]]) / 
+  (plots[[3]] + plots[[4]]) / 
+  (plots[[5]] + (ggplot() + theme_minimal())) +
   plot_layout(guides = "collect") +  # Combine legends
   plot_annotation(
     title = "Event Study Results Across Different AI Exposure Measures",
     theme = theme_minimal()
   )
 
-plots_breakdown[[1]] + plots_breakdown[[2]]
+combined_breakdown_plot <- (plots_breakdown[[1]] + plots_breakdown[[2]]) /
+  (plots_breakdown[[3]] + plots_breakdown[[4]])
 
 # Print combined plot
 print(combined_plot)
 
-results$event_study_plots <- c(plots, list(combined = combined_plot))
+results$event_study_plots <- c(plots, plots_breakdown, list(combined = combined_plot, combined_breakdown = combined_breakdown_plot))
 
 # delta models ----
 delta_models <- map(
@@ -157,6 +168,11 @@ names(delta_models) <- exposure_vars
 
 results$delta <- delta_models
 
+log_text(
+  delta_models, 
+  "Delta models:"
+)
+
 delta_models_breakdown <- list(
   combined = feols(
     as.formula(paste("delta_OJA_log ~ ai_product_automation_score + ai_product_augmentation_score | idcountry")),
@@ -172,7 +188,29 @@ delta_models_breakdown <- list(
     as.formula(paste("delta_OJA_log ~ ai_product_augmentation_score | idcountry")),
     data = oja_delta$l3_ap,
     cluster = "idcountry"
+  ),
+  combined = feols(
+    as.formula(paste("delta_OJA_log ~ anthropic_automation_score + anthropic_augmentation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
+  ),
+  automation_anthropic = feols(
+    as.formula(paste("delta_OJA_log ~ anthropic_automation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
+  ),
+  augmentation = feols(
+    as.formula(paste("delta_OJA_log ~ anthropic_augmentation_score | idcountry")),
+    data = oja_delta$l3_ap,
+    cluster = "idcountry"
   )
+)
+
+results$delta_breakdown <- delta_models_breakdown
+
+log_text(
+  delta_models_breakdown, 
+  "Delta models, breakdown by intent:"
 )
 
 delta_plots <- map(
@@ -260,7 +298,8 @@ delta_plots_breakdown <- map(
 )
 
 delta_plots$combined <- (delta_plots[[1]] + delta_plots[[2]]) / 
-  (delta_plots[[3]] + delta_plots[[4]]) +
+  (delta_plots[[3]] + delta_plots[[4]]) / 
+  (delta_plots[[5]] + (ggplot() + theme_minimal())) +
   # (delta_plots_breakdown[[1]] + delta_plots_breakdown[[2]]) +
   plot_layout(guides = "collect") +  # Combine legends
   plot_annotation(
@@ -268,7 +307,19 @@ delta_plots$combined <- (delta_plots[[1]] + delta_plots[[2]]) /
     theme = theme_minimal()
   )
 
+delta_plots$combined_breakdown <- (delta_plots_breakdown[[1]] + delta_plots_breakdown[[2]]) / 
+  (delta_plots_breakdown[[3]] + delta_plots_breakdown[[4]]) +
+  # (delta_plots_breakdown[[1]] + delta_plots_breakdown[[2]]) +
+  plot_layout(guides = "collect") +  # Combine legends
+  plot_annotation(
+    title = "Delta OJA Log vs AI Automation and Augmentation Measures",
+    theme = theme_minimal()
+  )
+
 results$delta_plots <- delta_plots
+
+cor.test(oja_delta$l3_ap$ai_product_automation_score, oja_delta$l3_ap$ai_product_augmentation_score)
+cor.test(oja_delta$l3_ap$anthropic_automation_score, oja_delta$l3_ap$anthropic_augmentation_score)
 
 partial_plots <- map(
   c(exposure_vars, breakdown_vars),
@@ -356,7 +407,7 @@ partial_plots <- map(
 
 partial_plots$combined <- (partial_plots[[1]] + partial_plots[[2]]) / 
   (partial_plots[[3]] + partial_plots[[4]]) +
-  # (partial_plots[[5]] + partial_plots[[6]]) +
+  (partial_plots[[5]] + (ggplot() + theme_minimal())) +
   plot_layout(guides = "collect") +
   plot_annotation(
     title = "Partial Regression Plots Across Different AI Exposure Measures",
@@ -394,6 +445,11 @@ delta_models_adj <- map(
 
 results$delta_models_adj <- delta_models_adj
 
+log_text(
+  delta_models_adj, 
+  "Delta models, adjusted for 'untreated':"
+)
+
 # delta models by country ----
 delta_models_cntry <- map(
   exposure_vars, function(exposure_var) {
@@ -422,7 +478,7 @@ map_plots_cntry <- map2(
   ~plot_country_map(.x, title = .y)
 )
 
-map_plots_cntry$combined <- wrap_plots(map_plots_cntry[1:4], nrow = 2) +
+map_plots_cntry$combined <- wrap_plots(map_plots_cntry[1:5], nrow = 3) +
   plot_annotation(
     title = "AI Exposure Effect by Country (significant estimates highlighted)",
     theme = theme_minimal()
@@ -482,6 +538,11 @@ decile_models <- map(
 
 names(decile_models) <- exposure_vars
 
+log_text(
+  decile_models, 
+  "By-decile models:"
+)
+
 results$decile <- decile_models
 
 decile_plots <- map2(
@@ -514,7 +575,10 @@ delta_eures <- eures %>%
     ai_product_automation_score = last(ai_product_automation_score),
     ai_product_augmentation_score = last(ai_product_augmentation_score),
     webb_exposure_score = last(webb_exposure_score),
-    felten_exposure_score = last(felten_exposure_score)
+    felten_exposure_score = last(felten_exposure_score),
+    anthropic_usage_score = last(anthropic_usage_score),
+    anthropic_automation_score = last(anthropic_automation_score),
+    anthropic_augmentation_score = last(anthropic_augmentation_score)
   )
 
 eures_models <- setNames(c(exposure_vars, breakdown_vars), c(exposure_vars, breakdown_vars)) %>%
@@ -530,6 +594,12 @@ exp_levels <- c("No experience", "Up to 1 year", "From 1 to 2 years",
                 "From 2 to 4 years", "From 4 to 6 years", "From 6 to 8 years",
                 "From 8 to 10 years", "Over 10 years")
 
+log_text(
+  eures_models, 
+  "Eures by experience level:", 
+  n = Inf
+)
+
 # Nicer facet labels for the exposure measures
 var_labels <- c(
   ai_product_exposure_score = "AI Product Exposure",
@@ -537,7 +607,10 @@ var_labels <- c(
   felten_exposure_score    = "Felten Exposure",
   webb_exposure_score      = "Webb Exposure",
   ai_product_augmentation_score = "Augmentation Exposure",
-  ai_product_automation_score = "Automation Exposure"
+  ai_product_automation_score = "Automation Exposure",
+  anthropic_usage_score        = "Anthropic Usage",
+  anthropic_augmentation_score = "Anthropic Augmentation",
+  anthropic_automation_score   = "Anthropic Automation"
 )
 
 eures_plot_df <- eures_models %>%
@@ -557,7 +630,7 @@ eures_plot_df <- eures_models %>%
   )
 
 results$eures_plot <- eures_plot_df %>% 
-  filter(var_label %in% var_labels[1:4]) %>% # no automation / augmentation breakdown here
+  filter(var_label %in% var_labels[c(1:4, 7)]) %>% # no automation / augmentation breakdown here
   ggplot(aes(x = experience, y = estimate, colour = sig)) +
   geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
   geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
@@ -566,7 +639,9 @@ results$eures_plot <- eures_plot_df %>%
                "p < 0.10" = "#2ca02c", "n.s." = "grey60"),
     name = "Significance"
   ) +
-  facet_wrap(~ var_label, scales = "free_y") +
+  facet_wrap(
+    ~var_label#, scales = "free_y"
+  ) +
   labs(
     x = NULL,
     y = "coefficient estimate",
@@ -605,7 +680,7 @@ sensitivity_results_l3 %>%
  ) %>%
  arrange(exposure_var, abs(pct_diff_from_baseline)) %>%
  #filter(occupation == "Baseline (All)" | new_p_val > 0.05) %>%
- print(n = Inf)
+ log_text("Sensitivity: drop-one ESCO Level 3 occupation", n = Inf)
 
 sensitivity_results_l2 %>%
   group_by(exposure_var) %>%
@@ -620,7 +695,7 @@ sensitivity_results_l2 %>%
   ) %>%
   arrange(exposure_var, abs(pct_diff_from_baseline)) %>%
   #filter(occupation == "Baseline (All)" | new_p_val > 0.05) %>%
-  print(n = Inf)
+  log_text("Sensitivity: drop-one ESCO Level 2 occupation", n = Inf)
 
 sensitivity_result_countries %>%
   group_by(exposure_var) %>%
@@ -635,21 +710,21 @@ sensitivity_result_countries %>%
   ) %>%
   arrange(exposure_var, abs(pct_diff_from_baseline)) %>%
   #filter(country == "Baseline (All)" | new_p_val > 0.05) %>%
-  print(n = Inf)
+  log_text("Sensitivity: drop-one country", n = Inf)
 
 # save results ------------------------------------------------------------
 saveRDS(results, "results/RDS/oja_models.RDS")
 
-ggsave(
-  file.path("results/plots", "partial_plots_all.eps"),
+save_plot(
+  "partial_plots_all.eps",
   results$partial_plots$combined,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "partial_plots_all.svg"),
+save_plot(
+  "partial_plots_all.svg",
   results$partial_plots$combined,
   width = 10,
   height = 6,
@@ -657,8 +732,8 @@ ggsave(
 )
 
 # partial plots
-ggsave(
-  file.path("results/plots", "partial_plots_eloundou.eps"),
+save_plot(
+  "partial_plots_eloundou.eps",
   results$partial_plots$`Eloundou Exposure Score`,
   width = 10,
   height = 6,
@@ -669,24 +744,24 @@ ggsave(
 # "keyboard operators" (up), "software developers", "database professionals", "authors and journalists", "mathematicians and statisticians" (down)
 # biggest drop in OJA is OC815 (Mining plant operators), OC622 (Textile machine operators), OC811 (fishery workers and hunters) despite low exposure
 
-ggsave(
-  file.path("results/plots", "partial_plots_demirev.eps"),
+save_plot(
+  "partial_plots_demirev.eps",
   results$partial_plots$`Demirev Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "partial_plots_webb.eps"),
+save_plot(
+  "partial_plots_webb.eps",
   results$partial_plots$`Webb AI Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "partial_plots_felten.eps"),
+save_plot(
+  "partial_plots_felten.eps",
   results$partial_plots$`Felten AI Exposure Score`,
   width = 10,
   height = 6,
@@ -694,40 +769,40 @@ ggsave(
 )
 
 # delta plots
-ggsave(
-  file.path("results/plots", "delta_plots_all.eps"),
+save_plot(
+  "delta_plots_all.eps",
   results$delta_plots$combined,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "delta_plots_eloundou.eps"),
+save_plot(
+  "delta_plots_eloundou.eps",
   results$delta_plots$`Eloundou Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "delta_plots_demirev.eps"),
+save_plot(
+  "delta_plots_demirev.eps",
   results$delta_plots$`Demirev Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "delta_plots_felten.eps"),
+save_plot(
+  "delta_plots_felten.eps",
   results$delta_plots$`Felten AI Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "delta_plots_webb.eps"),
+save_plot(
+  "delta_plots_webb.eps",
   results$delta_plots$`Webb AI Exposure Score`,
   width = 10,
   height = 6,
@@ -735,89 +810,105 @@ ggsave(
 )
 
 # decile plots
-ggsave(
-  file.path("results/plots", "decile_plots_combined.eps"),
+save_plot(
+  "decile_plots_combined.eps",
   results$decile_plots$combined,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "decile_plots_eloundou.eps"),
+save_plot(
+  "decile_plots_eloundou.eps",
   results$decile_plots$beta_eloundou,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "decile_plots_demirev.eps"),
+save_plot(
+  "decile_plots_demirev.eps",
   results$decile_plots$ai_product_exposure_score,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "decile_plots_webb.eps"),
+save_plot(
+  "decile_plots_webb.eps",
   results$decile_plots$webb_exposure_score,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "decile_plots_felten.eps"),
+save_plot(
+  "decile_plots_felten.eps",
   results$decile_plots$felten_exposure_score,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
+save_plot(
+  "decile_plots_anthropic.eps",
+  results$decile_plots$anthropic_usage_score,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
 # event study plots
-ggsave(
-  file.path("results/plots", "event_study_all.eps"),
+save_plot(
+  "event_study_all.eps",
   results$event_study_plots$combined,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "event_study_eloundou.eps"),
+save_plot(
+  "event_study_eloundou.eps",
   results$event_study_plots$`Eloundou Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "event_study_demirev.eps"),
+save_plot(
+  "event_study_demirev.eps",
   results$event_study_plots$`Demirev Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "event_study_webb.eps"),
+save_plot(
+  "event_study_webb.eps",
   results$event_study_plots$`Webb AI Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "event_study_felten.eps"),
+save_plot(
+  "event_study_felten.eps",
   results$event_study_plots$`Felten AI Exposure Score`,
   width = 10,
   height = 6,
   device = cairo_ps
 )
 
-ggsave(
-  file.path("results/plots", "by_experience.eps"),
+save_plot(
+  "event_study_anthropic.eps",
+  results$event_study_plots$`Anthropic Usage Score`,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
+  "by_experience.eps",
   results$eures_plot,
   width = 10,
   height = 6,

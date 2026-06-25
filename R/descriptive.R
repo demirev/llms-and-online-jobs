@@ -7,6 +7,7 @@ library(showtext)
 library(sysfonts)
 
 source("R/helpers.R")
+init_text_log("descriptive.txt")
 
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
@@ -14,7 +15,10 @@ exposure_vars <- c(
   "AI Product Exposure Score" = "ai_product_exposure_score",
   "Felten AI Exposure Score" = "felten_exposure_score",
   "Webb AI Exposure Score" = "webb_exposure_score",
-  "Eloundou Beta Score" = "beta_eloundou"
+  "Eloundou Beta Score" = "beta_eloundou",
+  "Anthropic Usage Score" = "anthropic_usage_score"
+  #, "Anthropic Automation Score" = "anthropic_automation_score",
+  #, "Anthropic Augmentation Score" = "anthropic_augmentation_score"
 )
 
 results <- list()
@@ -205,9 +209,12 @@ results$l3_exposure_correlation <- ai_exposure$l3 %>%
     ai_product_exposure_score,
     felten_exposure_score,
     webb_exposure_score,
-    beta_eloundou
+    beta_eloundou,
+    anthropic_usage_score,
   ) %>%
   cor(use = "complete.obs") # used in manuscript
+
+log_text(results$l3_exposure_correlation, "Correlation coefs")
 
 # Create correlation plot using corrplot
 l3_exposure_correlation_plot <- corrplot::corrplot(
@@ -229,9 +236,10 @@ results$l3_exposure_correlation_plot_2 <- PerformanceAnalytics::chart.Correlatio
       "Demirev 2024" = ai_product_exposure_score,
       "Felten et al 2018" = felten_exposure_score,
       "Webb 2022" = webb_exposure_score,
-      "Eloundou et al 2023" = beta_eloundou
+      "Eloundou et al 2023" = beta_eloundou,
+      "Anthropic 2025" = anthropic_usage_score
     ) %>%
-    na.omit(), 
+    na.omit(),
   histogram = TRUE,
   pch = 19
 ) # used in manuscript
@@ -250,7 +258,8 @@ results$oja_changes_table <- oja_delta$l3_ap %>%
   ) %>% 
   ungroup() %>%
   select(esco_level_3_short, mean_delta_OJA) %>%
-  arrange(mean_delta_OJA) %>% print(n = Inf) # used in manuscript
+  arrange(mean_delta_OJA) %>%
+  log_text("OJA changes by occupation (ESCO Level 3)", n = Inf) # used in manuscript
 
 # OJA time series ---------------------------------------------------------
 results$oja_time_series <- oja$l3 %>%
@@ -296,23 +305,44 @@ results$oja_time_series <- oja$l3 %>%
   theme(text = element_text(family = "merriweather")) +
   theme_bw()
 
-# two-fold reduction
-# idesco_level_1 change
-# <chr>           <dbl>
-#   1 OC1              2.41
-# 2 OC2              2.40
-# 3 OC3              2.13
-# 4 OC4              2.17
-# 5 OC5              2.09
-# 6 OC6              2.22
-# 7 OC7              1.99
-# 8 OC8              2.08
-# 9 OC9              1.88
+# OJA totals at sample bounds and per-ISCO-1 reduction ratios -------------
+results$oja_totals <- oja$l3 %>%
+  filter(dmax %in% c(min(dmax), max(dmax))) %>%
+  group_by(dmax) %>%
+  summarise(total_OJA = sum(OJA, na.rm = TRUE), .groups = "drop") %>%
+  mutate(period = if_else(dmax == min(dmax), "start", "end")) %>%
+  select(period, dmax, total_OJA)
 
-# > oja$l3 %>% filter(dmax == max(dmax)) %>% pull(OJA) %>% sum()
-# [1] 18505936
-# > oja$l3 %>% filter(dmax == min(dmax)) %>% pull(OJA) %>% sum()
-# [1] 40277646
+log_text(results$oja_totals, "Total OJA at sample bounds")
+
+results$oja_iscolevel1_change <- oja$l3 %>%
+  filter(dmax %in% c(min(dmax), max(dmax))) %>%
+  group_by(idesco_level_1, dmax) %>%
+  summarise(total_OJA = sum(OJA, na.rm = TRUE), .groups = "drop_last") %>%
+  arrange(dmax) %>%
+  summarise(
+    pre_OJA  = first(total_OJA),
+    post_OJA = last(total_OJA),
+    ratio_pre_post = first(total_OJA) / last(total_OJA),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    bind_rows(
+      tibble(idesco_level_1 = "OC1", idesco_label = "Managers"),
+      tibble(idesco_level_1 = "OC2", idesco_label = "Professionals"),
+      tibble(idesco_level_1 = "OC3", idesco_label = "Technical professionals"),
+      tibble(idesco_level_1 = "OC4", idesco_label = "Clerical support workers"),
+      tibble(idesco_level_1 = "OC5", idesco_label = "Service and sales workers"),
+      tibble(idesco_level_1 = "OC6", idesco_label = "Agricultural workers"),
+      tibble(idesco_level_1 = "OC7", idesco_label = "Craft and trades workers"),
+      tibble(idesco_level_1 = "OC8", idesco_label = "Plant and machine operators"),
+      tibble(idesco_level_1 = "OC9", idesco_label = "Elementary occupations")
+    ),
+    by = "idesco_level_1"
+  ) %>%
+  arrange(desc(ratio_pre_post))
+
+log_text(results$oja_iscolevel1_change, "OJA pre/post ratio by ISCO level 1", n = Inf)
 
 # base correlations ------------------------------------------------------
 correlation_results <- map(exposure_vars, function(var) {
@@ -338,6 +368,11 @@ correlation_table <- map_dfr(names(correlation_results), function(var) {
 })
 
 results$correlation_table <- correlation_table # used
+
+log_text(
+  results$correlation_table,
+  "Raw Correlation with delta_OJA_log:"
+)
 
 # scatter plots -----------------------------------------------------------
 exposure_plots <- map(exposure_vars, function(var) {
@@ -434,7 +469,7 @@ eures %>%
   arrange(dmax) %>%
   summarise(
     delta_log_OJA = last(log_OJA) - first(log(OJA)),
-    exposure_score = last(beta_eloundou)
+    exposure_score = last(anthropic_usage_score)
   ) %>%
   filter(!is.na(exposure_score)) %>%
   group_by(idcountry, experience) %>%
@@ -460,8 +495,8 @@ eures %>%
 # save results ------------------------------------------------------------
 saveRDS(results, "results/RDS/descriptive.RDS")
 
-ggsave(
-  file.path("results/plots", "oja_time_series.eps"),
+save_plot(
+  "oja_time_series.eps",
   results$oja_time_series,
   width = 12,
   height = 5

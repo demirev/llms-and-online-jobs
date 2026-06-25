@@ -5,6 +5,7 @@ library(showtext)
 library(sysfonts)
 
 source("R/helpers.R")
+init_text_log("nama_models.txt")
 
 font_add_google("Merriweather", "merriweather")
 showtext_auto()
@@ -32,8 +33,7 @@ run_nama_event_study_model <- function(data, exposure_var) {
 
 print_model_summaries <- function(models, model_name) {
   walk(seq_along(models), function(i) {
-    cat("\n", model_name, "Model for", names(models)[i], ":\n")
-    print(summary(models[[i]]))
+    log_text(summary(models[[i]]), paste(model_name, "-", names(models)[i]))
   })
 }
 
@@ -41,11 +41,14 @@ exposure_vars <- c(
   "AI Product Exposure Score" = "ai_product_exposure_score",
   "Felten AI Exposure Score" = "felten_exposure_score",
   "Webb AI Exposure Score" = "webb_exposure_score",
-  "Eloundou Beta Score" = "beta_eloundou"
+  "Eloundou Beta Score" = "beta_eloundou",
+  "Anthropic Usage Score" = "anthropic_usage_score"
 )
 breakdown_vars <- c(
   "Automation Exposure Score" = "ai_product_automation_score",
-  "Augmentation Exposure Score" = "ai_product_augmentation_score"
+  "Augmentation Exposure Score" = "ai_product_augmentation_score",
+  "Anthropic Automation Score" = "anthropic_automation_score",
+  "Anthropic Augmentation Score" = "anthropic_augmentation_score"
 )
 
 # read data ---------------------------------------------------------------
@@ -60,16 +63,25 @@ ai_exposure <- read_ai_exposure_file(
 
 sectoral_exposure <- derive_sectoral_exposure(ai_exposure, cedefop_sectoral)
 
-sectoral_exposure %>%
+sectoral_summary <- sectoral_exposure %>%
   group_by(nace_rev2_code, sector_name) %>%
   summarise(
-    ai_product_exposure_score = mean(ai_product_exposure_score), 
-    ai_product_automation_score = mean(ai_product_automation_score),
     ai_product_augmentation_score = mean(ai_product_augmentation_score),
-    felten_exposure_score = mean(felten_exposure_score), 
-    webb_exposure_score = mean(webb_exposure_score), 
-    beta_eloundou = mean(beta_eloundou)
-  ) 
+    felten_exposure_score = mean(felten_exposure_score),
+    webb_exposure_score = mean(webb_exposure_score),
+    beta_eloundou = mean(beta_eloundou),
+    anthropic_usage_score = mean(anthropic_usage_score),
+    ai_product_exposure_score = mean(ai_product_exposure_score),
+    ai_product_automation_score = mean(ai_product_automation_score),
+    anthropic_automation_score = mean(anthropic_automation_score),
+    anthropic_augmentation_score = mean(anthropic_augmentation_score)
+  )
+
+log_text(
+  sectoral_summary,
+  "Sectoral summary:",
+  n = Inf
+)
 
 # prep data ---------------------------------------------------------------
 nama_10_lp_prep <- prep_nama_data(nama_10_lp, sectoral_exposure)
@@ -84,7 +96,10 @@ nama_10_lp_delta <- nama_10_lp_prep %>%
     ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
-    beta_eloundou = mean(beta_eloundou)
+    beta_eloundou = mean(beta_eloundou),
+    anthropic_usage_score = mean(anthropic_usage_score),
+    anthropic_automation_score = mean(anthropic_automation_score),
+    anthropic_augmentation_score = mean(anthropic_augmentation_score)
   ) %>%
   arrange() %>%
   group_by(nace_rev2_code, country_code, sector_name) %>%
@@ -101,7 +116,10 @@ nama_10_cp_delta <- nama_10_cp_prep %>%
     ai_product_augmentation_score = mean(ai_product_augmentation_score),
     felten_exposure_score = mean(felten_exposure_score),
     webb_exposure_score = mean(webb_exposure_score),
-    beta_eloundou = mean(beta_eloundou)
+    beta_eloundou = mean(beta_eloundou),
+    anthropic_usage_score = mean(anthropic_usage_score),
+    anthropic_automation_score = mean(anthropic_automation_score),
+    anthropic_augmentation_score = mean(anthropic_augmentation_score)
   ) %>%
   arrange() %>%
   group_by(nace_rev2_code, country_code, sector_name) %>%
@@ -147,4 +165,6 @@ delta_cp_models <- map(c(exposure_vars, breakdown_vars), function(var) {
   )
 })
 
+log_text(delta_lp_models, "Delta (Labor Productivity)")
 
+log_text(delta_cp_models, "Delta (Capital Productivity)")

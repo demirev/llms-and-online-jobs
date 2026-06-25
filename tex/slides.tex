@@ -1,0 +1,234 @@
+\documentclass{beamer}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[round]{natbib}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{lmodern} % for better font rendering
+\usepackage{caption} % for table captions
+\usepackage{adjustbox} % to resize tables if needed
+\usepackage{multirow}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% For references in footnotesize
+\setbeamertemplate{bibliography item}[text]
+
+\title[Generative AI and Job Displacement]{Generative AI and Job Displacement:\\
+Initial Evidence from EU Online Job Markets}
+\author[Georgi Demirev]{Georgi Demirev\\Sofia University}
+\date{\today}
+
+\begin{document}
+% -------------------------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% -------------------------------------------------------------------
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Introduction and Motivation}
+\begin{frame}{Introduction}
+\begin{itemize}
+    \item Recent advancements in language models (e.g., ChatGPT) have sparked widespread concerns about labor market disruption.
+    \item This study investigates the initial impact of AI on labor demand and productivity by examining online job postings across the EU from 2021--2024.
+    \item Main approach: difference-in-differences (DiD) design with ChatGPT’s release as the event date, and multiple AI-exposure measures.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Key Findings}
+\begin{itemize}
+    \item Occupations with higher AI exposure experienced a \textbf{13--18\% larger decrease} in job postings relative to less exposed ones.
+    \item Within occupations, skills most similar to AI capabilities saw a \textbf{10\% reduction} in mention frequency.
+    \item No significant impact on capital or labor productivity was detected at the industry level so far.
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Related Literature}
+\begin{frame}{Related Literature (Selected)}
+\begin{itemize}
+    \item \textbf{Task-based growth models:} \cite{zeira1998workers}, \cite{acemoglu_automation_2019} highlight potential displacement and offsetting productivity gains.
+    \item \textbf{AI exposure indices:} 
+    \begin{itemize}
+      \item \citet{felten_method_2018} (AIOE),
+      \item \citet{webb_impact_2022},
+      \item \citet{eloundou_gpts_2023},
+      \item \citet{demirev2024assessing}.
+    \end{itemize}
+    \item \textbf{Prior empirical findings:} Mixed. Some studies show job displacement, others find productivity gains and net employment increases.
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Data}
+\begin{frame}{Data Overview}
+\begin{itemize}
+    \item \textbf{Occupational AI exposure:} four distinct indices, each mapped to the ESCO classification.
+    \item \textbf{Job postings:} CEDEFOP’s Skills OVATE dataset (100M+ online adverts), providing occupation- and skill-level data from 2021--2024.
+    \item \textbf{Productivity:} Eurostat annual national accounts (labor and capital productivity).
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\begin{frame}{Figure: Time Series of Online Job Ads}
+\begin{figure}
+    \centering
+    % Include your .png or .pdf instead of .eps if needed
+    \includegraphics[width=0.65\textwidth]{img/oja_time_series.eps}
+    \caption{Time series of total online job adverts across EU (Q4 2021--Q2 2024). 
+    \newline \small Source: CEDEFOP Skills OVATE}
+    \label{fig:oja_ts}
+\end{figure}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Empirical Strategy}
+\begin{frame}{Conceptual Framework}
+\begin{itemize}
+    \item Standard task-based model where tasks can be performed by labor or AI.
+    \item AI exposure of an occupation: fraction of its tasks likely to be automated by language-model-based technologies.
+    \item DiD approach (continuous treatment) with ChatGPT release (Nov 2022) as the event.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Difference-in-Differences Setup}
+\begin{equation*}
+    \Delta \log \overline{y}_{i,c} = \delta_0 + \xi_c + \delta \cdot X^{AI}_i + \varepsilon_{i,c},
+\end{equation*}
+\begin{itemize}
+    \item $\overline{y}_{i,c}$ = avg. number of online job ads for occupation $i$ in country $c$, before vs. after the event date.
+    \item $X^{AI}_i$: AI exposure for occupation $i$.
+    \item $\xi_c$: country fixed effects.
+    \item Also tested event-study, decile-based exposure, skill-level analyses, etc.
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Results}
+\begin{frame}{Main Regression Results (1/2)}
+\begin{table}
+\centering
+\scriptsize
+\caption{Impact of AI Exposure on Online Job Ads}
+\label{table:delta_models}
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{4}{c}{$\Delta \log(\text{Online Job Ads})$} \\
+\cmidrule(lr){2-5}
+ & (1) & (2) & (3) & (4) \\
+\midrule
+\textbf{AI Product} &&&&\\
+Exposure & -0.186*** &       &       &       \\
+         & (0.056)   &       &       &       \\
+\textbf{Felten AI}  &&&&\\
+Exposure &           & -0.138*** &       &       \\
+         &           & (0.047)   &       &       \\
+\textbf{Webb AI}    &&&&\\
+Exposure &           &           & -0.174*** &     \\
+         &           &           & (0.035)   &     \\
+\textbf{Eloundou}   &&&&\\
+Beta     &           &           &           & -0.193*** \\
+         &           &           &           & (0.054)   \\
+\midrule
+Observations & 2,814 & 2,814 & 2,805 & 2,814 \\
+\textit{Country FE} & Yes & Yes & Yes & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Main Regression Results (2/2) - Interpretation}
+\begin{itemize}
+    \item Across all exposure measures, coefficients are negative and statistically significant.
+    \item Moving from min to max exposure implies a roughly 13--18\% deeper decline in job postings.
+    \item Within-country $R^2$ is small, implying other macro factors matter more, but the AI effect is still visible.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Event Study Illustration}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.65\textwidth]{img/event_study_all.eps}
+    \caption{Event-study coefficients for post-ChatGPT quarters (example for Eloundou measure).}
+    \label{fig:event_study_all}
+\end{figure}
+\end{frame}
+
+% -------------------------------------------------------------------
+\begin{frame}{Skill-Level Analysis}
+\begin{table}
+\centering
+\scriptsize
+\caption{Impact of AI Exposure (Skill-Level) on Skill Mentions}
+\label{table:skill_model}
+\begin{tabular}{lc}
+\toprule
+Dependent variable: & $\Delta \log(\text{Skill Mentions})$ \\
+\midrule
+AI Product Exposure & -0.025** \\
+                    & (0.011)  \\
+\midrule
+Observations & 75,864 \\
+Occupation FE & Yes \\
+Country FE    & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item Skills with higher AI similarity see a modest but significant (2--3\%) decline in mentions. 
+    \item Implies partial reorganization of tasks within occupations.
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\begin{frame}{Industry-Level Productivity}
+\begin{itemize}
+    \item Constructed industry AI-exposure scores (weighted by occupational mix).
+    \item No significant effect on labor or capital productivity in 2022--2023 data.
+    \item Suggestive of \emph{“so-so automation”}: displacement without meaningful productivity gains (yet).
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+    \item Early evidence (2021--2024) suggests \textbf{occupations highly exposed to AI experienced a distinctly larger drop} in online job postings.
+    \item \textbf{Task-level changes:} skill mentions that overlap with AI capabilities declined.
+    \item \textbf{No measurable productivity boost} so far at the industry level.
+    \item Overall, \emph{AI-induced displacement} is nontrivial, but the total effect is still relatively modest in scale.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Limitations and Future Work}
+\begin{itemize}
+    \item \textbf{Data coverage and “ghost postings”} in online adverts can bias results.
+    \item Potential \textbf{pre-trends} and endogeneity issues in difference-in-differences.
+    \item Future research: 
+    \begin{itemize}
+        \item More granular firm-level data
+        \item Longer post-treatment window
+        \item Complementary vs. displacement tasks
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------------
+\section{References}
+\begin{frame}[allowframebreaks]{References}
+\tiny
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{frame}
+
+\end{document}
