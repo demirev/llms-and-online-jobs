@@ -124,7 +124,7 @@ event_study_coefs <- map2(
 
 plots <- map2(
   event_study_coefs, exposure_vars, 
-  ~plot_event_study(.x, .y, exposure_vars = exposure_vars, ylims = c(-4.8,0.4))
+  ~plot_event_study(.x, .y, exposure_vars = exposure_vars, ylims = c(-1.2,0.6))
 )
 
 plots_breakdown <- map2(

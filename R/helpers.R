@@ -458,7 +458,7 @@ run_event_study_model <- function(exposure_var, data, level) {
   esco_level <- paste0("idesco_level_", level)
 
   rhs <- paste(paste0(exposure_var, ":i(event_time, ref = 0)"), collapse = " + ")
-  fml <- paste("log_OJA ~", rhs, "|", esco_level, "+ idcountry")
+  fml <- paste("log_OJA ~", rhs, "|", esco_level, "^ idcountry + event_time")
   cat("Formula:", fml, "\n")
 
   model_event_study <- feols(
