@@ -38,7 +38,7 @@
 
 % Abstract
 \begin{abstract}
-This paper examines the early impact of AI on labor markets by analyzing online job postings across the European Union from 2021 to 2025. We document a 19-29\% relative decrease in EU job postings for occupations with high AI exposure since the release of ChatGPT. The result is robust across different measures of occupational AI exposure and directionally replicated in an out-of-sample test on Australian data. Additionally, we find that job skills that are most similar to AI capabilities are mentioned 12\% less frequently within job descriptions, suggesting changes in task composition. However, industry-level analysis shows no significant impact on labor or capital productivity, indicating a scenario of "so-so automation". Finally we show tentative evidence for a U-shaped impact for labor demand across age groups, with entry level workers being the most affected. 
+This paper examines the early impact of AI on labor markets by analyzing online job postings across the European Union from 2021 to 2025. We document a 19-29\% relative decrease in EU job postings for occupations with high AI exposure since the release of ChatGPT. The result is robust across different measures of occupational AI exposure and directionally replicated in an out-of-sample test on Australian data. Additionally, we find that job skills that are most similar to AI capabilities are mentioned 12\% less frequently within job descriptions, suggesting changes in task composition. However, industry-level analysis shows no significant impact on labor or capital productivity, indicating a scenario of "so-so automation". Finally we show tentative evidence for an inverted U-shaped relationship between AI exposure and job posting growth across experience levels, with postings requiring either no experience or over ten years of experience declining the most.
 \end{abstract}
 
 % JEL Classification Codes
@@ -57,22 +57,22 @@ This paper examines the early impact of AI on labor markets by analyzing online 
 The impact of artificial intelligence (AI) on labor demand has been an area of intense study over recent years, yet the empirical record of initial studies has been surprisingly mixed. On one hand, firm surveys point to widespread adoption coupled with modest effects on employment \citep{yotzov2026firmdata}. Administrative data on firm employment has also failed to uncover evidence of sizeable AI-caused unemployment \citep{humlum2025stillwaters}. On the other hand, researchers have documented meaningful contractions for freelance labor demand for writing and coding intensive tasks \citep{demirci2025replacing, hui2023shortterm}. With the effects of Artificial Intelligence on labor and employment taking an ever higher share of public discourse, the empirical facts of the matter seem far from settled. 
 
 % contribution claim
-Much of the difficulty in reconciling these findings stem from deficiency of granulariry and timelisness of the available data. The lack of high-quality data is especially pronounced outside the United States, which has been the focus of most of the literature. This paper aims to bridge this empirical gap by leveraging high-frequency data on online job postings across the EU compiled by CEDEFOP \citep{cedefop_skills_ovate}, combined with five distinct task-based measures of occupational exposure to AI. Using the release of ChatGPT in November 2022 as a cut-off date, we estimate a continuous difference-in-differences specification with country and industry-level fixed effects, uncovering a significant reduction in job openings for the most exposed occupations. We apply the same overall estimation strategy to study the composition of required skills within occupations, as well as overall per-sector labor productivity. We further verify our findings on a separate data source tracking Australian online job markets, finding broadely similar results.
+Much of the difficulty in reconciling these findings stems from deficiencies in the granularity and timeliness of the available data. The lack of high-quality data is especially pronounced outside the United States, which has been the focus of most of the literature. This paper aims to bridge this empirical gap by leveraging high-frequency data on online job postings across the EU compiled by CEDEFOP \citep{cedefop_skills_ovate}, combined with five distinct task-based measures of occupational exposure to AI. Using the release of ChatGPT in November 2022 as a cut-off date, we estimate a continuous difference-in-differences specification with country and occupation fixed effects, uncovering a significant reduction in job openings for the most exposed occupations. We apply the same overall estimation strategy to study the composition of required skills within occupations, as well as overall per-sector labor productivity. We further verify our findings on a separate data source tracking Australian online job markets, finding broadly similar results.
 
 % theoretical underpinnings and positioning
-Our approach is conceptually rooted in the task-based model of job automation \citep{zeira1998workers}, which distinguishes three channels through which new technology impacts labor markets job displacement, labor augmentation, and new task creation \citep{acemoglu_automation_2019}. Although historically new task creation has outpaced direct automation \citep{autor_outpace}, the balance between these effects is an empirical question for any given technology. The model implies that occupations whose tasks are most suitable for being performed by AI should experience the largest impact on both employment and productivity. The task-based exposure measures and occupation-level job demand data employed here allow us to empirically test these implications. Relative to the existing empirical literature, our paper makes three contributions: it brings European evidence to complement the largely US-focused work; it analyzes shifts in demand at the within-occupation skill level rather than only across occupations; and it documents heterogeneity by experience level. %TODO add another citation next to zeira1998workers
+Our approach is conceptually rooted in the task-based model of job automation \citep{zeira1998workers}, which distinguishes three channels through which new technology impacts labor markets: job displacement, labor augmentation, and new task creation \citep{acemoglu_automation_2019}. Although historically new task creation has outpaced direct automation \citep{autor_outpace}, the balance between these effects is an empirical question for any given technology. The model implies that occupations whose tasks are most suitable for being performed by AI should experience the largest impact on both employment and productivity. The task-based exposure measures and occupation-level job demand data employed here allow us to empirically test these implications. Relative to the existing empirical literature, our paper makes three contributions: it brings European evidence to complement the largely US-focused work; it analyzes shifts in demand at the within-occupation skill level rather than only across occupations; and it documents heterogeneity by experience level. %TODO add another citation next to zeira1998workers
 
 % data and key findings
-CEDEFOP's data classifies job openings according to occupation, and additionally breaks down job descriptions in terms of required skills and competences. The granularity of the data allows us not only to study whether occupations highly exposed to AI experience relative decline in labor demand, but also to analyze whether within a given occupation, skills that are more likely to be performed by new AI models are mentioned less frequently in job postings. Indeed, this is exactly what we find. Relative to occupations with low exposure levels, those at the highest levels of AI exposure experience a 19–29\% decrease in the number of online job adverts following ChatGPT's release. Furthermore, the associated event studies point towards the impact increasing over time. Similarly, job skills and competences that are highly similar to novel AI capabilities are mentioned up to 12\% less often in job descriptions. Both results are statistically significant and robust to reasonable changes in the specification and the choice of exposure measure. Estimating the models on the Australian dataset recovers comparable estimates, when using the two most up-to-date exposure metrics.
+CEDEFOP's data classifies job openings according to occupation, and additionally breaks down job descriptions in terms of required skills and competences. The granularity of the data allows us not only to study whether occupations highly exposed to AI experience relative decline in labor demand, but also to analyze whether within a given occupation, skills that are more likely to be performed by new AI models are mentioned less frequently in job postings. Indeed, this is exactly what we find. Relative to occupations with low exposure levels, those at the highest levels of AI exposure experience a 19–29\% decrease in the number of online job adverts following ChatGPT's release. Furthermore, the associated event studies point towards the impact increasing over time. Similarly, job skills and competences that are highly similar to novel AI capabilities are mentioned up to 12\% less often in job descriptions. Both results are statistically significant and robust to reasonable changes in the specification; the occupation-level result is additionally robust to the choice of exposure measure, while the skill-level analysis relies on the single exposure measure available at that granularity. Estimating the models on the Australian dataset recovers comparable estimates, when using the two most up-to-date exposure metrics.
 
 % seniority findings
-Using a supplemental data source that breaks down job postings by experience level, we present descriptive evidence of a heterogeneous effect across experience groups.\footnote{This data is available at this granularity only after Q3 2023, preventing us from estimating a difference-in-differences specification that includes pre-treatment periods.} The relationship between AI exposure and the decline in relative job postings is U-shaped: the negative effect is concentrated in entry-level openings and in positions requiring over 10 years of experience, while the remaining groups exhibit either zero or slightly positive correlation, depending on the exposure measure. This reinforces previous findings on the precarious position of entry-level workers in AI-exposed occupations \citep{brynjolfsson2025canaries}. The potential effects on the most senior workers, on the other hand, have not, to the best of our knowledge, been documented before.
+Using a supplemental data source that breaks down job postings by experience level, we present descriptive evidence of a heterogeneous effect across experience groups.\footnote{This data is available at this granularity only after Q3 2024, preventing us from estimating a difference-in-differences specification that includes pre-treatment periods.} The relationship between AI exposure and job posting growth follows an inverted U-shape across experience levels: the negative effect is concentrated in entry-level openings and in positions requiring over 10 years of experience, while the remaining groups exhibit either zero or slightly positive correlation, depending on the exposure measure. This reinforces previous findings on the precarious position of entry-level workers in AI-exposed occupations \citep{brynjolfsson2025canaries}. The potential effects on the most senior workers, on the other hand, have not, to the best of our knowledge, been documented before.
 
 % productivity findings
-A central question raised by these results is whether the displacement we observe is offset by productivity gains elsewhere - the standard counterweight in the task-based framework. To assess this, we construct industry-level AI exposure scores based on the within-industry occupational mix and employ these scores in a model of labor productivity, using productivity data from Eurostat \citep{Eurostat_nama_10_prod_metadata}. None of the measures of AI exposure result in significant coefficient estimates, indicating that AI's early impact on aggregate productivity is too small to be detected in this dataset. This null result is itself informative, suggestsing that the disemployment channel is operating without a measurable commensurate productivity offset, at least over the period we observe.
+A central question raised by these results is whether the displacement we observe is offset by productivity gains elsewhere - the standard counterweight in the task-based framework. To assess this, we construct industry-level AI exposure scores based on the within-industry occupational mix and employ these scores in a model of labor productivity, using productivity data from Eurostat \citep{Eurostat_nama_10_prod_metadata}. None of the measures of AI exposure result in significant coefficient estimates, indicating that AI's early impact on aggregate productivity is too small to be detected in this dataset. This null result is itself informative, suggesting that the disemployment channel is operating without a measurable commensurate productivity offset, at least over the period we observe.
 
 % big picture conclusion
-Taken together, these results point toward the outcome that Acemoglu and Restrepo call "lackluster automation" \citep{acemoglu_automation_2019}. In this scenario, new technologies are just barely more productive than human labor — enough for firms to shift production to capital, but not enough to create widespread productivity effects that counteract the disemployment effects. Although these conclusions are troubling, they should be taken with appropriate caution. The release of ChatGPT is a salient date, and the event studies point towards a sharp transition, however the same period coincides with major macroeconomic, policy, and trade shocks across the examined region. For the European data, we are also limited to an observation window prior that only starts in 2022, and thus are unable to rule out that observed dynamics are a reversal to a longer term trend rather than true effects of AI\footnote{However, our Australian data source spans a longer time frame and doesn't show significant pre-trends.}. Nevertheless, the results presented here underscore the importance of continuous monitoring of labor market outcomes for occupations at risk of automation and hint that a potential major labor disruption might already be underway.
+Taken together, these results point toward the outcome that Acemoglu and Restrepo call "so-so automation" \citep{acemoglu_automation_2019}. In this scenario, new technologies are just barely more productive than human labor — enough for firms to shift production to capital, but not enough to create widespread productivity effects that counteract the disemployment effects. Although these conclusions are troubling, they should be taken with appropriate caution. The release of ChatGPT is a salient date, and the event studies point towards a sharp transition, however the same period coincides with major macroeconomic, policy, and trade shocks across the examined region. For the European data, we are also limited to a pre-treatment observation window that only starts in 2022, and thus are unable to rule out that observed dynamics are a reversal to a longer term trend rather than true effects of AI\footnote{However, our Australian data source spans a longer time frame and doesn't show significant pre-trends.}. Nevertheless, the results presented here underscore the importance of continuous monitoring of labor market outcomes for occupations at risk of automation and hint that a potential major labor disruption might already be underway.
 
 % outline
 This paper proceeds as follows: section two presents a short overview of related literature; section three lays out the conceptual theoretical framework for studying AI automation; section four goes over the sources of data used; section five explains the empirical estimation strategy; section six presents the results, and section seven discusses the implications and limitations of the study.
@@ -84,19 +84,19 @@ Most efforts to understand AI's impact on labor demand are grounded in the task-
 
 This family of models has seen a number of extensions, some of which are specifically tailored toward studying AI-induced automation \citep{Autor2003, acemoglu_automation_2019}. These models focus on the interplay between automation-caused labor displacement and the potential reinstatement due to the introduction of novel tasks in the economy (think, for example, of the disappearance of switchboard operators and the introduction of remote customer support as telecommunication technology improved in the 20th century). A comprehensive overview of this line of models is given in \citet{TasksAtWork}. 
 
-The effect of technology on labor in these models is generally ambiguous, as the direct effect of automation can be counterbalanced by increases in productivity that raise aggregate output by a sufficiently large amount, such that the increased labor demand in non-automated tasks overcompensates for the reduced demand in automated tasks. The overall effect on jobs and wages can thus be decomposed into three components: job displacement, labor or capital augmentation, and new task creation \citep{acemoglu_automation_2019}. \citet{autor_outpace} demonstrates that over the past two centuries new task creation has generally outpaced direct automation, with the effect especially pronounced when examining product innovations rather than process automation \citep{Hall2011ProductProcess}.
+The effect of technology on labor in these models is generally ambiguous, as the direct effect of automation can be counterbalanced by increases in productivity that raise aggregate output by a sufficiently large amount, such that the increased labor demand in non-automated tasks overcompensates for the reduced demand in automated tasks. The overall effect on jobs and wages can thus be decomposed into three components: job displacement, labor or capital augmentation, and new task creation \citep{acemoglu_automation_2019}. \citet{autor_outpace} demonstrates that over the past eight decades new task creation has generally outpaced direct automation, with the effect especially pronounced when examining product innovations rather than process automation \citep{Hall2011ProductProcess}.
 
 % exposure scores
 The structure of these task-based models naturally raises the question of which tasks are most likely to be automated due to AI. Recently, a number of papers have attempted to tackle this question by developing occupation-level measures of AI susceptibility. These "exposure scores" typically try to look at the tasks and skills that characterize each occupation and map those to AI capabilities to arrive at a relative measure of how easy or hard it would be for AI-powered algorithms to perform these tasks. The pioneering work in this direction was done by \citet{brynjolfsson_what_2017} and \citet{brynjolfsson_what_2018}. In these works, a "suitability for machine learning" metric is developed based on crowd-sourced questionnaires for several thousand work-related activities taken from the O*NET database. 
 
-Following a similar approach, \citet{felten_method_2018} develop a dataset of hand-labeled exposure scores for 70 representative occupations by consulting machine learning experts. Using occupational characteristics from O*NET, they train a machine learning model on the measure, which they in turn use to estimate the exposure scores for a total of 702 additional occupations. \citet{felten_how_2023} is another study along similar lines, but it adopts an objective measure of AI progress in the form of benchmark measures of AI capabilities developed by the Electronic Frontier Foundation. 
+Following a similar approach, \citet{felten_method_2018} construct an ``AI Occupational Exposure'' (AIOE) measure by linking 10 AI applications tracked by the Electronic Frontier Foundation to 52 human abilities from the O*NET database. The strength of each application-ability link is obtained from a crowd-sourced matrix, and these links are then aggregated to the occupation level using the importance and level of each ability within an occupation. \citet{felten_how_2023} is a follow-up study by the same authors that refines the measure to better capture large language models by focusing on the ``language modeling'' application.
 
-More recently, \citet{webb_impact_2022} employs large-scale text analysis to study AI-related patents and compares the verb-noun pairs found in the patent descriptions to verb-noun pairs in job-specific tasks from O*NET, allowing him to construct an AI-susceptibility measure based on patented AI innovations. Similarly, \citet{demirev2024assessing} analyzes a corpus of corporate press releases regarding AI product launches and uses vector similarity to link the capabilities of the newly released AI products to job skills taken from the ESCO classification of occupational skills and competences. \citet{eloundou_gpts_2023} applies a more unconventional approach by directly feeding occupation descriptions to a frontier large language model and asking the model itself to rate each occupation relative to the likelihood it gets automated. Finally, \citet{handa2025economic} construct an exposure measure from revealed usage of the Claude language model. They classify millions of human-AI conversations against O*NET tasks, recovering the share of usage attributable to each occupational task.
+More recently, \citet{webb_impact_2022} employs large-scale text analysis to study AI-related patents and compares the verb-noun pairs found in the patent descriptions to verb-noun pairs in job-specific tasks from O*NET, allowing him to construct an AI-susceptibility measure based on patented AI innovations. Similarly, \citet{demirev2024assessing} analyzes a corpus of corporate press releases regarding AI product launches and uses vector similarity to link the capabilities of the newly released AI products to job skills taken from the ESCO classification of occupational skills and competences. \citet{eloundou_gpts_2023} applies a more unconventional approach by directly feeding task descriptions to a frontier large language model and asking the model itself to rate each task relative to the likelihood it gets automated, before aggregating the task-level ratings to the occupation level. Finally, \citet{handa2025economic} construct an exposure measure from revealed usage of the Claude language model. They classify millions of human-AI conversations against O*NET tasks, recovering the share of usage attributable to each occupational task.
 
 Despite the array of different approaches, the scores lead to similar conclusions, with occupations requiring routine generation or analysis of text, creation of documentation, writing code, or frequent communication being most exposed to AI disruption. This is in general contrast to previous waves of automation that tended to target lower-skill manual work \citep{acemoglu2023power}. It is worth noting that "exposure to AI" doesn't always equate to "risk of AI automation," as most of the approaches above cannot generally distinguish between automation-enhancing technological advances and productivity-enhancing ones.
 
 % empirical estimates
-The existence of these exposure measures, combined with task-based models of growth, has allowed for rough estimates of the mid- to long-term impacts of AI. These range from the largely optimistic forecast of McKinsey for \$6.1 to \$7.9 trillion of additional value added to the economy \citep{mckinsey2023economic}, to the much more reserved calculations of Acemoglu for a 0.71\% increase in total factor productivity spread over the next ten years \citep{acemoglu2024simple}. Micro evidence on firm productivity supports a small but meaningful productivity boost \citep{brynjolfsson2025genai}, while survey data tend to show very deep penetration (up to 80\% usage) but modest changes in hiring - less than 10\% of firms hired of dissmissed any workers due to AI \citep{nyfedsurvey2024,yotzov2026firmdata} % TODO double check the 10% in yotzov et al
+The existence of these exposure measures, combined with task-based models of growth, has allowed for rough estimates of the mid- to long-term impacts of AI. These range from the largely optimistic forecast of McKinsey for \$6.1 to \$7.9 trillion of additional value added to the economy \citep{mckinsey2023economic}, to the much more reserved calculations of Acemoglu for a 0.66\% increase in total factor productivity spread over the next ten years \citep{acemoglu2024simple}. Micro evidence on firm productivity supports a small but meaningful productivity boost \citep{brynjolfsson2025genai}, while survey data tend to show very deep penetration (up to 80\% usage) but modest changes in hiring - less than 10\% of firms hired or dismissed any workers due to AI \citep{nyfedsurvey2024,yotzov2026firmdata} % TODO double check the 10% in yotzov et al
 
 Attempts to empirically estimate the initial impacts of generative AI predate the LLM era. For example, a report by the OECD, combines patent filings, website announcements, and job postings to identify adopter firms, who are then shown to be more productive on average \citep{oecdreport2022}. In a similar vein, \citet{Alderucci2019QuantifyingTI} examines data from the US Patent and Trademark Office to identify AI-adopting firms. Using an event-study design, they find that AI adopters exhibit 25\% faster employment growth and 40\% faster revenue growth. Additionally, higher AI adoption was associated with higher per-worker productivity. 
 
@@ -104,17 +104,17 @@ Attempts to empirically estimate the initial impacts of generative AI predate th
 
 Using a different approach, \citet{gazzani2024tsonai} create an aggregate time series of AI innovation intensity using patent data to study its effect on macroeconomic indicators. They find that increases in AI innovation intensity are associated with higher industrial production and a reduction in consumer prices. They also find, on aggregate, an increase in the demand for workers, suggesting that productivity effects outpace displacement effects. In terms of labor income, the authors show evidence that AI innovation intensification is linked to increases in the wealth share of the top decile of workers coupled with a decline in the wealth share of the bottom half, suggesting that AI-powered innovations may be contributing to wealth inequality. 
 
-On the other hand, \citet{humlum2025stillwaters} provide direct evidence against large early labor-market effects of AI. They link two large-scale surveys of chatbot adoption in Denmark to administrative records on earnings and hours. Despite the survey respondents reporting rapid adoption, the authors estimate a preciese null effect on both earnings and hours work. As per this study's estimates, impacts larget than 2\% are ruled out in their data. The authors' interpration of AI reshaping rather than replacing labor offers a useful contrast to the present paper, which examines labor demand at the job posting stage.
+On the other hand, \citet{humlum2025stillwaters} provide direct evidence against large early labor-market effects of AI. They link two large-scale surveys of chatbot adoption in Denmark to administrative records on earnings and hours. Despite the survey respondents reporting rapid adoption, the authors estimate a precise null effect on both earnings and hours worked. As per this study's estimates, impacts larger than 2\% are ruled out in their data. The authors' interpretation of AI reshaping rather than replacing labor offers a useful contrast to the present paper, which examines labor demand at the job posting stage.
 
 While the papers above show a generally positive or neutral outlook in terms of AI's impact on employment, other studies have found more conflicting evidence. \citet{acemoglu_restrepo_2022} use data on almost all job vacancies posted online in the United States over the period 2010-2018. They find that firms with occupational mixes more heavily skewed toward AI-exposed occupations increase the hiring of professionals directly working on AI, while simultaneously decrease the hiring in all other occupations (while also exhibiting greater changes in the job requirements for non-AI workers). This behavior is consistent with a view of automating some of the tasks previously performed by labor (and hiring specialists to implement the AI that does so). At the same time, the authors fail to find a noticeable effect beyond the firm level, suggesting a more localized impact.
 
 \citet{Huang2024}, on the other hand, is able to show aggregate disemployment effects at the commuting zone level in the US. A regional AI exposure score is constructed using per-industry survey data on AI adoption. This measure is then regressed on the commuting zone's employment-to-population ratio. The results show that a one standard deviation increase in AI exposure is associated with a nearly 1 percentage point decrease in the employment ratio. The data used in this paper covers the period 2010-2021.
 
-In related work, \citet{bonfiglioli2024aiczgrowth} largely replicate the above findings. This study derives a different measure of regional AI exposure by leveraging O*NET's category of "Hot Technologies" and assigning a higher exposure score to commuting zones with faster growth in that category. The resulting estimates show an average effect over a zero-exposure counterfactual of a 0.6 percentage point reduction in employment.
+In related work, \citet{bonfiglioli2024aiczgrowth} largely replicate the above findings. This study derives a different measure of regional AI exposure from the growth in the local employment share of AI-related occupations (such as data scientists), assigning a higher exposure score to commuting zones with faster growth in such occupations. The resulting estimates show an average effect over a zero-exposure counterfactual of a 0.6 percentage point reduction in employment.
 
-A strand of recent work has exploited freelancing platforms, which offer employment in a task-based setting, coupled with flexible hourly billing - an ideal setting to examine the intensive margin of the effect of AI on labor. \citet{hui2023shortterm} study freelancers around the advent of transform-based text and image models. They find reduction reductions in both hours and earnings for highly affected occupations, with much of the impact centering on higher-rated freelancers. Relatedly, \citet{demirci2025replacing} find a 17-21\% relative decrease in postings for automation-prone tasks, usch as writing coding or image generation. This effect is already detectable in mid 2024 - around 8 months past the release of ChatGPT. These two studies follow a very similar identification strategy to the one employed here, namely comparing high and low exposed occupations around the release of major models, albeit in a slightly more specialized setting.
+A strand of recent work has exploited freelancing platforms, which offer employment in a task-based setting, coupled with flexible hourly billing - an ideal setting to examine the intensive margin of the effect of AI on labor. \citet{hui2023shortterm} study freelancers around the advent of transform-based text and image models. They find reductions in both hours and earnings for highly affected occupations, with much of the impact centering on higher-rated freelancers. Relatedly, \citet{demirci2025replacing} find a 17-21\% relative decrease in postings for automation-prone tasks, such as writing, coding, or image generation. This effect is already detectable in mid 2023 - around 8 months past the release of ChatGPT. These two studies follow a very similar identification strategy to the one employed here, namely comparing high and low exposed occupations around the release of major models, albeit in a slightly more specialized setting.
 
-Taking a micro-based firm-levle view, \citet{hampole2025artificial} derive a firm-specific measure of task-based AI exposure based on detailed resume data of the machine learning specialists working in a given firm. They find that labor-demand for tasks that these machine learning specialists can potentially automate decreases. However the effect is modest and concentrated in workers for whom a large percentage of tasks are exposed, limiting their ability to shift their efforts to other tasks (and hence to increase their productivity). Using a different, yet similar dataset of firm-level employee resumes, \citet{BABINA2024103745} find that firms that increase their AI spending exhibit more product innovation, higher sales growth and higher employment growth, suggesting that the productivity effects at early adopters might counterweight the disemployment effects.
+Taking a micro-based firm-level view, \citet{hampole2025artificial} derive a firm-specific measure of task-based AI exposure based on detailed resume data of the machine learning specialists working in a given firm. They find that labor-demand for tasks that these machine learning specialists can potentially automate decreases. However the effect is modest and concentrated in workers for whom a large percentage of tasks are exposed, limiting their ability to shift their efforts to other tasks (and hence to increase their productivity). Using a different, yet similar dataset of firm-level employee resumes, \citet{BABINA2024103745} find that firms that increase their AI spending exhibit more product innovation, higher sales growth and higher employment growth, suggesting that the productivity effects at early adopters might counterweight the disemployment effects.
 
 Taken together, the studies mentioned above show a conflicting array of evidence regarding the effects of AI on employment. The applicability of the findings to global markets is further restricted, as the vast majority of existing studies focus on the US. By focusing on comprehensive datasets of online job postings from Europe and Australia, this paper aims to build on the existing literature by providing an estimate of the impact of LLM-powered AI systems on international labor market. To that end, we employ CEDEFOP’s and IVI's data on online job adverts, together with the exposure indices developed by \citet{felten_method_2018}, \citet{webb_impact_2022}, \citet{eloundou_gpts_2023}, \citet{demirev2024assessing}, and \citet{handa2025economic}, all of which are made publicly available by their respective authors.
 
@@ -186,7 +186,7 @@ The following subsections cover each data source in detail.
 
 We rely on five separate studies of occupation-level exposure to AI for the right-side of Equation~\ref{eq:lvsexposure} - \cite{felten_method_2018}, \cite{webb_impact_2022}, \cite{eloundou_gpts_2023}, \cite{demirev2024assessing}, and \cite{handa2025economic}. Each of these approaches utilizes a different methodology and source data to measure exposure as detailed below. To ensure that the findings of this paper are not contingent on using a specific measure of exposure, all results below are reported separately for each of the five indices as an independent variable. The specific exposure measures were chosen because the final result datasets of all five papers are made publicly available by their respective authors. Some of them have been used by other empirical studies of AI's impact on jobs, such as \citet{albanesi2023newshares} and \citet{acemoglu2024simple}.
 
-The five measures of AI exposure used here capture different aspects of the overlap between AI capabilities and job skills. While \citet{felten_method_2018} is rooted ultimately in core scientific advances as measured in projected improvements in AI application benchmarks, \citet{webb_impact_2022} and \citet{demirev2024assessing} focus on marketable innovations by examining patents and product releases, respectively. \citet{eloundou_gpts_2023} tasks language models with evaluating their own automation potential and is perhaps the most forward-looking of the capability-based measures. \citet{handa2025economic} take a different angle altogether by deriving exposure from revealed usage of a deployed AI system, anchoring the measure in observed adoption rather than projected capability. \citet{eloundou_gpts_2023}, \cite{demirev2024assessing}, and \cite{handa2025economic} were primarily developed after the widespread release of powerful language models, while \citet{felten_method_2018} received an update \cite{felten_how_2023} to account for the rapid pace of progress in the area. Overall, the five studies represent a comprehensive and up-to-date picture of the degree to which AI capabilities overlap with the skills required to perform the most relevant job tasks for each occupation. Appendix~\ref{sec:data_appendix} details how the data was obtained and processed. % Despite the different approaches, the four indices are highly correlated with each other, as shown in \ref{fig:indices_correlation}, with Eloundou et al. and Felten et al. having $r=0.86$, and both of them having a correlation coefficient close to $0.75$ with the index of Demirev. A notable exception is Webb's index, which shows no correlation with Felten et al. and Eloundou et al., and only a modest correlation with Demirev. This might indicate that Webb's approach is capturing a different aspect of AI susceptibility, or that part of what the other indices are measuring is captured by Webb's complementary "exposure to software" index, which is outside the scope of the current paper.
+The five measures of AI exposure used here capture different aspects of the overlap between AI capabilities and job skills. While \citet{felten_method_2018} is rooted ultimately in core scientific advances as measured in projected improvements in AI application benchmarks, \citet{webb_impact_2022} and \citet{demirev2024assessing} focus on marketable innovations by examining patents and product releases, respectively. \citet{eloundou_gpts_2023} tasks language models with evaluating their own automation potential and is perhaps the most forward-looking of the capability-based measures. \citet{handa2025economic} take a different angle altogether by deriving exposure from revealed usage of a deployed AI system, anchoring the measure in observed adoption rather than projected capability. \citet{eloundou_gpts_2023}, \cite{demirev2024assessing}, and \cite{handa2025economic} were primarily developed after the widespread release of powerful language models, while \citet{felten_method_2018} received an update \cite{felten_how_2023} to account for the rapid pace of progress in the area. Overall, the five studies represent a comprehensive and up-to-date picture of the degree to which AI capabilities overlap with the skills required to perform the most relevant job tasks for each occupation. Appendix~\ref{sec:data_appendix} details how the data was obtained and processed.
 
 While all five measures include a headline per-occupation exposure score, \citet{demirev2024assessing} and \citet{handa2025economic} also breakdown the score into an "automation" and an "augmentation" component. We take advantage of this split to assess whether occupations assessed to be at a higher "automation" risk do in fact see a steeper decline in job postings relative to those that are high on "augmentation" exposure. Finally, the score from \citet{demirev2024assessing} is aggregated up from individual per-job-skill exposure measures. We use this skill-level exposure to test whether job skills that more closely align with AI capabilities are mentioned less within a given occupation, regardless of the occupation-level exposure.
 
@@ -198,7 +198,7 @@ The Skills OVATE provides an occupation label for each job vacancy according to 
 
 For the purposes of this paper, the Skills OVATE dataset was collected by downloading the publicly available interactive dashboard representing each quarterly release and extracting the underlying tables. The period covered spans Q4 of 2021 to Q2 of 2025. The main tables used are "Countries and Occupations," which includes the number of job vacancies for a given occupation (at the 2-digit ESCO level) over the last 12 months for each country, as well as "Occupation skills across occupations," which includes the number of times a given ESCO third-level skill was mentioned for each ESCO 3-digit occupation by country. The scripts used to collect the public dashboards, extract the underlying tables from each Tableau file, and process the data are available in the project repository\footnote{TODO}.
 
-Besides data on online job adverts, the Skills OVATE report also contains data on job vacancies within the European Employment Services (EURES) program. EURES is a network effort by the national employment agencies of each member state, aiming to aggregate job vacancies across countries. This data source is less comprehensive compared to the main online job advertisements dataset, however it includes data on the required experience level for each listing. This allows us to assess whether AI has disproportionate impacts on a particular set of workers. We collect this dataset using the public Tableu dashboards. The earliest dataset covers the 12-month period ending in Q3 2024, while the latest ends in Q2 2025. This only gives us four data periods, and crucially no periods before the introduction of Generative AI. Thus, we present all results on job experience heterogeneity with a purely descriptive framing. 
+Besides data on online job adverts, the Skills OVATE report also contains data on job vacancies within the European Employment Services (EURES) program. EURES is a network effort by the national employment agencies of each member state, aiming to aggregate job vacancies across countries. This data source is less comprehensive compared to the main online job advertisements dataset, however it includes data on the required experience level for each listing. This allows us to assess whether AI has disproportionate impacts on a particular set of workers. We collect this dataset using the public Tableau dashboards. The earliest dataset covers the 12-month period ending in Q3 2024, while the latest ends in Q2 2025. This only gives us four data periods, and crucially no periods before the introduction of Generative AI. Thus, we present all results on job experience heterogeneity with a purely descriptive framing. 
 
 The data is analyzed below on the country level, excluding data points on the EU-27/28 aggregate level. This approach was taken to include country-level fixed effects to control for regional labor market dynamics. The level-3 ESCO hierarchy was used for both skills and occupations, as that is the most granular level of data availability. % TODO akward phrasing
 
@@ -206,15 +206,15 @@ Using the number of online job adverts by occupation as the main dependent varia
 
 \subsection{Australian Internet Vacancy Data}
 
-In order to assess the validity of our results outside the context of the European Union, we also employ data from "Jobs and Skills Australia" - an agency of the Australian government tasked with analyzing the labor market and human capital needs of the country. Specifically, we use the "Internet Vacancy Index" (IVI) dataset, which cointains data on the number of vacancies posted on internet job boards across the eight Australian states and territories, broken down by occupation.
+In order to assess the validity of our results outside the context of the European Union, we also employ data from "Jobs and Skills Australia" - an agency of the Australian government tasked with analyzing the labor market and human capital needs of the country. Specifically, we use the "Internet Vacancy Index" (IVI) dataset, which contains data on the number of vacancies posted on internet job boards across the eight Australian states and territories, broken down by occupation.
 
-The data is provided as a 3-month rolling total, with the occupations classified according to Australian and New Zealand Standard Classification of Occupations (ANZSCO). This classification is broadely based on ISCO and we merge it to the occupational exposure scores using a supplemental cross-walk. IVI is somewhat more granular than Skills OVATE, providing data for the level-4 occupations rather than level-3.  
+The data is provided as a 3-month rolling total, with the occupations classified according to Australian and New Zealand Standard Classification of Occupations (ANZSCO). This classification is broadly based on ISCO and we merge it to the occupational exposure scores using a supplemental cross-walk. IVI is somewhat more granular than Skills OVATE, providing data for the level-4 occupations rather than level-3.  
 
 An advantage of this dataset is the longer time period that it covers - we include a full decade of data - from 2016 to 2026 - in our analysis. This allows us to examine a much longer period for pre-trends and to evaluate whether the observed dynamics are a reversal of earlier (possibly pandemic-related) job market trends.
 
 \subsection{Productivity Data}
 
-The study also uses industry-level output per unit of input data to try to estimate AI's early impact on productivity. Specifically, Eurostat's annual national accounts series is used (nama10). This data source includes data on output and factor usage across EU members at an annual frequency. Its availability and publishing date varies by country, with this study using data for 2021, 2022, and 2023, which was the latest available full year at the time of the analysis \cite{Eurostat_nama_10_prod_metadata}.
+The study also uses industry-level output per unit of input data to try to estimate AI's early impact on productivity. Specifically, Eurostat's annual national accounts series is used (nama10). This data source includes data on output and factor usage across EU members at an annual frequency. Its availability and publishing date varies by country, with this study using data for 2021 through 2024, the latter being the latest available full year at the time of the analysis \cite{Eurostat_nama_10_prod_metadata}.
 
 Labor productivity was measured by the "Real labour productivity by hour worked" variable (RLPR-HW) \cite{Eurostat_nama_10_lp_ulc}. A measure of capital productivity was also used - "Gross value added per unit of net fixed assets" (GVA-NCS) \cite{Eurostat_nama_10_cp_a21}. Both variables are provided as 2015-based indices. The data is broken down by country and by industry using the 15 top-level NACE revision 2 categories \cite{eurostat2008nace}.
 
@@ -238,21 +238,21 @@ As far as AI has a measurable impact on job market outcomes, we would expect to 
 
 \subsection{Occupational Labor Demand}
 
-Denoting the number of online job adverts for occupation $i$ in country $c$ and period $t$ as $y_{c,i}^{t}$, we calculate $\bar{y}_{c,t}^{PRE}$ and $\bar{y}_{c,t}^{POST}$ as the average number of job postings in the quarter before and after the release of ChatGPT respectively. Given our data, the PRE period encompasses the four quarters before November 2022, while the post period consists of all quarters from then up to June 2025. We then calculate the change in this average  $\Delta\bar{y}_{c,i} = \log{\bar{y}^{POST}{c,i}}-\log{\bar{y}^{POST}_{c,i}}$ as the main dependent variable of this study. Logs are taken so that we can interpret the results in terms of relative change percentages. The primary equation to be estimated can be stated as:
+Denoting the number of online job adverts for occupation $i$ in country $c$ and period $t$ as $y_{c,i}^{t}$, we calculate $\bar{y}_{c,t}^{PRE}$ and $\bar{y}_{c,t}^{POST}$ as the average number of job postings per quarter before and after the release of ChatGPT respectively. Given our data, the PRE period encompasses the three quarterly data releases available before November 2022 (each covering the preceding twelve months), while the POST period consists of all quarters from then up to June 2025. We then calculate the change in this average  $\Delta\log{\bar{y}}_{c,i} = \log{\bar{y}^{POST}_{c,i}}-\log{\bar{y}^{PRE}_{c,i}}$ as the main dependent variable of this study. Logs are taken so that we can interpret the results in terms of relative change percentages. The primary equation to be estimated can be stated as:
 
 \begin{equation}
     \Delta\log{\bar{y}}_{c,i} = \delta_0 + \xi_c + \delta X_i + \varepsilon_{c,i}
 \label{eq:delta}
 \end{equation}
 
-Where $\delta_0$ is a constant, $\xi_c$ are county-level fixed effects, and $X^{AI}_i$ is any one of the five measures of AI exposure for occupation $i$. The main parameter of interest is $\delta$, measuring the association between AI exposure and changes in labor demand. 
+Where $\delta_0$ is a constant, $\xi_c$ are country-level fixed effects, and $X^{AI}_i$ is any one of the five measures of AI exposure for occupation $i$. The main parameter of interest is $\delta$, measuring the association between AI exposure and changes in labor demand. 
 
 The formulation in \ref{eq:delta} is the main empirical specification for this study and we estimate it once for each of the five exposure measures. To allow direct comparison, all exposure metrics are standardized to cover the $0$ to $1$ range, with $0$ being the lowest exposure score and $1$ being the highest.\footnote{An alternative specification in levels using two-way fixed effects is discussed in Appendix~\ref{sec:twfe}}
 
 An event-study specification is also estimated and reported in the results section to study the potential time-variability of the effects of AI exposure on job listings. The event study also serves as a test of the existence of pre-trends, which in turn might be indicative of a violation of the parallel trends assumption:
 
 \begin{equation}
-\log{y^t_{i,c}}=\gamma_t + \alpha_{c,i} + + \delta^{t} X^{AI}_{i} \times \mathbf{I}(t) + \varepsilon^t_{i,c}
+\log{y^t_{i,c}}=\gamma_t + \alpha_{c,i} + \delta^{t} X^{AI}_{i} \times \mathbf{I}(t) + \varepsilon^t_{i,c}
 \label{eq:event}
 \end{equation}
 
@@ -285,11 +285,11 @@ The main difference for the skill demand model is the independent variables - on
 Since the EURES data that we use to measure labor demand by experience level only covers the last two years of the observation window, we cannot estimate a specification similar to the ones used for overall labor demand and skill demand. In fact, since we don't have any data before our "event date" - the introduction of ChatGPT - we cannot make any claims for a quasi-experimental design in the first place. Nevertheless, to provide a descriptive overview of the dynamics of the data, we estimate a model of change in job vacancies by experience level in the following form:
 
 \begin{equation}
-    \Delta_{2025}^{2026}\log{{d}_{e,c,i}} = \xi_c + \sum_{\iota}\mathds{1}_{\iota}(e) \delta_{\iota} X_i
+    \Delta_{2024Q3}^{2025Q2}\log{{d}_{e,c,i}} = \xi_c + \sum_{\iota}\mathds{1}_{\iota}(e) \delta_{\iota} X_i
 \label{eq:experience}
 \end{equation}
 
-Where $d_{e,c,i}$ is the number of vacancies in country $c$ and occupation $i$ that require $e$ years of experience. The $\Delta$ operator denotes the difference between the last and first periods in the data (Q2 2025 and Q3 2024), while $\xi_c$ are country fixed effects. $\mathds{1}_{\iota}$ is an indicator variable equal to one if $e = \iota$, zero otherwise, and $X_i$ are the familiar exposure scores used throughout. The parameter of interest are the $\delta_{\iota}$ coefficients - per-experience-level-group estimates of the association between AI exposure and job vacancies.
+Where $d_{e,c,i}$ is the number of vacancies in country $c$ and occupation $i$ that require $e$ years of experience. The $\Delta$ operator denotes the difference between the last and first periods in the data (Q2 2025 and Q3 2024), while $\xi_c$ are country fixed effects. $\mathds{1}_{\iota}$ is an indicator variable equal to one if $e = \iota$, zero otherwise, and $X_i$ are the familiar exposure scores used throughout. The parameters of interest are the $\delta_{\iota}$ coefficients - per-experience-level-group estimates of the association between AI exposure and job vacancies.
 
 \subsection{Productivity}
 
@@ -337,11 +337,11 @@ One possible explanation for this is that online job adverts don't necessarily t
 
 Keeping those caveats about the data in mind, \ref{table:increase_and_decrease} presents descriptive statistics of the number of job postings in the periods before and after the release of ChatGPT (averaged over quarters and across countries) for individual level-3 occupations. The occupations that had the highest decrease in the number of listings include blue-collar professions such as Machine operators, Fishery workers, and Crop producers, but also knowledge workers, such as Software developers, database and network professionals, and life science technicians. On the other hand, only a handful of occupations saw a stable or growing number of online job postings -- examples include Traditional medicine workers, Forestry workers, and Ship deck crews, along with personal-service occupations such as Hairdressers and Vehicle cleaners. The overall picture is one of broad-based decline: only two occupations exceeded 10\% growth, while the vast majority lie well below 1.
 
-Table~\ref{table:raw_correlations} rounds up the descriptive statistics by showing the Pearson correlation coefficients between log change in number of online job adverts ($\log(y^{POST}{i,c} - y^{PRE}{i,c})$ in the notation developed above) and each of the five measures of AI exposure. The plots show that all exposure metrics correlate negatively with the relative log change, with coefficients ranging between -0.108 for \citet{eloundou_gpts_2023} and -0.070 for \citet{demirev2024assessing}. While these correlation magnitudes are relatively small, all of them are significant at the 1\% level.
+Table~\ref{table:raw_correlations} rounds up the descriptive statistics by showing the Pearson correlation coefficients between the log change in the number of online job adverts ($\Delta\log{\bar{y}}_{c,i}$ in the notation developed above) and each of the five measures of AI exposure. The table shows that all exposure metrics correlate negatively with the relative log change, with coefficients ranging between -0.108 for \citet{eloundou_gpts_2023} and -0.070 for \citet{demirev2024assessing}. While these correlation magnitudes are relatively small, all of them are significant at the 1\% level.
 
 \subsubsection{Estimating AI Exposure Effects}
 
-Going beyond the descriptive statistics, Figure~\ref{fig:event_study_all} presents the results of estimating the event-study specification \ref{eq:event} for each of the occupational exposure metrics. For four of the five measures, we see significant negative coefficients for all periods starting from 2 quarters after the event date, with the coefficients growing in absolute magnitude with each successive period. The magnitude of the coefficient estimates is also economically significant, corresponding to between 40\% and 50\% relative decrease in job postings in the final sample period. \citet{webb_impact_2022} is the exception, with all periods pre and post the event being insignificant. The coefficients in the pre-event period, while much closer to zero, are still significant for at least one period for each of the exposure indices. This indicates the possible existence of pre-trends in online job listings between occupations. Still, the trend in the pre-event period is, if anything, opposite in direction to the one in the after event period (growing rather than decreasing). We interpret the event studies as supporting the view of a broad decrease in labor demand for highly exposed occupations post the release of ChatGPT. The exact numerical values are presented in \ref{table:event_studies}.
+Going beyond the descriptive statistics, Figure~\ref{fig:event_study_all} presents the results of estimating the event-study specification \ref{eq:event} for each of the occupational exposure metrics. For four of the five measures, we see significant negative coefficients for all periods starting from 2 quarters after the event date, with the coefficients growing in absolute magnitude with each successive period. The magnitude of the coefficient estimates is also economically significant, corresponding to between 46\% and 59\% relative decrease in job postings in the final sample period. \citet{webb_impact_2022} is the exception, with all periods pre and post the event being insignificant. The coefficients in the pre-event period, while much closer to zero, are still significant for at least one period for each of the remaining four exposure indices. This indicates the possible existence of pre-trends in online job listings between occupations. Still, the trend in the pre-event period is, if anything, opposite in direction to the one in the after event period (growing rather than decreasing). We interpret the event studies as supporting the view of a broad decrease in labor demand for highly exposed occupations post the release of ChatGPT. The exact numerical values are presented in \ref{table:event_studies}.
 
 
 \begin{figure}[t]
@@ -352,7 +352,7 @@ Going beyond the descriptive statistics, Figure~\ref{fig:event_study_all} presen
     \label{fig:event_study_all}
 \end{figure}
 
-Table~\ref{table:delta_models} presents the results from estimating the log-linear relative change model with country fixed effects from \ref{eq:delta}. This is the main empirical result of this study. The dependent variable is the log of the ratio of the average number of job listings per period in the periods after and after the release of ChatGPT. The independent variable in each of the five models is one of the five exposure metrics. Country fixed effects are included and standard errors are clustered at the country level. From an initial dataset of 3,270 country-occupation pairs, all observations with fewer than 20 job adverts in either the pre or post periods were excluded. The final dataset thus includes approximately 2,788 country-occupation pairs.
+Table~\ref{table:delta_models} presents the results from estimating the log-linear relative change model with country fixed effects from \ref{eq:delta}. This is the main empirical result of this study. The dependent variable is the log of the ratio of the average number of job listings per period in the periods after and after the release of ChatGPT. The independent variable in each of the five models is one of the five exposure metrics. Country fixed effects are included and standard errors are clustered at the country level. From an initial dataset of 3,270 country-occupation pairs, all observations with 20 or fewer job adverts in either the pre or post periods were excluded. The final dataset thus includes approximately 2,788 country-occupation pairs.
 
 Each column of \ref{table:delta_models} represents a different measure of occupational AI exposure. All estimates are negative and significant at the 1\% level, ranging in magnitude from -0.205 to -0.339. This means that an increase in AI exposure from the lowest to the highest possible level ($0$ to $1$) results in between 18.5\% and 28.8\% (one minus the exponents of the regression coefficients) decrease in the number of online job adverts relative to the baseline period.
 
@@ -366,7 +366,7 @@ Each column of \ref{table:delta_models} represents a different measure of occupa
 \midrule
 Demirev Exposure & -0.211*** & & & & \\
  & (0.055) & & & & \\
-Felten AI Exposure & & -0.212*** & & & \\
+Felten AI Exposure & & -0.212** & & & \\
  & & (0.058) & & & \\
 Webb AI Exposure & & & -0.205*** & & \\
  & & & (0.043) & & \\
@@ -381,7 +381,7 @@ Adjusted R$^2$ & 0.536 & 0.542 & 0.538 & 0.546 & 0.538 \\
 Country FE & Yes & Yes & Yes & Yes & Yes \\
 \hline\hline
 \multicolumn{6}{l}{\footnotesize Standard errors clustered at country level in parentheses} \\
-\multicolumn{6}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
 \end{tabular}
 \label{table:delta_models}
 \end{table}
@@ -403,9 +403,9 @@ Despite the significant coefficient on the AI exposure variable, the model produ
 
 Since two of the used exposure measures also provide an "automation" vs "augmentation" breakdown, we try to separate the two effects by estimating Equation~\ref{eq:delta_auto_augm}. In this specification, each occupation has a separate score for the two types of exposure. The results are reported in Table~\ref{table:intent_models} and differ between the scores of \citet{handa2025economic} and \citet{demirev2024assessing}.
 
-Using the measure of \citet{handa2025economic} we discover a significant negative coefficient on automation exposure and a significant positive coefficient on augmentation exposure. The coefficient on automation exposure is $-0.24$, corresponding to a 21\% reduction of job adverts for the most highly exposed occupation relative to the least exposed, at a given level of augmentation exposure. At the same time, moving from least exposed to most exposed for augmentation exposure is associated with a 14.5\% relative increase in job adverts, holding automation exposure fixed. This reinforces an interpretion of firms reducing their labor demand for automatable jobs while simulatanously increasing their demand for occupations in which workers are made productive by AI.
+Using the measure of \citet{handa2025economic} we discover a significant negative coefficient on automation exposure and a significant positive coefficient on augmentation exposure. The coefficient on automation exposure is $-0.24$, corresponding to a 21\% reduction of job adverts for the most highly exposed occupation relative to the least exposed, at a given level of augmentation exposure. At the same time, moving from least exposed to most exposed for augmentation exposure is associated with a 14.5\% relative increase in job adverts, holding automation exposure fixed. This reinforces an interpretation of firms reducing their labor demand for automatable jobs while simultaneously increasing their demand for occupations in which workers are made productive by AI.
 
-The same specification estimated with the scores from \citet{demirev2024assessing} however paints a different picture, with augmentation exposure being singificant and negatively associated with relative job ads growth ($-0.28$, $(0.069)$), and automation exposure coming out as non-significant. This apperant contradiction may reflect the different ways the two measures were constructed - while \citet{handa2025economic} is based on observed AI usage, \citet{demirev2024assessing} uses firm product announcements. This means that the two measures also do not define the automation/augmentation distinction on the same axis: Handa captures how tasks are actually performed, while Demirev captures stated product capabilities. One way to reconcile the results is that, for public-perception reasons, firms may underplay the automation potential of their products and frame it as augmentation. This would result in the Demirev augmentation score absorbing automation-driven labor reductions, turning its coefficient negative while leaving the automation label insignificant. These individual coefficients should in any case be read with caution, as automation and augmentation exposure are correlated within each measure, and including both regressors flips the sign of one of the coefficients relative to the univariate specifications in both cases.
+The same specification estimated with the scores from \citet{demirev2024assessing} however paints a different picture, with augmentation exposure being significant and negatively associated with relative job ads growth ($-0.28$, $(0.069)$), and automation exposure coming out as non-significant. This apparent contradiction may reflect the different ways the two measures were constructed - while \citet{handa2025economic} is based on observed AI usage, \citet{demirev2024assessing} uses firm product announcements. This means that the two measures also do not define the automation/augmentation distinction on the same axis: Handa captures how tasks are actually performed, while Demirev captures stated product capabilities. One way to reconcile the results is that, for public-perception reasons, firms may underplay the automation potential of their products and frame it as augmentation. This would result in the Demirev augmentation score absorbing automation-driven labor reductions, turning its coefficient negative while leaving the automation label insignificant. These individual coefficients should in any case be read with caution, as automation and augmentation exposure are correlated within each measure, and including both regressors flips the sign of one of the coefficients relative to the univariate specifications in both cases.
 
 % Matches: results/logs/oja_models.txt -- "## Delta models, breakdown by intent:" ($combined specifications)
 \begin{table}[htbp]
@@ -438,11 +438,11 @@ Country FE & Yes & Yes \\
 
 In order to validate the above findings against a different data source, we estimate Equation~\ref{eq:delta}, Equation~\ref{eq:event}, as well as Equation~\ref{eq:delta_auto_augm} against data from Australia's Internet Vacancy Index (IVI).
 
-Looking at the headline estimates from Equation~\ref{eq:delta}, we see that only two of the indices of AI exposure remain negative and significant - \citet{handa2025economic} and \citet{demirev2024assessing} with coefficient estimates of $-0.35 (0.036)$ and $-0.16 (0.025)$ respectively. This corresponds to roughly $15\%$ to $30\%$ reltive reduction of job postings for the most exposed occupations relative to the least exposed ones. The augmentation vs automation breakdown for both measures shows positive and negative significant coefficients respectively. This is in line with the EU estimation for \citet{handa2025economic} but not for \citet{demirev2024assessing}, further suggesting that the automaiton / augmentation breakdown for this measure might not be fully reliable. 
+Looking at the headline estimates from Equation~\ref{eq:delta}, we see that only two of the indices of AI exposure remain negative and significant - \citet{handa2025economic} and \citet{demirev2024assessing} with coefficient estimates of $-0.357 (0.036)$ and $-0.152 (0.025)$ respectively. This corresponds to roughly $14\%$ to $30\%$ relative reduction of job postings for the most exposed occupations relative to the least exposed ones. The augmentation vs automation breakdown for both measures shows positive and negative significant coefficients respectively. This is in line with the EU estimation for \citet{handa2025economic} but not for \citet{demirev2024assessing}, further suggesting that the automation / augmentation breakdown for this measure might not be fully reliable.
 
-The remaining three exposure metrics however are either insignificant for \citet{eloundou_gpts_2023} and \citet{webb_impact_2022}, or, in the case of \citet{felten_method_2018}, marginally significant, but positive in magnitude ($0.12 (0.045)$). This evidence complicates the cleaner results from the European data, where all measures lined up together. However, we should note that the two significant exposure indices are the most recent ones (and two of the three developed in the post-LLM era), making them perhaps somewhat preferrable to the others. Furthermore, with only 8 clusters, the standard errors are not necssarily reliable in this specifaction.
+The remaining three exposure metrics however are either insignificant for \citet{eloundou_gpts_2023} and \citet{webb_impact_2022}, or, in the case of \citet{felten_method_2018}, significant at the 5\% level, but positive in sign ($0.12 (0.045)$). This evidence complicates the cleaner results from the European data, where all measures lined up together. However, we should note that the two negative and significant exposure indices are the most recent ones (and two of the three developed in the post-LLM era), making them perhaps somewhat preferable to the others. Furthermore, with only 8 clusters, the standard errors are not necessarily reliable in this specification.
 
-Turning to the event-study estimates for the two significant exposure measures, we see a broadely similar picture to the European data when comparing them across the same time window - mostly insignificant estimates in the periods directly preceeding the event date, followed by steadily declining negative singificant estimates (Figure~\ref{fig:aus_event_study}).
+Turning to the event-study estimates for the two significant exposure measures, we see a broadly similar picture to the European data when comparing them across the same time window - mostly insignificant estimates in the periods directly preceding the event date, followed by steadily declining negative significant estimates (Figure~\ref{fig:aus_event_study}).
 
 \begin{figure}[t]
     \caption{Event Study of ChatGPT's Introduction against Number of OJA --- Australian IVI}
@@ -454,9 +454,9 @@ Turning to the event-study estimates for the two significant exposure measures, 
     {\footnotesize The shaded band marks the COVID-19 lockdown and restriction period in Australia (2020Q1--2021Q4). Estimates are for the ISCO level-3 specification; the event date (ChatGPT release) is the dashed vertical line.}
 \end{figure}
 
-The Australian data also allows us to examine a longer time window before the event date. In particular, we are interested in examining how highly exposed occupations faired during the COVID recovery, so that we can rule out a reversion-to-the-mean dynamics from that previous labor market disruption. The two significant indices largely gives us reason to believe this is not the case -- the \citet{handa2025economic} index is insignificant for every period since the breakout of the pandemic, with the only period of significant pre-AI coefficients occuring prior to 2020, while the occupations deemed highly exposed to AI by \citet{demirev2024assessing} actually recrorded a relative contraction in labor demand during the pandemic. 
+The Australian data also allows us to examine a longer time window before the event date. In particular, we are interested in examining how highly exposed occupations fared during the COVID recovery, so that we can rule out a reversion-to-the-mean dynamics from that previous labor market disruption. The two significant indices largely give us reason to believe this is not the case -- the \citet{handa2025economic} index is insignificant for every period since the breakout of the pandemic, with the only period of significant pre-AI coefficients occurring prior to 2020, while the occupations deemed highly exposed to AI by \citet{demirev2024assessing} actually recorded a relative contraction in labor demand during the pandemic.
 
-Taken together, we consider the evidence from Australian dataset to support the direction of the findings from the EU, while at the same time putting into question the magnitude and strength of the effect. The full details about how the data was obtained and processed, as well as detailed results breakdown, are avialable in Appendix~\ref{sec:aus_appendix}.
+Taken together, we consider the evidence from Australian dataset to support the direction of the findings from the EU, while at the same time putting into question the magnitude and strength of the effect. The full details about how the data was obtained and processed, as well as detailed results breakdown, are available in Appendix~\ref{sec:aus_appendix}.
 
 \subsection{Skill Demand}
 
@@ -472,7 +472,7 @@ Since the data on online job adverts provided by CEDEFOP also includes a breakdo
     \label{fig:event_study_skills}
 \end{figure}
 
-The event study clearly shows that the point estimates of the coefficient of the interaction between the exposure variable and the time dummy become progressively more negative in the later periods after the event date. However, only the last period is associated with a significant negative coefficient. Additionally, the interaction between the first observed period dummy and the exposure variable also has a significant coefficient (although positive). These results indicate a potential violation of the parallel trends assumption, meaning that the results may not have a valid causal interpretation. % TODO reastimate with updated data
+The event study shows that the point estimates of the coefficient of the interaction between the exposure variable and the time dummy become progressively more negative in the later periods after the event date, turning statistically significant from the fifth post-event quarter onward. However, all three pre-event interactions also have significant coefficients (although positive). These results indicate a potential violation of the parallel trends assumption, meaning that the skill-level results may not have a valid causal interpretation.
 
 % Matches: results/logs/skill_demand.txt -- "## Delta: delta_mentions_log ~ ai_product_exposure"
 \begin{table}[htbp]
@@ -482,7 +482,7 @@ The event study clearly shows that the point estimates of the coefficient of the
 \hline\hline
 Dependent variable: & $\Delta \log(\text{Skill Mentions})$ \\
 \midrule
-AI Product Exposure & -0.246** \\
+AI Product Exposure & -0.246* \\
  & (0.113) \\
 \midrule
 Observations & 75,669 \\
@@ -491,6 +491,8 @@ Adjusted R$^2$ & 0.109 \\
 Occupation FE & Yes \\
 Country FE & Yes \\
 \hline\hline
+\multicolumn{2}{l}{\footnotesize Standard errors clustered at country and occupation level in parentheses} \\
+\multicolumn{2}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
 \multicolumn{2}{l}{\footnotesize Note: $\Delta$ represents the change from pre to post-ChatGPT period} \\
 \end{tabular}
 \label{table:skill_model}
@@ -500,7 +502,7 @@ The estimate of the coefficient from \ref{eq:skill} is $-0.246$ with a p-value o
 
 \subsection{Labor Demand By Experience Level}
 
-Before moving on to discussing our productivity effect estimates, we show that the association between AI exposure and labor demand contraction is characterized by an inverted U-shape in the EURES dataset. Job vacancies for highly-exposed workers with no experience, as well as those for workers with more than 10 years of experience (the highest category in the dataset), show the largest relative decline, while the middle of the experience distribution shows null or slightly positive coefficients.
+Before moving on to discussing our productivity effect estimates, we show that the association between AI exposure and job posting growth is characterized by an inverted U-shape across experience levels in the EURES dataset. Job vacancies for highly-exposed workers with no experience, as well as those for workers with more than 10 years of experience (the highest category in the dataset), show the largest relative decline, while the middle of the experience distribution shows null or slightly positive coefficients.
 
 This relationship is visualized in Figure~\ref{fig:by_experience} for each of the five exposure measures that we employ. The graph shows the coefficient estimates from Equation~\ref{eq:experience}, obtained by regressing the change in log vacancies between 2024 and 2025 on AI exposure, separately for each experience bin. As discussed above, the limited observation window does not allow us to do a proper "pre" and "post" comparison, therefore this finding is presented here as a purely descriptive fact. Nevertheless, the pattern is consistent across exposure measures: for intermediate levels of job experience we get null or slightly positive coefficients, contrasting with the highly negative significant estimates for the least and most experienced workers.
 
@@ -554,9 +556,9 @@ A & Agriculture \& fishing & 0.048 & 0.162 & 0.784 & 0.169 & 0.012 \\
 \label{table:industries}
 \end{table}
 
-Taking this data, together with the capital and labor productivity measures described in the data section, I estimate versions of the TWFE specification \ref{eq:industry}, as well as a version of the "delta specification" \ref{eq:delta} with country fixed effects. The results are presented in \ref{table:industry_twfe} and \ref{table:industry_delta} in the appendix. None of the estimated coefficients is statistically significant. This supports a claim that AI is yet to have any noticeable impact on industry-level productivity.
+Taking this data, together with the capital and labor productivity measures described in the data section, I estimate versions of the TWFE specification \ref{eq:industry}, as well as a version of the "delta specification" \ref{eq:delta} with country fixed effects. The results are presented in \ref{table:industry_twfe} and \ref{table:industry_delta} in the appendix. None of the estimated coefficients is statistically significant at the 5\% level. This supports a claim that AI is yet to have any noticeable impact on industry-level productivity.
 
-It should be noted, however, that the productivity data is by its nature more limited relative to the online job adverts data. It is only available at the yearly level and is released with some lag, meaning that the time series terminates 9 months earlier than the OJA dataset. Considering that the occupation-level event studies show the largest negative coefficients for 2024, this may mean that it is simply too early to notice any effects. The data is also available on a generally less granular level (a total of only 17 industries, compared to the 122 ISCO level-3 occupations), which may conceal some variation in vertical AI applications.
+It should be noted, however, that the productivity data is by its nature more limited relative to the online job adverts data. It is only available at the yearly level and is released with some lag, meaning that the time series terminates six months earlier than the OJA dataset. Considering that the occupation-level event studies show the largest negative coefficients in 2025, beyond the end of the productivity series, this may mean that it is simply too early to notice any effects. The data is also available on a generally less granular level (a total of only 17 industries, compared to the 122 ISCO level-3 occupations), which may conceal some variation in vertical AI applications.
 
 % Conclusion ====================================================================
 
@@ -570,9 +572,9 @@ This main result should be interpreted with several caveats in mind. First, the 
 
 Two secondary results concern the change in skill composition across occupations and changes in labor and capital productivity. Changes in the skills associated with each occupation may be indicative of a change in the task mix of the occupation. Using a measure of the similarity between job skills and AI capabilities, we employ a similar difference-in-differences approach with continuous treatment. The results show that even within occupations, skills that are more similar to AI capabilities are mentioned less often in job adverts after the release of ChatGPT, with the most exposed skills exhibiting 12\% fewer mentions relative to the least exposed ones. Similar caveats apply as with the main result, as despite the significant coefficient estimate, the overall contribution of the exposure metric to the model fit is quite small.
 
-To measure potential effects of AI adoption on productivity, we utilize industry-level data on capital and labor productivity from Eurostat and develop industry exposure scores based on the occupation exposure scores and data on the occupational mix within each industry. None of the estimated productivity models returns a significant coefficient on AI exposure, indicating no measurable effect on industry productivity. These findings stand in contrast to micro-level field experimentts, which tend to show measurable productivity gains \citep{brynjolfsson2025genai}\footnote{An outlier study is \citet{becker2025measuring} which finds a negative productivity effect in a controlled experiment}, suggesting that micro gains are either too small, or yet to propogate into macro data. This interpretation also comes with caveats, however, since the productivity data is of lower granularity and lower frequency compared to the job postings data.
+To measure potential effects of AI adoption on productivity, we utilize industry-level data on capital and labor productivity from Eurostat and develop industry exposure scores based on the occupation exposure scores and data on the occupational mix within each industry. None of the estimated productivity models returns a significant coefficient on AI exposure, indicating no measurable effect on industry productivity. These findings stand in contrast to micro-level field experiments, which tend to show measurable productivity gains \citep{brynjolfsson2025genai}\footnote{An outlier study is \citet{becker2025measuring} which finds a negative productivity effect in a controlled experiment}, suggesting that micro gains are either too small, or yet to propagate into macro data. This interpretation also comes with caveats, however, since the productivity data is of lower granularity and lower frequency compared to the job postings data.
 
-The significant negative estimates on the number of job adverts, coupled with the non-significant estimates on labor and capital productivity, point toward the "so-so automation" scenario outlined by \citet{acemoglu_restrepo_2022}. In this theoretical outcome, AI does enough to outpace and replace parts of human labor, but the resulting gains in cost and efficiency are insufficient to raise output enough to offset the disemployment effects. The main counteracting force against automation in Acemoglu and Restrepo's framework, however, remains the creation of new tasks. Whether or not AI has had any impact on the rate of creation of such tasks remains outside the scope of this paper. However, the finding that skills that have highest overlap with AI capability show some decrease in their frequency of mentions in job adverts provides some circumstantial evidence for task re-composition.
+The significant negative estimates on the number of job adverts, coupled with the non-significant estimates on labor and capital productivity, point toward the "so-so automation" scenario outlined by \citet{acemoglu_automation_2019}. In this theoretical outcome, AI does enough to outpace and replace parts of human labor, but the resulting gains in cost and efficiency are insufficient to raise output enough to offset the disemployment effects. The main counteracting force against automation in Acemoglu and Restrepo's framework, however, remains the creation of new tasks. Whether or not AI has had any impact on the rate of creation of such tasks remains outside the scope of this paper. However, the finding that skills that have highest overlap with AI capability show some decrease in their frequency of mentions in job adverts provides some circumstantial evidence for task re-composition.
 
 Overall, the results presented in this paper point toward a measurable negative effect of AI adoption on hiring decisions. The magnitude of the estimates can already be seen as concerning for the prospects of labor in exposed occupations; however, it is worth remembering that these are only the initial effects as businesses are starting to adapt to the new technology. As AI continues to advance both in terms of foundational model capabilities as well as more specialized applications, monitoring labor market outcomes should remain an important task for policymakers and researchers concerned with job automation.
 
@@ -647,7 +649,7 @@ Webb Score & -0.070*** & [-0.104, -0.036] & $<$0.001 \\
 Eloundou Beta & -0.108*** & [-0.142, -0.074] & $<$0.001 \\
 Anthropic Usage & -0.075*** & [-0.109, -0.041] & $<$0.001 \\
 \hline\hline
-\multicolumn{4}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\multicolumn{4}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
 \multicolumn{4}{l}{\footnotesize Note: Correlations with $\Delta \log(\text{Job Listings})$} \\
 \multicolumn{4}{l}{\footnotesize N = 3,241-3,269 occupation-country pairs} \\
 \end{tabular}
@@ -663,115 +665,43 @@ Anthropic Usage & -0.075*** & [-0.109, -0.041] & $<$0.001 \\
  & AI Product & Felten & Webb & Eloundou & Anthropic \\
 Quarter & Exposure & AI Exposure & AI Exposure & Beta & Usage \\
 \midrule
-2022 Q1 & 0.000 & 0.015 & 0.088 & 0.015 & -0.069 \\
- & (0.087) & (0.052) & (0.062) & (0.066) & (0.096) \\
-2022 Q2 & -0.182** & -0.094** & -0.100* & -0.121** & -0.158 \\
- & (0.070) & (0.046) & (0.058) & (0.056) & (0.114) \\
-2022 Q3 & -0.312*** & -0.173*** & -0.215*** & -0.220*** & -0.273* \\
- & (0.087) & (0.055) & (0.067) & (0.066) & (0.146) \\
-2023 Q1 & -0.210 & -0.117 & -0.128 & -0.160 & -0.250 \\
- & (0.197) & (0.125) & (0.134) & (0.159) & (0.200) \\
-2023 Q2 & -0.983*** & -0.650*** & -0.649*** & -0.830*** & -1.292** \\
- & (0.335) & (0.223) & (0.220) & (0.283) & (0.491) \\
-2023 Q3 & -0.857** & -0.564** & -0.559** & -0.725** & -1.181** \\
- & (0.346) & (0.231) & (0.229) & (0.293) & (0.488) \\
-2023 Q4 & -1.117*** & -0.716*** & -0.716*** & -0.921*** & -1.493*** \\
- & (0.352) & (0.233) & (0.232) & (0.297) & (0.523) \\
-2024 Q1 & -1.519*** & -0.971*** & -0.977*** & -1.251*** & -1.985*** \\
- & (0.373) & (0.242) & (0.244) & (0.309) & (0.596) \\
-2024 Q2 & -1.653*** & -1.073*** & -1.068*** & -1.376*** & -2.187*** \\
- & (0.371) & (0.241) & (0.241) & (0.308) & (0.626) \\
-2024 Q3 & -2.160*** & -1.404*** & -1.406*** & -1.801*** & -2.801*** \\
- & (0.401) & (0.255) & (0.256) & (0.327) & (0.743) \\
-2024 Q4 & -2.366*** & -1.550*** & -1.537*** & -1.986*** & -3.071*** \\
- & (0.414) & (0.262) & (0.263) & (0.335) & (0.793) \\
-2025 Q1 & -2.302*** & -1.506*** & -1.471*** & -1.938*** & -3.039*** \\
- & (0.415) & (0.263) & (0.264) & (0.337) & (0.776) \\
-2025 Q2 & -2.357*** & -1.535*** & -1.494*** & -1.977*** & -3.104*** \\
- & (0.411) & (0.260) & (0.260) & (0.333) & (0.769) \\
+2022 Q1 & -0.253** & -0.199** & 0.120 & -0.232** & -0.215* \\
+ & (0.078) & (0.069) & (0.065) & (0.079) & (0.082) \\
+2022 Q2 & 0.120 & 0.161* & 0.117 & 0.192* & 0.133* \\
+ & (0.073) & (0.065) & (0.061) & (0.073) & (0.061) \\
+2022 Q3 & 0.242** & 0.288*** & 0.093 & 0.327*** & 0.244*** \\
+ & (0.084) & (0.067) & (0.065) & (0.075) & (0.064) \\
+2023 Q1 & -0.092* & -0.061 & -0.030 & -0.092 & -0.122* \\
+ & (0.042) & (0.031) & (0.031) & (0.051) & (0.050) \\
+2023 Q2 & -0.187* & -0.233** & -0.070 & -0.267** & -0.371*** \\
+ & (0.084) & (0.076) & (0.042) & (0.091) & (0.042) \\
+2023 Q3 & -0.228* & -0.253** & -0.079 & -0.305** & -0.421*** \\
+ & (0.084) & (0.078) & (0.044) & (0.091) & (0.045) \\
+2023 Q4 & -0.273** & -0.254** & -0.059 & -0.312** & -0.471*** \\
+ & (0.092) & (0.080) & (0.052) & (0.098) & (0.037) \\
+2024 Q1 & -0.328** & -0.291** & -0.088 & -0.377*** & -0.551*** \\
+ & (0.108) & (0.081) & (0.069) & (0.103) & (0.047) \\
+2024 Q2 & -0.346** & -0.344*** & -0.069 & -0.421*** & -0.599*** \\
+ & (0.115) & (0.091) & (0.077) & (0.115) & (0.060) \\
+2024 Q3 & -0.397** & -0.406*** & -0.049 & -0.488*** & -0.668*** \\
+ & (0.124) & (0.101) & (0.091) & (0.124) & (0.047) \\
+2024 Q4 & -0.458*** & -0.490*** & -0.058 & -0.585*** & -0.738*** \\
+ & (0.125) & (0.102) & (0.104) & (0.125) & (0.067) \\
+2025 Q1 & -0.581*** & -0.610*** & -0.117 & -0.737*** & -0.861*** \\
+ & (0.132) & (0.103) & (0.111) & (0.128) & (0.100) \\
+2025 Q2 & -0.618*** & -0.608*** & -0.101 & -0.757*** & -0.885*** \\
+ & (0.128) & (0.099) & (0.112) & (0.125) & (0.091) \\
 \midrule
-Country FE & Yes & Yes & Yes & Yes & Yes \\
-Occupation FE & Yes & Yes & Yes & Yes & Yes \\
-\hline\hline
-\multicolumn{6}{l}{\footnotesize Standard errors clustered at country-occupation level in parentheses} \\
-\multicolumn{6}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
-\end{tabular}
-\label{table:event_studies}
-\end{table} % TODO outdated, needs updating
-
-% Matches: results/logs/oja_models.txt -- "## By-decile models:"
-\begin{table}[H]
-\centering
-\caption{Decile Analysis: Impact of AI Exposure on Online Job Ads}
-\begin{tabular}{lccccc}
-\hline\hline
- & AI Product & Felten & Webb & Eloundou & Anthropic \\
-Decile & Exposure & AI Exposure & AI Exposure & Beta & Usage \\
-\midrule
-2nd & -0.004 & -0.109*** & 0.041 & -0.147*** & -0.102** \\
- & (0.033) & (0.038) & (0.027) & (0.034) & (0.040) \\
-3rd & -0.064* & 0.022 & 0.020 & 0.003 & -0.042 \\
- & (0.034) & (0.029) & (0.039) & (0.020) & (0.026) \\
-4th & -0.097*** & -0.039 & 0.077** & -0.008 & -0.122** \\
- & (0.031) & (0.032) & (0.034) & (0.039) & (0.054) \\
-5th & -0.173*** & -0.040 & 0.056* & -0.048 & -0.077* \\
- & (0.041) & (0.041) & (0.033) & (0.036) & (0.040) \\
-6th & -0.096** & -0.080 & -0.025 & -0.080* & -0.080* \\
- & (0.039) & (0.051) & (0.037) & (0.044) & (0.041) \\
-7th & -0.096** & -0.105** & -0.021 & -0.123** & -0.075* \\
- & (0.046) & (0.050) & (0.036) & (0.046) & (0.042) \\
-8th & -0.080* & -0.146** & -0.183*** & -0.214*** & -0.126** \\
- & (0.041) & (0.053) & (0.046) & (0.053) & (0.053) \\
-9th & -0.153*** & -0.222*** & -0.078** & -0.195*** & -0.150*** \\
- & (0.042) & (0.059) & (0.032) & (0.055) & (0.048) \\
-10th & -0.178*** & -0.188*** & -0.098** & -0.237*** & -0.177*** \\
- & (0.042) & (0.058) & (0.040) & (0.051) & (0.051) \\
-\midrule
-Observations & 2,788 & 2,785 & 2,776 & 2,785 & 2,785 \\
-R$^2$ (within) & 0.024 & 0.039 & 0.039 & 0.052 & 0.017 \\
-Adjusted R$^2$ & 0.540 & 0.547 & 0.548 & 0.553 & 0.537 \\
-Country FE & Yes & Yes & Yes & Yes & Yes \\
-\hline\hline
-\multicolumn{6}{l}{\footnotesize Standard errors clustered at country level in parentheses} \\
-\multicolumn{6}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
-\multicolumn{6}{l}{\footnotesize Note: First decile is the reference category} \\
-\end{tabular}
-\label{table:decile_models}
-\end{table}
-
-% Matches: results/logs/oja_models.txt -- the four "## TWFE: ..." sections
-\begin{table}[H]
-\centering
-\caption{Impact of AI Exposure on Online Job Ads: Two-Way Fixed Effects Estimates}
-\begin{tabular}{lccccc}
-\hline\hline
- & (1) & (2) & (3) & (4) & (5) \\
-\midrule
-AI Product Exposure $\times$ Post & -0.262*** & & & & \\
- & (0.095) & & & & \\
-Felten AI Exposure $\times$ Post & & -0.305*** & & & \\
- & & (0.108) & & & \\
-Webb AI Exposure $\times$ Post & & & -0.168** & & \\
- & & & (0.071) & & \\
-Eloundou Beta $\times$ Post & & & & -0.387*** & \\
- & & & & (0.120) & \\
-Anthropic Usage $\times$ Post & & & & & -0.483*** \\
- & & & & & (0.087) \\
-\midrule
-Observations & 48,928 & 48,850 & 48,546 & 48,850 & 48,850 \\
-R$^2$ (within) & 0.0004 & 0.0010 & 0.0002 & 0.0011 & 0.0006 \\
-Adjusted R$^2$ & 0.835 & 0.834 & 0.836 & 0.834 & 0.834 \\
-Occupation FE & Yes & Yes & Yes & Yes & Yes \\
-Country FE & Yes & Yes & Yes & Yes & Yes \\
+Observations & 48,911 & 48,835 & 48,533 & 48,835 & 48,835 \\
+Country $\times$ Occupation FE & Yes & Yes & Yes & Yes & Yes \\
 Time FE & Yes & Yes & Yes & Yes & Yes \\
 \hline\hline
-\multicolumn{6}{l}{\footnotesize Standard errors clustered at country-occupation level in parentheses} \\
-\multicolumn{6}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
-\multicolumn{6}{l}{\footnotesize Note: Dependent variable is log(Online Job Ads)} \\
+\multicolumn{6}{l}{\footnotesize Standard errors clustered at country and occupation level in parentheses} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\multicolumn{6}{l}{\footnotesize Note: 2022 Q4 (ChatGPT release) is the omitted reference period} \\
 \end{tabular}
-\label{table:twfe_models}
+\label{table:event_studies}
 \end{table}
-
 
 \begin{figure}[H]
     \caption{AI Exposure and Change in Online Job Postings}
@@ -779,15 +709,6 @@ Time FE & Yes & Yes & Yes & Yes & Yes \\
     %\includesvg[width=0.8\textwidth,height=0.3\textheight]{visuals/research_skills_plot.svg}
     \includegraphics[width=0.6\textwidth]{img/partial_plots_all.eps}
     \label{fig:partial_all}
-\end{figure}
-
-
-\begin{figure}[H]
-    \caption{AI Exposure and Change in Online Job Postings}
-    \centering
-    %\includesvg[width=0.8\textwidth,height=0.3\textheight]{visuals/research_skills_plot.svg}
-    \includegraphics[width=0.6\textwidth]{img/decile_plots_combined.eps}
-    \label{fig:decile_all}
 \end{figure}
 
 % Matches: results/logs/skill_demand.txt -- "## Exposure and change in mentions by skill"
@@ -866,8 +787,8 @@ Industry FE & Yes & Yes \\
 Country FE & Yes & Yes \\
 Year FE & Yes & Yes \\
 \hline\hline
-\multicolumn{3}{l}{\footnotesize Standard errors clustered at country-industry level in parentheses} \\
-\multicolumn{3}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\multicolumn{3}{l}{\footnotesize Standard errors clustered at country and industry level in parentheses} \\
+\multicolumn{3}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
 \multicolumn{3}{l}{\footnotesize Note: Dependent variables are in logs} \\
 \end{tabular}
 \label{table:industry_twfe}
@@ -894,7 +815,7 @@ AI Exposure & 0.002 & 0.022 \\
  & (0.030) & (0.065) \\
 \midrule
 \textit{Panel C: Webb Score} & & \\
-AI Exposure & -0.113* & -0.110 \\
+AI Exposure & -0.113 & -0.110 \\
  & (0.060) & (0.126) \\
 \midrule
 \textit{Panel D: Eloundou Beta} & & \\
@@ -909,8 +830,8 @@ Observations & 330 & 158 \\
 Country FE & Yes & Yes \\
 R$^2$ (within) & 0.000-0.029 & 0.000-0.028 \\
 \hline\hline
-\multicolumn{3}{l}{\footnotesize Standard errors clustered at country-industry level in parentheses} \\
-\multicolumn{3}{l}{\footnotesize *** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+\multicolumn{3}{l}{\footnotesize Standard errors clustered at country and industry level in parentheses} \\
+\multicolumn{3}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
 \multicolumn{3}{l}{\footnotesize Note: $\Delta$ represents the change from pre to post-ChatGPT period} \\
 \end{tabular}
 \label{table:industry_delta}
@@ -918,75 +839,269 @@ R$^2$ (within) & 0.000-0.029 & 0.000-0.028 \\
 
 % Australian robustness appendix ===================================================
 
-\section{AI Exposure Index Data Acquisition}
+\section{AI Exposure Data Acquisition}
 \label{sec:data_appendix}
 
-% The exposure data of \citet{felten_method_2018} is made available via GitHub\footnote{https://github.com/AIOE-Data/AIOE}. Their measure of "AI Occupational Exposure (AIOE)" is constructed by linking 52 human job-relevant abilities taken from the ONET database to 10 AI applications tracked by the Electronic Frontier Foundation. These applications include image recognition, visual question answering, reading comprehension, language modeling, translation, speech recognition, and various game-playing capabilities. The authors then use a crowd-sourced matrix of links between the occupational abilities and AI applications, as well as forecasts on the expected progress of each AI ability to construct a per-ability measure of AI exposure. The aggregation to an occupation level is then carried out by using the importance of each ability for a given occupation as per ONET. In subsequent work \cite{felten_how_2023}, the same authors refined their exposure index to better correspond to occupational exposure due to large language models by only considering the occupation abilities links with the "language modeling" application. However, since the two measures are highly correlated (correlation coefficient of 0.97), and since the next-token prediction approach inherent to language modeling can (and is) also be applied to other AI applications, such as visual reasoning, reading comprehension, and translation, in this paper I use the more general AIOE measure.
+The exposure data of \citet{felten_method_2018} is made available via GitHub\footnote{https://github.com/AIOE-Data/AIOE}. Their measure of "AI Occupational Exposure (AIOE)" is constructed by linking 52 human job-relevant abilities taken from the ONET database to 10 AI applications tracked by the Electronic Frontier Foundation. These applications include image recognition, visual question answering, reading comprehension, language modeling, translation, speech recognition, and various game-playing capabilities. The authors then use a crowd-sourced matrix of links between the occupational abilities and AI applications, as well as forecasts on the expected progress of each AI ability to construct a per-ability measure of AI exposure. The aggregation to an occupation level is then carried out by using the importance of each ability for a given occupation as per ONET. In subsequent work \cite{felten_how_2023}, the same authors refined their exposure index to better correspond to occupational exposure due to large language models by only considering the occupation abilities links with the "language modeling" application. However, since the two measures are highly correlated (correlation coefficient of 0.97), and since the next-token prediction approach inherent to language modeling can (and is) also be applied to other AI applications, such as visual reasoning, reading comprehension, and translation, in this paper I use the more general AIOE measure.
 
-% The data for the exposure measure of \citet{webb_impact_2022} is taken from the author's website\footnote{https://www.notion.so/michaelwebb/Data-for-The-Impact-of-Artificial-Intelligence-on-the-Labor-Market-3b52b281505a48b8be107d11d8d0c363}. This measure relies on patent data to link AI capabilities to job-relevant human abilities. The patent data is taken from Google Patents Public Data. Each patent's title and description is then processed to extract verb-noun pairs describing the invention. These verb-noun pairs are then compared to 964 task descriptions from the O*NET database (after first being further processed based on a dictionary of hierarchical word definitions). The task-level measure is then aggregated to the occupation level.
+The data for the exposure measure of \citet{webb_impact_2022} is taken from the author's website\footnote{https://www.notion.so/michaelwebb/Data-for-The-Impact-of-Artificial-Intelligence-on-the-Labor-Market-3b52b281505a48b8be107d11d8d0c363}. This measure relies on patent data to link AI capabilities to job-relevant human abilities. The patent data is taken from Google Patents Public Data. Each patent's title and description is then processed to extract verb-noun pairs describing the invention. These verb-noun pairs are then compared to 964 task descriptions from the O*NET database (after first being further processed based on a dictionary of hierarchical word definitions). The task-level measure is then aggregated to the occupation level.
 
-% The exposure index developed by \citet{eloundou_gpts_2023} is available through the paper's repository\footnote{https://github.com/openai/GPTs-are-GPTs/}. This OpenAI-authored study uses GPT-4 directly to determine how much each occupation is at risk of AI automation. Task descriptions are passed directly to the large language model, with the custom-created prompt instructing the AI to opine on how likely the task is to be done by AI in the near future. The study distinguishes between tasks that are exposed to current-generation AI systems directly (defined as ones where a system like GPT-4 can improve performance by 50\% or more), and tasks where additional systems and processes need to be built around the LLM to achieve significant performance improvement. The paper finds that about one-fifth of all occupations may see at least half of their tasks significantly impacted by AI. Notably, this is the only one of the exposure studies that can claim to distinguish "automation" effects directly, rather than the more general "exposure" effects that capture both substitution and complementarity. In this paper, I use the "beta" index from \citet{eloundou_gpts_2023} which combines direct and indirect exposure.
+The exposure index developed by \citet{eloundou_gpts_2023} is available through the paper's repository\footnote{https://github.com/openai/GPTs-are-GPTs/}. This OpenAI-authored study uses GPT-4 directly to determine how much each occupation is at risk of AI automation. Task descriptions are passed directly to the large language model, with the custom-created prompt instructing the AI to opine on how likely the task is to be done by AI in the near future. The study distinguishes between tasks that are exposed to current-generation AI systems directly (defined as ones where a system like GPT-4 can improve performance by 50\% or more), and tasks where additional systems and processes need to be built around the LLM to achieve significant performance improvement. The paper finds that about one-fifth of all occupations may see at least half of their tasks significantly impacted by AI. Notably, this is the only one of the exposure studies that can claim to distinguish "automation" effects directly, rather than the more general "exposure" effects that capture both substitution and complementarity. In this paper, I use the "beta" index from \citet{eloundou_gpts_2023} which combines direct and indirect exposure.
 
-% The exposure measure of \citet{handa2025economic}, published as the Anthropic Economic Index, is built from a large sample of real Claude.ai conversations classified with Anthropic's Clio privacy-preserving framework. Each conversation is assigned to its closest-matching ONET task statement, yielding a per-task share of total AI usage. The same conversations are additionally labeled with one of five human–AI collaboration patterns — \emph{directive}, \emph{feedback loop}, \emph{task iteration}, \emph{validation},and \emph{learning} — producing a task-level split into automation (directive, feedback loop) versus augmentation (task iteration, validation, learning) shares. To obtain an occupation-level measure, we aggregate Anthropic's per-task numbers up to the ONET-SOC evel using the official task–occupation mapping, dividing each task's usage equally across the occupations that perform it, and then crosswalk the result to ESCO using the joint ESCO/O*NET-SOC crosswalk (with a small SOC 2010 → SOC 2019 remap for the IT and bioinformatics codes that were renumbered between vintages). This yields, for each occupation, a primary \emph{usage score} — the share of total Claude usage attributable to that occupation's tasks — together with usage-weighted automation and augmentation shares. Throughout the main analysis we use the usage score as the headline measure of exposure, while the automation/augmentation decomposition is used in Appendix~\ref{TODO}. The advantage of this measure is its grounding in observed usage patterns of a deployed frontier model, thus providing a revealed-preference measure of which tasks AI is already being used for. A disadvantage is that it only captures direct AI usage, whereas some use cases might require supplemental systems and scaffolding to built around the core model.
+The exposure measure of \citet{handa2025economic}, published as the Anthropic Economic Index, is built from a large sample of real Claude.ai conversations classified with Anthropic's Clio privacy-preserving framework. Each conversation is assigned to its closest-matching ONET task statement, yielding a per-task share of total AI usage. The same conversations are additionally labeled with one of five human–AI collaboration patterns — \emph{directive}, \emph{feedback loop}, \emph{task iteration}, \emph{validation}, and \emph{learning} — producing a task-level split into automation (directive, feedback loop) versus augmentation (task iteration, validation, learning) shares. To obtain an occupation-level measure, we aggregate Anthropic's per-task numbers up to the ONET-SOC level using the official task–occupation mapping, dividing each task's usage equally across the occupations that perform it, and then crosswalk the result to ESCO using the joint ESCO/O*NET-SOC crosswalk (with a small SOC 2010 → SOC 2019 remap for the IT and bioinformatics codes that were renumbered between vintages). This yields, for each occupation, a primary \emph{usage score} — the share of total Claude usage attributable to that occupation's tasks — together with usage-weighted automation and augmentation shares. Throughout the main analysis we use the usage score as the headline measure of exposure, as well as the automation/augmentation decomposition. The advantage of this measure is its grounding in observed usage patterns of a deployed frontier model, thus providing a revealed-preference measure of which tasks AI is already being used for. A disadvantage is that it only captures direct AI usage, whereas some use cases might require supplemental systems and scaffolding to be built around the core model.
 
-% Finally, \citet{demirev2024assessing} takes a different approach by using press release data on new products using AI scraped from a popular news aggregator. They then employ text embedding techniques to find the cosine similarity between the AI capabilities claimed by those products and job-relevant skills. Similar to \citet{eloundou_gpts_2023}, this paper also uses GPT-4 as part of the text analysis process, but only for summarizing the press releases and putting them in a format that can more easily be compared to the occupational skills. The data from this paper is also available on GitHub. Unlike the other studies cited above, this paper uses the European Skills, Competences, Qualifications and Occupations (ESCO) database of occupations \cite{esco_handbook}, instead of the American O*NET.
+Finally, \citet{demirev2024assessing} takes a different approach by using press release data on new products using AI scraped from a popular news aggregator. They then employ text embedding techniques to find the cosine similarity between the AI capabilities claimed by those products and job-relevant skills. Similar to \citet{eloundou_gpts_2023}, this paper also uses GPT-4 as part of the text analysis process, but only for summarizing the press releases and putting them in a format that can more easily be compared to the occupational skills. The data from this paper is also available on GitHub. Unlike the other studies cited above, this paper uses the European Skills, Competences, Qualifications and Occupations (ESCO) database of occupations \cite{esco_handbook}, instead of the American O*NET.
 
-%Since the job market demand data and industry occupation mix data used in this paper (and detailed below) are from the European Union, all measures of occupational AI exposure needed to be converted from the O*NET classification of occupations to the International Standard Classification of Occupations (ISCO) used across the EU \cite{ilo2012isco}. This was accomplished via a crosswalk provided by ESCO \cite{esco_handbook}. ISCO is a hierarchical classification of occupations with five levels of increasing specificity. To match the granularity of the job demand data, the intermediate 3-level ISCO classification was used throughout. % TODO move to appendix
+Despite the different approaches, most of the indices are positively correlated with each other, as shown in \ref{fig:indices_correlation}. The measures of Eloundou et al. and Felten et al. are the most closely related ($r=0.88$), while each of the two correlates moderately with the index of Demirev ($r=0.54$ and $r=0.45$, respectively) and with the usage-based measure of Handa et al. ($r=0.57$ and $r=0.40$). A notable exception is Webb's index, which is essentially uncorrelated with all of the other measures ($|r| \le 0.14$). This might indicate that Webb's approach is capturing a different aspect of AI susceptibility, or that part of what the other indices are measuring is captured by Webb's complementary "exposure to software" index, which is outside the scope of the current paper.
+
+All measures of occupational AI exposure needed to be converted from the O*NET classification of occupations to the International Standard Classification of Occupations (ISCO) \citep{ilo2012isco} to be matched against the European and Australian datasets. This was accomplished via a crosswalk provided by ESCO \citep{esco_handbook}. ISCO is a hierarchical classification of occupations with five levels of increasing specificity. To match the granularity of the job demand data, the intermediate 3-level ISCO classification was used throughout.
 
 
-\section{Robustness Check: Australian Internet Vacancy Index}
+\section{Australian Internet Vacancy Index}
 \label{sec:aus_appendix}
 
-% TODO
+This appendix details the construction of the Australian dataset used for the out-of-sample validation in Section~\ref{sec:results}, and reports the full set of estimates underlying the summary discussion there. The raw data is the Internet Vacancy Index (IVI) published by Jobs and Skills Australia, downloaded as the ``4 digit 3 month average'' release (May 2026 vintage). The IVI records the number of online job advertisements at the ANZSCO 4-digit occupation level, separately for each of the eight Australian states and territories, as a three-month moving average at monthly frequency. We discard the national (``AUST'') aggregates and the all-occupation totals, and collapse the monthly moving averages to quarterly means so that the quarterly event-time logic of the European pipeline carries over unchanged. States and territories play exactly the role that countries play in the EU analysis --- they are both the panel dimension and the level at which fixed effects are absorbed and standard errors clustered.
 
-\section{Additional Specification: Two-way Fixed Effects}
+The AI-exposure scores are keyed to ISCO-08, whereas the IVI is coded to ANZSCO. We therefore map ANZSCO 4-digit occupations to ISCO-08 using the official ABS correspondence, and where a single ANZSCO occupation maps to several ISCO groups we assign it the simple average of those groups' exposure scores. As in the European analysis, every exposure measure is rescaled to the $[0,1]$ interval across the estimation sample, so that the reported coefficients retain their interpretation as the effect of moving from the least- to the most-exposed occupation. To keep the results directly comparable to the EU estimates --- which use the ISCO 3-digit level --- while also exploiting the native granularity of the IVI, we attach exposure at both the ISCO 3-digit and the ISCO 4-digit level and estimate every specification twice.
+
+The two headline specifications deliberately use different observation windows. The long-difference (``delta'') model mirrors the European design: the pre-treatment average is taken over the four quarters preceding the release of ChatGPT (from 2021 Q4) and the post-treatment average over all subsequent quarters, so that a long historical baseline does not contaminate the counterfactual. As in the EU analysis, we retain only state-occupation cells with more than 20 advertisements in both the pre- and post-periods, leaving 1,197 state-occupation pairs spanning 264 occupations across the eight jurisdictions. The event study, by contrast, uses the full window back to 2016, which affords a far longer pre-trend test than the European data permits, reaching well before the pandemic. The event date is again the release of ChatGPT (2022 Q4), which serves as the omitted reference period.
+
+Table~\ref{table:aus_delta} reports the long-difference estimates of Equation~\ref{eq:delta} for all five exposure measures at both ISCO levels. The two most recent, post-LLM measures --- \citet{handa2025economic} and \citet{demirev2024assessing} --- are negative and significant at both levels, with the \citet{handa2025economic} usage score implying the steepest decline ($-0.357$ at the 3-digit level, corresponding to a $30\%$ relative reduction in advertisements between the most and least exposed occupations). The \citet{demirev2024assessing} product-exposure measure implies a more modest but still significant $14$--$15\%$ reduction. These magnitudes bracket the $19$--$29\%$ range recovered from the European data, so the Australian evidence supports the direction and rough magnitude of the headline result. The remaining three measures do not line up as cleanly: \citet{webb_impact_2022} and \citet{eloundou_gpts_2023} are insignificant, and \citet{felten_method_2018} is significant but positive. This is a weaker picture than the European estimates, where all five measures moved together; we note, however, that the two measures that do replicate are the most up-to-date, and that with only eight clusters the cluster-robust standard errors should be read with caution.
+
+% Matches: results/logs/aus_models.txt -- "## Delta models [l3]:" and "## Delta models [l4]:"
+\begin{table}[H]
+\centering
+\caption{Impact of AI Exposure on Online Job Ads: Australian IVI}
+\begin{tabular}{lcc}
+\hline\hline
+ & \multicolumn{2}{c}{Dependent variable: $\Delta \log(\text{OJA})$} \\
+\cmidrule(lr){2-3}
+Exposure Measure & ISCO 3-digit & ISCO 4-digit \\
+\midrule
+AI Product Exposure (Demirev) & -0.152*** & -0.144** \\
+ & (0.025) & (0.029) \\
+Felten AI Exposure & 0.117* & 0.118* \\
+ & (0.045) & (0.048) \\
+Webb AI Exposure & 0.072 & 0.084 \\
+ & (0.046) & (0.040) \\
+Eloundou Beta & -0.018 & -0.026 \\
+ & (0.046) & (0.046) \\
+Anthropic Usage & -0.357*** & -0.401*** \\
+ & (0.036) & (0.037) \\
+\midrule
+Observations & 1,197 & 1,185--1,197 \\
+State/Territory FE & Yes & Yes \\
+\hline\hline
+\multicolumn{3}{l}{\footnotesize Each cell is a separate regression of $\Delta \log(\text{OJA})$ on one exposure measure.} \\
+\multicolumn{3}{l}{\footnotesize Standard errors clustered at the state/territory level in parentheses (8 clusters).} \\
+\multicolumn{3}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\end{tabular}
+\label{table:aus_delta}
+\end{table}
+
+Table~\ref{table:aus_intent} splits the two significant measures into their automation and augmentation components, estimating Equation~\ref{eq:delta_auto_augm}. Here the Australian data is sharply informative: for both measures, and at both ISCO levels, the automation component enters negatively and highly significantly while the augmentation component enters positively. This is precisely the pattern the task-based framework predicts if the decline in advertisements is driven by substitution rather than complementarity, and it mirrors the European estimate for \citet{handa2025economic}. It differs from the European result for \citet{demirev2024assessing}, whose automation/augmentation split did not separate as cleanly on the EU data; the fact that the two decompositions disagree across datasets reinforces the caveat, noted in the main text, that the intent breakdown of this particular measure should be treated as suggestive rather than definitive.
+
+% Matches: results/logs/aus_models.txt -- "## Delta models, breakdown by intent [l3]:" and "[l4]:"
+\begin{table}[H]
+\centering
+\caption{Automation vs.\ Augmentation Exposure: Australian IVI}
+\begin{tabular}{lcccc}
+\hline\hline
+ & \multicolumn{2}{c}{Demirev} & \multicolumn{2}{c}{Anthropic} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+ & ISCO 3-dig. & ISCO 4-dig. & ISCO 3-dig. & ISCO 4-dig. \\
+\midrule
+Automation Exposure & -0.414*** & -0.427*** & -0.316*** & -0.241*** \\
+ & (0.052) & (0.054) & (0.044) & (0.037) \\
+Augmentation Exposure & 0.211* & 0.275** & 0.386** & 0.208** \\
+ & (0.066) & (0.067) & (0.094) & (0.054) \\
+\midrule
+Observations & 1,197 & 1,197 & 1,197 & 1,197 \\
+State/Territory FE & Yes & Yes & Yes & Yes \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Dependent variable is $\Delta \log(\text{OJA})$; both components entered jointly per Equation~\ref{eq:delta_auto_augm}.} \\
+\multicolumn{5}{l}{\footnotesize Standard errors clustered at the state/territory level in parentheses (8 clusters).} \\
+\multicolumn{5}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\end{tabular}
+\label{table:aus_intent}
+\end{table}
+
+Figure~\ref{fig:aus_event_study_appendix} shows the event-study estimates for all five measures over the full 2016--2026 window, with the acute COVID-19 lockdown and restriction period (2020 Q1--2021 Q4) shaded. Two features stand out. First, for the two measures that replicate the headline result the post-ChatGPT coefficients drift steadily negative, echoing the European event studies, whereas the other three measures remain flat or noisy throughout. Second, and importantly for the identifying assumption, the long pre-period shows no systematic negative pre-trend for the two significant measures: the \citet{handa2025economic} usage score is statistically indistinguishable from zero in every quarter after the onset of the pandemic, and the highly-exposed occupations under \citet{demirev2024assessing} if anything contracted \emph{relatively} during the pandemic rather than booming. This makes a mechanical reversion-to-the-mean from a pandemic-era swing an unlikely explanation for the post-ChatGPT decline.
+
+\begin{figure}[H]
+    \caption{Event Study of ChatGPT's Introduction against Number of OJA --- Australian IVI, All Measures}
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/aus_event_study_l3_all.eps}
+    \label{fig:aus_event_study_appendix}
+    \\[0.3em]
+    {\footnotesize ISCO 3-digit specification. The shaded band marks the COVID-19 lockdown and restriction period (2020 Q1--2021 Q4); the dashed vertical line is the ChatGPT release (2022 Q4, the omitted reference period). The ISCO 4-digit specification is qualitatively identical.}
+\end{figure}
+
+\begin{figure}[H]
+    \caption{AI Exposure and Change in Online Job Postings --- Australian IVI}
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/aus_partial_l3_all.eps}
+    \label{fig:aus_partial}
+    \\[0.3em]
+    {\footnotesize Partial regression plots (residualized against state/territory fixed effects) for the ISCO 3-digit specification. Each dot is a state-occupation pair; crosses are occupation averages.}
+\end{figure}
+
+Taken together, the Australian exercise offers qualified external validation of the paper's central finding. Estimated on an entirely separate data source, in a different institutional setting, and against a decade-long pre-period that reaches back through the pandemic, the two most recent exposure measures reproduce a significant, economically meaningful, and intent-consistent decline in labor demand for AI-exposed occupations following the release of ChatGPT, with no evidence of a confounding pre-trend. That the three older measures do not replicate --- and that the point estimates are somewhat smaller and rest on only eight clusters --- means the Australian evidence should be read as corroborating the direction of the effect while leaving its precise magnitude and universality across exposure measures an open question.
+
+\section{Additional Specifications}
 \label{sec:twfe}
 
-%The main empirical specification, Equation~\ref{eq:delta} can also be expressed in a standard two-way fixed effects (TWFE) formulation. In this alternative, the number of online job adverts for occupation $i$ in period $t$ and country $c$ is modeled as a function of time, country, and period fixed effects, as well as of AI Exposure for occupation $i$ ($X^{AI}_i$). AI exposure only enters the model after period $t=0$, the quarter containing the release date of ChatGPT - November 30th, 2022. This is captured by the indicator variable $\mathbf{I}$. % TODO - appendix
+Besides our main specification, Equation~\ref{eq:delta} and the event study Equation~\ref{eq:event}, we also estimate a standard two-way fixed effects (TWFE) formulation of the form:
 
-%\begin{equation}
-%    \log{y^t_{i,c}}=\gamma_t + \alpha_c + \eta_i + \delta^{TWFE} X^{AI}_{i} \times \mathbf{I}(t>0) + %\varepsilon^t_{i,c}
-%    \label{eq:twfe}
-%\end{equation} % TODO - appendix
+\begin{equation}
+    \log{y^t_{i,c}}=\gamma_t + \alpha_c + \eta_i + \delta^{TWFE} X^{AI}_{i} \times \mathbf{I}(t>0) + \varepsilon^t_{i,c}
+    \label{eq:twfe}
+\end{equation}
 
-%Denoting the effect of AI exposure as $\delta^{TWFE}$ and collecting unobserved influences in $\varepsilon$, we get the standard two-way fixed effects (TWFE) formulation in \ref{eq:twfe}.\footnote{Technically, this includes three separate fixed effects instead of two. An alternative formulation could have combined country-level and occupation-level variables in one common fixed effect dummy, but this approach risks obscuring important variations in between-country labor market dynamics. Nevertheless, the term two-way fixed effects is still used since it is standard in the literature.} The properties of these types of models, known as two-way fixed effects with continuous treatment, are studied extensively in \citet{Callaway2024}. They show that under certain assumptions, $\delta^{TWFE}$ from \ref{eq:twfe} can be viewed as an average of causal parameters when estimated with OLS. Specifically, those assumptions are: % TODO - appendix
+Where the left-hand variable is the number of job adverts in a given country-occupation pair within a given period, and the right-hand side includes separate fixed effects for time, occupation, and country. As before, $X^{AI}_i$ is the continuous-treatment exposure to AI, only active in the post-period (after November 30th 2022).
 
-%\begin{itemize}
-%    \item Data consisting of tuples ${y_{i,c}^0,y_{i,c}^1..,y_{i,c}^t,X^{AI}i}{i}$ which are i.i.d across occupations and countries
-%    \item $X^{AI}i$ takes a number of real values between $d{min}$ and $d_{max}$
-%    \item Potential outcomes do not depend on the treatment $X^{AI}$ before the treatment time $t=0$ (no anticipation)
-%    \item $\log{y^t_{i,c}(0)} - \log{y^0_{i,c}(0)} = K^t_c$, i.e., counterfactual per-period changes in $y$ would be identical and constant across occupations and countries if all occupations had zero AI exposure
-%\end{itemize} % TODO - appendix
+This specification is relegated to the Appendix, since TWFE estimates with continuous treatment require much stronger forms of the parallel trends assumption to recover average treatment effects \citep{Callaway2024}. Specifically, what \citet{Callaway2024} call "strong parallel trends", which in our case is roughly equivalent to positing that response curves to AI exposure across occupations have the same slopes - an unlikely assumption.\footnote{The main long-difference specification that we used is one of the recommendations of \citet{Callaway2024} for dealing with continuous treatment.}
 
-%If all these assumptions are met, $\delta^{TWFE}$ can be viewed as an average of treatment-effects-on-the-treated type parameters. Specifically, if we denote $y^t_{i,c}(d)$ as the potential outcome equivalent of $y^t_{i,c}$, i.e., the hypothetical number of online job adverts for occupation $i$ in country $c$ at time $t$ if that occupation had exposure $X^{AI}=d$, we have: % TODO - appendix
- 
-%\begin{equation}
-%ATT(d|X^{AI}i) = E[y^t{i,c}(d) - y^0_{i,c}(0)|X^{AI}=X^{AI}_i]
-%\label{eq:att}
-%\end{equation} % TODO - appendix
+Nevertheless, the results of estimating Equation~\ref{eq:twfe} are shown in Table~\ref{table:twfe_models}. The results are qualitatively similar to the main specification: all five exposure measures yield negative and significant interaction coefficients, ranging from $-0.168$ (Webb) to $-0.483$ (Anthropic Usage), in line with the long-difference estimates reported in the main text.
 
-%$ATT(d|X^{AI}_i)$ is the average treatment effect for occupations with observed exposure levels $X^{AI}$ had they experienced exposure levels $d$ against the counterfactual where the same occupations had no exposure to AI ($X^{AI}=0$). \citet{Callaway2024} show that $\delta^{TWFE}$ can be decomposed as: % TODO - appendix
+% Matches: results/logs/oja_models.txt -- the four "## TWFE: ..." sections
+\begin{table}[H]
+\centering
+\caption{Impact of AI Exposure on Online Job Ads: Two-Way Fixed Effects Estimates}
+\begin{tabular}{lccccc}
+\hline\hline
+ & (1) & (2) & (3) & (4) & (5) \\
+\midrule
+AI Product Exposure $\times$ Post & -0.262** & & & & \\
+ & (0.095) & & & & \\
+Felten AI Exposure $\times$ Post & & -0.305** & & & \\
+ & & (0.108) & & & \\
+Webb AI Exposure $\times$ Post & & & -0.168* & & \\
+ & & & (0.071) & & \\
+Eloundou Beta $\times$ Post & & & & -0.387** & \\
+ & & & & (0.120) & \\
+Anthropic Usage $\times$ Post & & & & & -0.483*** \\
+ & & & & & (0.087) \\
+\midrule
+Observations & 48,928 & 48,850 & 48,546 & 48,850 & 48,850 \\
+R$^2$ (within) & 0.0004 & 0.0010 & 0.0002 & 0.0011 & 0.0006 \\
+Adjusted R$^2$ & 0.835 & 0.834 & 0.836 & 0.834 & 0.834 \\
+Occupation FE & Yes & Yes & Yes & Yes & Yes \\
+Country FE & Yes & Yes & Yes & Yes & Yes \\
+Time FE & Yes & Yes & Yes & Yes & Yes \\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Standard errors clustered at country and occupation level in parentheses} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\multicolumn{6}{l}{\footnotesize Note: Dependent variable is log(Online Job Ads)} \\
+\end{tabular}
+\label{table:twfe_models}
+\end{table}
 
-%\begin{equation}
-%\delta^{TWFE}=\int_{0}^{1}w(l) ATT(X^{AI}_i|X^{AI}_i) dl
-%\label{eq:decomp}
-%\end{equation} % TODO - appendix
+Another alternative specification that we employ aims to look for non-linear effects of AI exposure on job demand. To do so, we split each exposure metric into deciles, and then include a dummy for each decile in the model:
 
-%where $w$ are weights depending on the relative frequency of each exposure group and the integration is over all possible values of $X^{AI}$ in the data (in our case exposure is normalized to span the interval from $0$ to $1$). Essentially, the regression estimate from TWFE is a weighted average of level average treatment effects for each occupation\footnote{The same paper demonstrates another decomposition of the TWFE estimator that does not have weights but requires much stronger assumptions that preclude treatment effect heterogeneity.}. % TODO - appendix
+\begin{equation}
+\Delta\log{\bar{y}}_{c,i} = \delta_0 + \xi_c + \sum_{j=2}^{10}\delta_j\mathbf{I}^j_i  + \varepsilon_{c,i}
+\label{eq:deciles}
+\end{equation} % TODO delete?
 
-%The fact that the weights in the causal-parameter decomposition of TWFE could be negative makes the resulting coefficient hard to interpret. To address this, we can consider a model of the (log) differences in the average number of job postings in the periods before (PRE) and after (POST) the release of GPT. Taking period differences removes time-invariant fixed effects, while taking logs allows us to treat proportional increases and decreases in the number of job postings for a given occupation as equidistant positive or negative deviations from 0. If $\bar{y}^{T}{c,t}$ is the average of $y^t{c,t}$ across periods $T \in {PRE,POST}$ and defining $\Delta\bar{y}_{c,i} = \log{\bar{y}^{POST}{c,i}}-\log{\bar{y}^{POST}_{c,i}}$, the model to be estimated takes the form of Equation~\ref{eq:delta}. The country-level fixed effects ($\xi_c$) in this log-difference form could be thought of as an interaction between period and country fixed effects in the simple form $\xi_c = (\gamma_{POST}-\gamma_{PRE})\alpha_c$. % TODO - appendix
+Where $\delta_j$ is the coefficient of interest for decile $j$ and $\mathbf{I}^j_i$ is an indicator showing whether occupation $i$ falls within the $j$-th exposure decile (with the lowest decile being left-out as a reference group).
 
+The results are presented in Table~\ref{table:decile_models} and visualized in Figure~\ref{fig:decile_all}. While the estimates are noisier than the linear specification, the overall pattern is one of a broadly monotone relationship: the top exposure deciles exhibit the largest and most consistently significant declines across all five measures, whereas the middle deciles are frequently indistinguishable from the reference (lowest) decile. This is consistent with the linear specification, in which the effect is concentrated among the most exposed occupations, but suggests the relationship is not perfectly linear across the full exposure range.
 
-% As an additional specification, I also fit a model where the exposure metric is discretized into ten discrete bins. Each decile is treated as a separate dummy variable. This relaxes the assumption of linear relationship between average treatment effects and AI exposure, allowing us to capture more intricate relationships. The dummy-variable approach is a consistent estimator of within-decile ATT\footnote{\citet{Callaway2024} propose a splines-based method for truly continuous treatment effects that could in principle be applied here, but discretization was chosen for simplicity and ease of interpretation} \citep{Callaway2024}. % TODO delete?
+% Matches: results/logs/oja_models.txt -- "## By-decile models:"
+\begin{table}[H]
+\centering
+\caption{Decile Analysis: Impact of AI Exposure on Online Job Ads}
+\begin{tabular}{lccccc}
+\hline\hline
+ & AI Product & Felten & Webb & Eloundou & Anthropic \\
+Decile & Exposure & AI Exposure & AI Exposure & Beta & Usage \\
+\midrule
+2nd & -0.004 & -0.109** & 0.041 & -0.147*** & -0.102* \\
+ & (0.033) & (0.038) & (0.027) & (0.034) & (0.040) \\
+3rd & -0.064 & 0.022 & 0.020 & 0.003 & -0.042 \\
+ & (0.034) & (0.029) & (0.039) & (0.020) & (0.026) \\
+4th & -0.097** & -0.039 & 0.077* & -0.008 & -0.122* \\
+ & (0.031) & (0.032) & (0.034) & (0.039) & (0.054) \\
+5th & -0.173*** & -0.040 & 0.056 & -0.048 & -0.077 \\
+ & (0.041) & (0.041) & (0.033) & (0.036) & (0.040) \\
+6th & -0.096* & -0.080 & -0.025 & -0.080 & -0.080 \\
+ & (0.039) & (0.051) & (0.037) & (0.044) & (0.041) \\
+7th & -0.096* & -0.105* & -0.021 & -0.123* & -0.075 \\
+ & (0.046) & (0.050) & (0.036) & (0.046) & (0.042) \\
+8th & -0.080 & -0.146* & -0.183*** & -0.214*** & -0.126* \\
+ & (0.041) & (0.053) & (0.046) & (0.053) & (0.053) \\
+9th & -0.153** & -0.222*** & -0.078* & -0.195** & -0.150** \\
+ & (0.042) & (0.059) & (0.032) & (0.055) & (0.048) \\
+10th & -0.178*** & -0.188** & -0.098* & -0.237*** & -0.177** \\
+ & (0.042) & (0.058) & (0.040) & (0.051) & (0.051) \\
+\midrule
+Observations & 2,788 & 2,785 & 2,776 & 2,785 & 2,785 \\
+R$^2$ (within) & 0.024 & 0.039 & 0.039 & 0.052 & 0.017 \\
+Adjusted R$^2$ & 0.540 & 0.547 & 0.548 & 0.553 & 0.537 \\
+Country FE & Yes & Yes & Yes & Yes & Yes \\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Standard errors clustered at country level in parentheses} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\multicolumn{6}{l}{\footnotesize Note: First decile is the reference category} \\
+\end{tabular}
+\label{table:decile_models}
+\end{table}
 
-%Let $\mathbf{I}^j_i = \mathbf{I}(X_{j-1} < X^{AI}_i < X_j)$ be an indicator denoting the membership of observation $i$ in decile $j$, where $X{j-1}$ and $X_j$ denote the lower and upper bound of the decile's span respectively. Then, we have the following functional form: % TODO delete?
+\begin{figure}[H]
+    \caption{AI Exposure and Change in Online Job Postings by Exposure Decile}
+    \centering
+    %\includesvg[width=0.8\textwidth,height=0.3\textheight]{visuals/research_skills_plot.svg}
+    \includegraphics[width=0.6\textwidth]{img/decile_plots_combined.eps}
+    \label{fig:decile_all}
+\end{figure}
 
-%\begin{equation}
-%\Delta\log{\bar{y}}_{c,i} = \delta_0 + \xi_c + \sum_{j=2}^{10}\delta_j\mathbf{I}^j_i  + %\varepsilon_{c,i}
-%\label{eq:deciles}
-%\end{equation} % TODO delete?
+\section{Robustness Against Individual Occupations or Countries}
 
-%Here the lowest decile, containing the least exposed occupations, is left out as a reference group and absorbed in the intercept $\delta_0$. % TODO delete?
+In order to assess the sensitivity of our results to including or excluding given occupations or countries, we run an ablation study on our European dataset. We estimate separate versions of Equation~\ref{eq:delta} where we drop either one occupation or one country at a time. We then record whether the coefficient flips sign or becomes insignificant. We repeat the exercise at three levels of aggregation: dropping one ESCO level-3 occupation, one ESCO level-2 occupation, and one country. The results are summarized in Table~\ref{table:sensitivity}.
 
+The main finding is that the estimates are remarkably stable. Across all three ablation exercises and all five exposure measures, not a single leave-one-out estimate flips sign or loses significance at the 5\% level. The coefficient ranges reported in Table~\ref{table:sensitivity} are tight and always comfortably negative, indicating that no individual occupation or country is driving the headline result.
+
+% Matches: results/logs/oja_models.txt -- the three "## Sensitivity: drop-one ..." sections
+\begin{table}[H]
+\centering
+\caption{Sensitivity of Delta Estimates to Dropping Individual Occupations or Countries}
+\begin{tabular}{llccccc}
+\hline\hline
+Exposure Measure & Baseline & \multicolumn{2}{c}{Leave-one-out range} & Drops & Sign & Sig.\ lost \\
+\cmidrule{3-4}
+ & estimate & Min & Max & & flips & (p$>$0.05) \\
+\midrule
+\multicolumn{7}{l}{\textit{Panel A: Drop one ESCO Level-3 occupation (122 occupations)}} \\
+\midrule
+AI Product Exposure & -0.211 & -0.250 & -0.192 & 122 & 0 & 0 \\
+Felten AI Exposure & -0.212 & -0.254 & -0.201 & 122 & 0 & 0 \\
+Webb AI Exposure & -0.205 & -0.220 & -0.180 & 122 & 0 & 0 \\
+Eloundou Beta & -0.289 & -0.331 & -0.271 & 122 & 0 & 0 \\
+Anthropic Usage & -0.339 & -0.363 & -0.313 & 122 & 0 & 0 \\
+\midrule
+\multicolumn{7}{l}{\textit{Panel B: Drop one ESCO Level-2 occupation (39 occupations)}} \\
+\midrule
+AI Product Exposure & -0.211 & -0.255 & -0.174 & 39 & 0 & 0 \\
+Felten AI Exposure & -0.212 & -0.285 & -0.192 & 39 & 0 & 0 \\
+Webb AI Exposure & -0.205 & -0.224 & -0.174 & 39 & 0 & 0 \\
+Eloundou Beta & -0.289 & -0.375 & -0.258 & 39 & 0 & 0 \\
+Anthropic Usage & -0.339 & -0.370 & -0.266 & 39 & 0 & 0 \\
+\midrule
+\multicolumn{7}{l}{\textit{Panel C: Drop one country (28 countries)}} \\
+\midrule
+AI Product Exposure & -0.211 & -0.232 & -0.186 & 28 & 0 & 0 \\
+Felten AI Exposure & -0.212 & -0.232 & -0.187 & 28 & 0 & 0 \\
+Webb AI Exposure & -0.205 & -0.223 & -0.185 & 28 & 0 & 0 \\
+Eloundou Beta & -0.289 & -0.312 & -0.262 & 28 & 0 & 0 \\
+Anthropic Usage & -0.339 & -0.361 & -0.319 & 28 & 0 & 0 \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Each row re-estimates Equation~\ref{eq:delta} dropping one unit at a time, with standard errors} \\
+\multicolumn{7}{l}{\footnotesize clustered at the country level as in the baseline. ``Drops'' is the number of leave-one-out regressions;} \\
+\multicolumn{7}{l}{\footnotesize ``Sign flips'' counts positive point estimates; ``Sig.\ lost'' counts regressions with $p>0.05$ on the} \\
+\multicolumn{7}{l}{\footnotesize exposure coefficient.} \\
+\end{tabular}
+\label{table:sensitivity}
+\end{table}
 
 \end{document}

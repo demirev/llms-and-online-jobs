@@ -296,7 +296,11 @@ run_level <- function(tag, level, fmt, delta) {
   event_model_breakdown <- run_event_study_model(breakdown_vars, fmt, level = level)
   out$event_study <- event_models
 
-  log_text(event_models, paste0("Event study models [", tag, "]:"))
+  # log each model separately with n = Inf: the default print truncates the 41
+  # event-time coefficients, and print(<list>, n = Inf) does not propagate n
+  iwalk(event_models, function(md, nm) {
+    log_text(md, paste0("Event study [", tag, "]: ", nm), n = Inf)
+  })
 
   event_coefs <- map2(event_models, exposure_vars, ~ extract_event_study_coefs(.x, .y))
   event_plots <- map2(

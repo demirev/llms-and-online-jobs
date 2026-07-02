@@ -617,16 +617,17 @@ run_occupation_sensitivity <- function(data, exposure_vars, level = 3) {
       model = map2(occupation, exposure_var, function(occ, exp_var) {
         # Filter data differently based on level
         if (level == 2) {
-          data_filtered <- data %>% 
+          data_filtered <- data %>%
             filter(substr(idesco_level_3, 1, nchar(occupation)) != occ)
         } else {
-          data_filtered <- data %>% 
+          data_filtered <- data %>%
             filter(idesco_level_3 != occ)
         }
-        
+
         model <- feols(
           as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
-          data = data_filtered
+          data = data_filtered,
+          cluster = "idcountry" # same inference as the baseline delta models
         )
         
         # Extract coefficient, SE, and p-value
@@ -643,9 +644,10 @@ run_occupation_sensitivity <- function(data, exposure_vars, level = 3) {
   baseline_results <- map_dfr(exposure_vars, function(exp_var) {
     model <- feols(
       as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
-      data = data
+      data = data,
+      cluster = "idcountry"
     )
-    
+
     tidy(model) %>%
       filter(term == exp_var) %>%
       select(estimate, std.error, p.value) %>%
@@ -682,12 +684,13 @@ run_country_sensitivity <- function(data, exposure_vars) {
     mutate(
       model = map2(country, exposure_var, function(cnt, exp_var) {
         # Filter data differently based on level
-        data_filtered <- data %>% 
+        data_filtered <- data %>%
           filter(idcountry != cnt)
-        
+
         model <- feols(
           as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
-          data = data_filtered
+          data = data_filtered,
+          cluster = "idcountry" # same inference as the baseline delta models
         )
         
         # Extract coefficient, SE, and p-value
@@ -704,9 +707,10 @@ run_country_sensitivity <- function(data, exposure_vars) {
   baseline_results <- map_dfr(exposure_vars, function(exp_var) {
     model <- feols(
       as.formula(paste("delta_OJA_log ~", exp_var, " | idcountry")),
-      data = data
+      data = data,
+      cluster = "idcountry"
     )
-    
+
     tidy(model) %>%
       filter(term == exp_var) %>%
       select(estimate, std.error, p.value) %>%
