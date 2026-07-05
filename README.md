@@ -31,6 +31,16 @@ The negative slopes show higher AI exposure correlates with a steeper decline in
 
 [Working paper](working_paper.pdf)
 
+## Interactive dashboard
+
+`web/index.html` is a self-contained interactive companion page (headline estimates, event studies, an
+occupation explorer, and more) that can be hosted as a single static file. To regenerate it after the
+data or models change:
+
+1. `Rscript R/export_web_data.R` — re-estimates the delta / event-study models with the same helpers as
+   `R/model_oja.R` and `R/model_aus.R` and writes `results/web/web_data.json`
+2. `python3 web/build.py` — inlines the JSON into `web/dashboard_template.html` and writes `web/index.html`
+
 ## Reproducability
 
 0. Download all tableu files published by CEDEFOP each quarter from the links listed in `data/cedefop_skills_ovate_oja/links.txt` and put them in `data/cedefop_skills_ovate_oja/twbx`

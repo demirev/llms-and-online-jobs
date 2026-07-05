@@ -629,32 +629,44 @@ eures_plot_df <- eures_models %>%
     var_label = var_labels[var]
   )
 
-results$eures_plot <- eures_plot_df %>% 
-  filter(var_label %in% var_labels[c(1:4, 7)]) %>% # no automation / augmentation breakdown here
-  ggplot(aes(x = experience, y = estimate, colour = sig)) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
-  geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
-  scale_colour_manual(
-    values = c("p < 0.01" = "#d62728", "p < 0.05" = "#ff7f0e",
-               "p < 0.10" = "#2ca02c", "n.s." = "grey60"),
-    name = "Significance"
-  ) +
-  facet_wrap(
-    ~var_label#, scales = "free_y"
-  ) +
-  labs(
-    x = NULL,
-    y = "coefficient estimate",
-    title = "Association between AI Exposure and Job Ad Growth by Experience Level"
-    #, subtitle = "Country fixed effects, SEs clustered by country"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    axis.text.x = element_text(angle = 40, hjust = 1, size = 8),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom",
-    panel.grid.minor = element_blank()
-  )
+# Shared builder for the by-experience coefficient plots. `facet` toggles the
+# per-index faceting so we can reuse it for the single-index main-text figure.
+make_eures_plot <- function(df, facet = TRUE) {
+  p <- df %>%
+    ggplot(aes(x = experience, y = estimate, colour = sig)) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+    geom_pointrange(aes(ymin = ci_lo, ymax = ci_hi), size = 0.5) +
+    scale_colour_manual(
+      values = c("p < 0.01" = "#d62728", "p < 0.05" = "#ff7f0e",
+                 "p < 0.10" = "#2ca02c", "n.s." = "grey60"),
+      name = "Significance"
+    ) +
+    labs(
+      x = NULL,
+      y = "coefficient estimate",
+      title = "Association between AI Exposure and Job Ad Growth by Experience Level"
+      #, subtitle = "Country fixed effects, SEs clustered by country"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      axis.text.x = element_text(angle = 40, hjust = 1, size = 8),
+      strip.text = element_text(face = "bold"),
+      legend.position = "bottom",
+      panel.grid.minor = element_blank()
+    )
+  if (facet) p <- p + facet_wrap(~var_label)#, scales = "free_y"
+  p
+}
+
+# no automation / augmentation breakdown here
+results$eures_plot <- eures_plot_df %>%
+  filter(var_label %in% var_labels[c(1:4, 7)]) %>%
+  make_eures_plot(facet = TRUE)
+
+# single-index version (Anthropic) for the main text
+results$eures_plot_anthropic <- eures_plot_df %>%
+  filter(var_label == var_labels["anthropic_usage_score"]) %>%
+  make_eures_plot(facet = FALSE)
 
 # sensitivity to occupations ----------------------------------------------
 # Run sensitivity analysis
@@ -910,6 +922,14 @@ save_plot(
 save_plot(
   "by_experience.eps",
   results$eures_plot,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
+  "by_experience_anthropic.eps",
+  results$eures_plot_anthropic,
   width = 10,
   height = 6,
   device = cairo_ps

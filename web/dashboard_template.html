@@ -1,0 +1,1287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generative AI and Labor Demand — Interactive Results</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --good:#006300; --bad:#d03b3b;
+  --c-demirev:#2a78d6; --c-felten:#1baf7a; --c-webb:#eda100; --c-eloundou:#008300; --c-anthropic:#4a3aa7;
+  --pt:#b9b8b2; --wash:rgba(11,11,11,.045); --accent:#2a78d6;
+  --div-neg:#e34948; --div-pos:#2a78d6; --div-mid:#c9c8c1;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --good:#0ca30c; --bad:#e66767;
+    --c-demirev:#3987e5; --c-felten:#199e70; --c-webb:#c98500; --c-eloundou:#008300; --c-anthropic:#9085e9;
+    --pt:#4a4a47; --wash:rgba(255,255,255,.06); --accent:#3987e5;
+    --div-neg:#e66767; --div-pos:#3987e5; --div-mid:#4a4a47;
+  }
+}
+:root[data-theme="light"]{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --good:#006300; --bad:#d03b3b;
+  --c-demirev:#2a78d6; --c-felten:#1baf7a; --c-webb:#eda100; --c-eloundou:#008300; --c-anthropic:#4a3aa7;
+  --pt:#b9b8b2; --wash:rgba(11,11,11,.045); --accent:#2a78d6;
+  --div-neg:#e34948; --div-pos:#2a78d6; --div-mid:#c9c8c1;
+}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --good:#0ca30c; --bad:#e66767;
+  --c-demirev:#3987e5; --c-felten:#199e70; --c-webb:#c98500; --c-eloundou:#008300; --c-anthropic:#9085e9;
+  --pt:#4a4a47; --wash:rgba(255,255,255,.06); --accent:#3987e5;
+  --div-neg:#e66767; --div-pos:#3987e5; --div-mid:#4a4a47;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--page); color:var(--ink);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+nav{
+  position:sticky; top:0; z-index:40; background:var(--page);
+  border-bottom:1px solid var(--border); padding:0 16px;
+}
+nav .inner{max-width:1080px; margin:0 auto; display:flex; gap:4px; align-items:center; overflow-x:auto; white-space:nowrap;}
+nav .brand{font-weight:600; font-size:13.5px; margin-right:12px; color:var(--ink)}
+nav a.nl{font-size:13px; color:var(--ink2); padding:10px 8px; border-radius:6px;}
+nav a.nl:hover{background:var(--wash); text-decoration:none}
+header.hero{max-width:1080px; margin:0 auto; padding:44px 16px 8px;}
+header.hero h1{font-size:29px; line-height:1.25; margin:0 0 10px; letter-spacing:-.01em;}
+header.hero .byline{color:var(--ink2); font-size:14.5px; margin-bottom:14px;}
+header.hero .lede{color:var(--ink2); max-width:760px; font-size:15.5px;}
+.linkrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+.btn{
+  display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:500;
+  padding:7px 14px; border-radius:8px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink); cursor:pointer;
+}
+.btn:hover{background:var(--wash); text-decoration:none}
+main{max-width:1080px; margin:0 auto; padding:8px 16px 60px;}
+section{margin-top:44px; scroll-margin-top:60px;}
+section>h2{font-size:21px; margin:0 0 6px; letter-spacing:-.01em;}
+section>.sub{color:var(--ink2); max-width:780px; margin:0 0 16px; font-size:14.5px;}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:18px 18px 14px; margin-bottom:14px;
+}
+.card h3{font-size:15px; margin:0 0 2px;}
+.card .cap{color:var(--ink2); font-size:13px; margin:2px 0 10px; max-width:720px;}
+.card .note{color:var(--muted); font-size:12.5px; margin-top:8px;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+/* KPI tiles */
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:26px;}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px;}
+.tile .lbl{font-size:12.5px; color:var(--ink2);}
+.tile .val{font-size:27px; font-weight:600; letter-spacing:-.01em; margin:2px 0;}
+.tile .sub{font-size:12px; color:var(--muted);}
+/* controls */
+.controls{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:0 0 14px;}
+.ctl-group{display:flex; align-items:center; gap:8px;}
+.ctl-label{font-size:12.5px; color:var(--muted);}
+.seg{display:inline-flex; background:var(--wash); border-radius:8px; padding:2px;}
+.seg button{
+  border:0; background:transparent; color:var(--ink2); font:inherit; font-size:13px;
+  padding:5px 11px; border-radius:6px; cursor:pointer;
+}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:600; box-shadow:0 0 0 1px var(--border);}
+.chips{display:flex; gap:6px; flex-wrap:wrap;}
+.chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;
+  padding:4.5px 11px; border-radius:99px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink2);
+}
+.chip .dot{width:9px; height:9px; border-radius:50%; background:var(--muted); flex:none;}
+.chip[aria-pressed="true"]{color:var(--ink); font-weight:600; border-color:var(--axis);}
+.chip[aria-pressed="false"] .dot{opacity:.25}
+.switch{display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink2); cursor:pointer;}
+.switch input{accent-color:var(--accent);}
+/* charts */
+.chart{position:relative; width:100%;}
+.chart svg{display:block; width:100%; height:auto;}
+svg text{font:12px system-ui,-apple-system,"Segoe UI",sans-serif; fill:var(--ink2);}
+svg .tick text{fill:var(--muted); font-variant-numeric:tabular-nums;}
+svg .axis-title{fill:var(--muted); font-size:11.5px;}
+svg .anno{fill:var(--ink2); font-size:11.5px;}
+/* tooltip */
+#tooltip{
+  position:fixed; z-index:99; pointer-events:none; display:none;
+  background:var(--surface); border:1px solid var(--border); border-radius:9px;
+  box-shadow:0 4px 18px rgba(0,0,0,.14); padding:9px 12px; font-size:12.5px; max-width:280px;
+}
+#tooltip .tt-title{font-weight:600; color:var(--ink); margin-bottom:3px; font-size:12.5px;}
+#tooltip .tt-row{display:flex; align-items:center; gap:7px; margin:2px 0; color:var(--ink2);}
+#tooltip .tt-key{width:14px; height:0; border-top:3px solid; border-radius:2px; flex:none;}
+#tooltip .tt-val{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums;}
+/* explorer */
+.search-wrap{position:relative; max-width:440px; flex:1 1 260px;}
+.search-wrap input{
+  width:100%; font:inherit; font-size:14px; color:var(--ink);
+  padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
+}
+.search-wrap input:focus{outline:2px solid var(--accent); outline-offset:-1px;}
+.sr-list{
+  position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:50; max-height:290px; overflow-y:auto;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+.sr-item{padding:7px 12px; font-size:13.5px; cursor:pointer; display:flex; gap:8px; align-items:baseline;}
+.sr-item .code{color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; flex:none;}
+.sr-item:hover,.sr-item[aria-selected="true"]{background:var(--wash);}
+.sel-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+.sel-chip{
+  display:inline-flex; align-items:center; gap:7px; font-size:13px; padding:4px 6px 4px 10px;
+  border-radius:99px; border:1px solid var(--border); background:var(--surface);
+}
+.sel-chip .dot{width:9px; height:9px; border-radius:50%; flex:none;}
+.sel-chip button{
+  border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;
+  padding:0 5px; border-radius:50%; line-height:1.2;
+}
+.sel-chip button:hover{color:var(--ink); background:var(--wash);}
+.occ-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; margin-top:12px;}
+.occ-card{border:1px solid var(--border); border-radius:10px; padding:10px 13px; font-size:13px;}
+.occ-card .nm{font-weight:600; color:var(--ink); display:flex; gap:7px; align-items:center; margin-bottom:2px;}
+.occ-card .nm .dot{width:9px; height:9px; border-radius:50%; flex:none;}
+.occ-card .meta{color:var(--muted); font-size:12px;}
+.occ-card .dl{font-weight:600; font-variant-numeric:tabular-nums;}
+/* strips */
+.strips{margin-top:6px;}
+.strip-row{display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:center; padding:7px 0;}
+.strip-row .lbl{font-size:12.5px; color:var(--ink2); text-align:right;}
+.strip{position:relative; height:26px;}
+.strip svg{position:absolute; inset:0; width:100%; height:100%;}
+/* tables */
+details.tbl{margin-top:10px;}
+details.tbl summary{cursor:pointer; font-size:12.5px; color:var(--muted); user-select:none;}
+details.tbl summary:hover{color:var(--ink2);}
+table.data{border-collapse:collapse; font-size:12.5px; margin-top:8px; width:100%; max-width:640px;}
+table.data th{text-align:left; color:var(--muted); font-weight:500; border-bottom:1px solid var(--grid); padding:4px 10px 4px 0;}
+table.data td{padding:4px 10px 4px 0; border-bottom:1px solid var(--grid); color:var(--ink2); font-variant-numeric:tabular-nums;}
+table.data td:first-child{color:var(--ink);}
+/* methods */
+.eq{
+  background:var(--wash); border-radius:10px; padding:13px 16px; margin:10px 0;
+  font-size:15.5px; overflow-x:auto; white-space:nowrap; color:var(--ink);
+  font-family:Georgia,'Times New Roman',serif; font-style:italic;
+}
+.eq sub,.eq sup{font-size:11px}
+.methods p{color:var(--ink2); font-size:14px; max-width:780px;}
+.methods li{color:var(--ink2); font-size:14px; margin:4px 0;}
+footer{
+  border-top:1px solid var(--border); margin-top:56px; padding:22px 16px 44px;
+  color:var(--muted); font-size:13px;
+}
+footer .inner{max-width:1080px; margin:0 auto;}
+.legend-inline{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--ink2); margin-top:8px; align-items:center;}
+.legend-inline .it{display:inline-flex; gap:6px; align-items:center;}
+.legend-inline .sw{width:14px; height:3px; border-radius:2px;}
+.legend-inline .swd{width:9px; height:9px; border-radius:50%;}
+.ramp{width:110px; height:9px; border-radius:5px;}
+</style>
+</head>
+<body>
+
+<nav><div class="inner">
+  <span class="brand">AI &amp; Labor Demand</span>
+  <a class="nl" href="#headline">Headline result</a>
+  <a class="nl" href="#event">Event study</a>
+  <a class="nl" href="#explorer">Occupation explorer</a>
+  <a class="nl" href="#intent">Automation vs augmentation</a>
+  <a class="nl" href="#movers">Biggest movers</a>
+  <a class="nl" href="#experience">Experience</a>
+  <a class="nl" href="#methods">Methods</a>
+</div></nav>
+
+<header class="hero">
+  <h1>Generative AI and Labor Demand: Evidence from Online Job Markets</h1>
+  <div class="byline">Georgi Demirev · interactive companion to the working paper</div>
+  <p class="lede">
+    Online job postings for occupations most exposed to generative AI have fallen sharply relative to
+    the least exposed since the release of ChatGPT (November 2022). This page lets you explore the
+    estimates behind the paper — across five independent measures of occupational AI exposure, two
+    data sources (EU online job adverts and Australia's Internet Vacancy Index), and every individual
+    occupation in the sample.
+  </p>
+  <div class="linkrow">
+    <a class="btn" href="working_paper.pdf">Working paper (PDF)</a>
+    <button class="btn" id="dl-data">Download chart data (JSON)</button>
+  </div>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<main>
+
+<section id="headline">
+  <h2>Headline result: exposure predicts the decline</h2>
+  <p class="sub">
+    The main specification regresses the change in log job postings (average of post-ChatGPT quarters
+    over the four quarters preceding the release) on occupational AI exposure, with country fixed effects
+    and standard errors clustered by country. Exposure is scaled 0–1, so each coefficient is the estimated
+    log-point difference between the most and least exposed occupations.
+  </p>
+  <div class="controls" id="headline-controls"></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Estimated effect of AI exposure, by measure</h3>
+      <p class="cap">Coefficient δ with 95% confidence interval. Hollow markers are not significant at the 5% level.</p>
+      <div class="chart" id="coef-chart"></div>
+      <details class="tbl"><summary>View as table</summary><div id="coef-table"></div></details>
+    </div>
+    <div class="card">
+      <h3 id="scatter-title">Postings change vs exposure</h3>
+      <p class="cap">Each gray point is a country×occupation pair (within-country deviations); larger dots are
+      occupation averages. The line is the regression fit with its 95% band. Hover an occupation dot to identify it.</p>
+      <div class="controls" id="scatter-controls" style="margin-bottom:6px"></div>
+      <div class="chart" id="scatter-chart"></div>
+    </div>
+  </div>
+</section>
+
+<section id="event">
+  <h2>Event study: when did the gap open?</h2>
+  <p class="sub">
+    Coefficients on exposure×quarter interactions with occupation×country and time fixed effects
+    (quarter 0 = 2022Q4, the ChatGPT release, is the omitted reference). Flat pre-period coefficients
+    support the parallel-trends reading; the post-period decline grows steadily. The Australian data
+    reaches back to 2016, a much longer pre-trend test than the EU window allows.
+  </p>
+  <div class="card">
+    <div class="controls" id="event-controls"></div>
+    <div class="chart" id="event-chart"></div>
+    <details class="tbl"><summary>View as table</summary><div id="event-table"></div></details>
+  </div>
+</section>
+
+<section id="explorer">
+  <h2>Occupation explorer</h2>
+  <p class="sub">
+    Pick up to five occupations to compare their posting dynamics against the all-occupation average
+    (postings indexed to 100 = average of the four quarters before the ChatGPT release) and see where
+    each sits on all five AI-exposure measures.
+  </p>
+  <div class="card">
+    <div class="controls" id="explorer-controls"></div>
+    <div class="controls">
+      <div class="search-wrap" id="occ-search"></div>
+    </div>
+    <div class="sel-chips" id="sel-chips"></div>
+    <div class="chart" id="explorer-chart" style="margin-top:12px"></div>
+    <div class="occ-cards" id="occ-cards"></div>
+  </div>
+  <div class="card">
+    <h3>Where the selected occupations sit on each exposure measure</h3>
+    <p class="cap">Gray ticks show the full distribution of occupations; colored dots are your selection (0 = least exposed, 1 = most exposed in the sample).</p>
+    <div class="strips" id="strips"></div>
+  </div>
+</section>
+
+<section id="intent">
+  <h2>Automation vs augmentation</h2>
+  <p class="sub">
+    Two of the exposure measures decompose into an automation component (AI substitutes for the task)
+    and an augmentation component (AI assists a human doing it). Entered jointly, automation exposure
+    predicts fewer postings and augmentation exposure predicts more in the Australian data — the pattern
+    a substitution story implies. On EU data the split is clean only for the Anthropic measure.
+  </p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Occupations by automation and augmentation exposure</h3>
+      <p class="cap">Each dot is an occupation, colored by its post-ChatGPT change in postings. Hover to identify.</p>
+      <div class="controls" id="intent-controls" style="margin-bottom:6px"></div>
+      <div class="chart" id="intent-chart"></div>
+      <div class="legend-inline" id="intent-legend"></div>
+    </div>
+    <div class="card">
+      <h3>Joint regression estimates</h3>
+      <p class="cap">Both components entered together in the delta specification, same fixed effects and clustering.</p>
+      <div class="chart" id="intent-coef"></div>
+      <div class="note" id="intent-note"></div>
+    </div>
+  </div>
+</section>
+
+<section id="movers">
+  <h2>Biggest movers</h2>
+  <p class="sub">
+    The occupations with the largest relative changes in postings between the pre- and post-ChatGPT periods,
+    colored by their AI-exposure percentile. Exposure concentrates among the biggest decliners, but it is not
+    the whole story — some low-exposure occupations declined steeply too.
+  </p>
+  <div class="card">
+    <div class="controls" id="movers-controls"></div>
+    <div class="chart" id="movers-chart"></div>
+    <div class="legend-inline" id="movers-legend"></div>
+  </div>
+</section>
+
+<section id="experience">
+  <h2>Who is hit: entry level and the most senior</h2>
+  <p class="sub">
+    Using EU vacancies broken down by required experience (EURES), the association between AI exposure and
+    posting growth follows an inverted U: most negative for entry-level postings and for those requiring
+    over ten years of experience.
+  </p>
+  <div class="card">
+    <div class="controls" id="exp-controls"></div>
+    <div class="chart" id="exp-chart"></div>
+    <p class="note">Coefficients on exposure interacted with required-experience bins; country fixed effects,
+    SEs clustered by country. Hollow markers are not significant at the 5% level.</p>
+  </div>
+</section>
+
+<section id="methods" class="methods">
+  <h2>Methods &amp; data</h2>
+  <h3 style="font-size:15px">Specifications</h3>
+  <p>The long-difference (“delta”) model, estimated once per exposure measure:</p>
+  <div class="eq">Δ log ȳ<sub>c,i</sub> = δ<sub>0</sub> + ξ<sub>c</sub> + δ·X<sup>AI</sup><sub>i</sub> + ε<sub>c,i</sub></div>
+  <p>where ȳ is the average number of postings in the pre / post period for occupation <em>i</em> in country
+  (or Australian state) <em>c</em>, ξ<sub>c</sub> are country fixed effects, and X<sup>AI</sup> is exposure scaled to 0–1.
+  The event study:</p>
+  <div class="eq">log y<sup>t</sup><sub>i,c</sub> = γ<sub>t</sub> + α<sub>c,i</sub> + δ<sup>t</sup>·X<sup>AI</sup><sub>i</sub>×𝕀(t) + ε<sup>t</sup><sub>i,c</sub></div>
+  <p>with country×occupation and period fixed effects; 2022Q4 is the omitted reference period. Standard errors
+  are clustered by country (and occupation in the event studies). Cells with fewer than 20 postings in either
+  period are excluded.</p>
+  <h3 style="font-size:15px">Data</h3>
+  <ul>
+    <li><strong>EU:</strong> CEDEFOP Skills-OVATE online job advertisements, ISCO 3-digit occupations × 28 countries, quarterly snapshots <span id="eu-window"></span> (each covering a trailing 12-month window); EURES vacancy data for the experience breakdown.</li>
+    <li><strong>Australia:</strong> Jobs and Skills Australia, Internet Vacancy Index, ANZSCO 4-digit occupations × 8 states/territories, <span id="aus-window"></span>, mapped to ISCO via the ABS correspondence.</li>
+    <li><strong>Exposure measures:</strong> Felten et al. (2018); Webb (2022); Eloundou et al. (2023); the <a href="https://www.anthropic.com/economic-index">Anthropic Economic Index</a> usage measure of Handa et al. (2025); and the AI-product exposure measure of Demirev (2024). All standardized to 0–1 across occupations.</li>
+  </ul>
+  <p id="gen-note"></p>
+</section>
+
+</main>
+
+<footer><div class="inner">
+  Interactive companion to “Generative AI and Labor Demand: Evidence from Online Job Markets”.
+  Charts are generated from the paper’s estimation pipeline; regenerate with
+  <code>Rscript R/export_web_data.R &amp;&amp; python3 web/build.py</code>.
+</div></footer>
+
+<div id="tooltip" role="status"></div>
+<script id="data" type="application/json">__DATA_JSON__</script>
+<script>
+"use strict";
+/* ============================== data & helpers ============================== */
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const IDX = DATA.indices;                       // [{key,label,short,hasBreakdown}]
+const IDX_KEYS = IDX.map(d => d.key);
+const idxMeta = Object.fromEntries(IDX.map(d => [d.key, d]));
+
+const $ = (s, el = document) => el.querySelector(s);
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const seriesColor = key => cssVar("--c-" + key);
+const SLOT_KEYS = ["demirev", "felten", "webb", "eloundou", "anthropic"]; // fixed slot order for explorer selections
+
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null) continue;
+    el.append(typeof kid === "string" ? document.createTextNode(kid) : kid);
+  }
+  return el;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function s(tag, attrs = {}) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+function stext(x, y, str, attrs = {}) {
+  const t = s("text", { x, y, ...attrs });
+  t.textContent = str;
+  return t;
+}
+function scaleLin(d0, d1, r0, r1) {
+  const f = v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+  f.inv = v => d0 + (v - r0) / (r1 - r0) * (d1 - d0);
+  f.domain = [d0, d1];
+  return f;
+}
+function niceTicks(min, max, n = 5) {
+  const span = max - min;
+  if (span <= 0) return [min];
+  const step0 = span / n;
+  const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 5, 10].map(m => m * mag).find(st => span / st <= n + 0.5) || 10 * mag;
+  const lo = Math.ceil(min / step) * step;
+  const out = [];
+  for (let v = lo; v <= max + 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6);
+  return out;
+}
+const fmt = (x, d = 2) => x == null ? "–" : (+x).toFixed(d);
+const fmtPct = (x, d = 0) => (x > 0 ? "+" : "") + (100 * x).toFixed(d) + "%";
+const fmtCI = (est, se) => `[${fmt(est - 1.96 * se)}, ${fmt(est + 1.96 * se)}]`;
+const impliedPct = est => Math.exp(est) - 1;
+
+// map event-time (quarters since 2022Q4) to a calendar-quarter label
+function quarterLabel(t) {
+  const q = 2022 * 4 + 3 + t;
+  return Math.floor(q / 4) + "Q" + (q % 4 + 1);
+}
+function hexLerp(a, b, t) {
+  const pa = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
+  return "#" + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, "0")).join("");
+}
+function divergingColor(v, vmax) {
+  const t = Math.max(-1, Math.min(1, v / vmax));
+  const mid = cssVar("--div-mid"), pole = t < 0 ? cssVar("--div-neg") : cssVar("--div-pos");
+  return hexLerp(mid, pole, Math.abs(t));
+}
+const SEQ_RAMP = ["#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"];
+function seqColor(t) { // t in [0,1]
+  return SEQ_RAMP[Math.max(0, Math.min(SEQ_RAMP.length - 1, Math.floor(t * SEQ_RAMP.length)))];
+}
+
+/* dataset helpers */
+const DS_ITEMS = [
+  { v: "eu", label: "EU (ISCO-3)" },
+  { v: "aus_l3", label: "Australia (ISCO-3)" },
+  { v: "aus_l4", label: "Australia (ISCO-4)" }
+];
+const dsLabel = ds => DS_ITEMS.find(d => d.v === ds).label;
+const panelFor = ds => ds === "eu" ? DATA.panels.eu : DATA.panels.aus;
+function occScore(occ, ds, key, field = "scores") {
+  const bag = ds === "eu" ? occ[field] : occ[field + (ds === "aus_l3" ? "_l3" : "_l4")];
+  return bag ? bag[key] ?? null : null;
+}
+const occDelta = (occ, ds) => ds === "eu" ? occ.delta : (ds === "aus_l3" ? occ.delta_l3 : occ.delta_l4);
+
+/* ============================== tooltip ============================== */
+const tt = $("#tooltip");
+function ttShow(x, y, build) {
+  tt.textContent = "";
+  build(tt);
+  tt.style.display = "block";
+  const r = tt.getBoundingClientRect();
+  let px = x + 14, py = y + 14;
+  if (px + r.width > innerWidth - 8) px = x - r.width - 14;
+  if (py + r.height > innerHeight - 8) py = y - r.height - 10;
+  tt.style.left = Math.max(6, px) + "px";
+  tt.style.top = Math.max(6, py) + "px";
+}
+function ttHide() { tt.style.display = "none"; }
+const ttTitle = str => h("div", { class: "tt-title" }, str);
+function ttRow(color, label, value) {
+  const key = h("span", { class: "tt-key" });
+  key.style.borderTopColor = color || "transparent";
+  if (!color) key.style.visibility = "hidden";
+  return h("div", { class: "tt-row" }, key, h("span", { class: "tt-val" }, value), h("span", {}, label));
+}
+
+/* ============================== controls ============================== */
+function segmented(items, value, onchange) {
+  const wrap = h("div", { class: "seg", role: "group" });
+  const paint = v => [...wrap.children].forEach((b, i) => b.setAttribute("aria-pressed", items[i].v === v));
+  for (const it of items) {
+    wrap.append(h("button", {
+      type: "button", "aria-pressed": String(it.v === value),
+      onclick: () => { paint(it.v); onchange(it.v); }
+    }, it.label));
+  }
+  return wrap;
+}
+function indexChips(selected, onchange, { multi = true } = {}) {
+  const wrap = h("div", { class: "chips", role: "group" });
+  const sel = new Set(selected);
+  for (const d of IDX) {
+    const chip = h("button", { type: "button", class: "chip", "aria-pressed": String(sel.has(d.key)) },
+      h("span", { class: "dot" }), d.short);
+    chip.querySelector(".dot").style.background = seriesColor(d.key);
+    chip.addEventListener("click", () => {
+      if (multi) {
+        if (sel.has(d.key)) { if (sel.size === 1) return; sel.delete(d.key); }
+        else sel.add(d.key);
+        chip.setAttribute("aria-pressed", String(sel.has(d.key)));
+        onchange(IDX_KEYS.filter(k => sel.has(k)));
+      } else {
+        sel.clear(); sel.add(d.key);
+        [...wrap.children].forEach(c => c.setAttribute("aria-pressed", "false"));
+        chip.setAttribute("aria-pressed", "true");
+        onchange(d.key);
+      }
+    });
+    wrap.append(chip);
+  }
+  return wrap;
+}
+function ctlGroup(label, ctl) {
+  return h("div", { class: "ctl-group" }, h("span", { class: "ctl-label" }, label), ctl);
+}
+
+/* ============================== axes ============================== */
+function drawXAxis(g, x, tks, y0, format = v => v) {
+  g.append(s("line", { x1: x(tks[0]), x2: x(tks[tks.length - 1]), y1: y0, y2: y0, stroke: cssVar("--axis"), "stroke-width": 1 }));
+  for (const v of tks) {
+    const tk = s("g", { class: "tick" });
+    tk.append(stext(x(v), y0 + 16, format(v), { "text-anchor": "middle" }));
+    g.append(tk);
+  }
+}
+function drawYGrid(g, y, tks, x0, x1, format = v => v) {
+  for (const v of tks) {
+    g.append(s("line", { x1: x0, x2: x1, y1: y(v), y2: y(v), stroke: cssVar("--grid"), "stroke-width": 1 }));
+    const tk = s("g", { class: "tick" });
+    tk.append(stext(x0 - 8, y(v) + 4, format(v), { "text-anchor": "end" }));
+    g.append(tk);
+  }
+}
+
+/* ============================== state ============================== */
+const state = {
+  headline: { ds: "eu", idx: "anthropic" },
+  event: { ds: "eu", sel: ["demirev", "anthropic"], ci: true },
+  explorer: { ds: "eu", level: "l4", sel: [], slots: {} },
+  intent: { ds: "aus_l3", measure: "anthropic" },
+  movers: { ds: "eu", idx: "anthropic" },
+  exp: { idx: "demirev" }
+};
+const renderers = [];
+function register(fn) { renderers.push(fn); fn(); }
+function rerenderAll() { renderers.forEach(fn => fn()); }
+
+/* ============================== KPI tiles ============================== */
+(function kpis() {
+  const eu = DATA.estimates.eu.delta;
+  const euPcts = Object.values(eu).map(m => -impliedPct(m.est) * 100);
+  const aus = DATA.estimates.aus_l3.delta;
+  const ausSig = Object.values(aus).filter(m => m.p < 0.05 && m.est < 0).map(m => -impliedPct(m.est) * 100);
+  const nEU = Math.max(...Object.values(eu).map(m => m.n));
+  const nAUS = Math.max(...Object.values(aus).map(m => m.n));
+  const tiles = [
+    { lbl: "EU postings decline, most vs least exposed", val: `${Math.round(Math.min(...euPcts))}–${Math.round(Math.max(...euPcts))}%`, sub: "significant across all 5 exposure measures" },
+    { lbl: "Australian replication", val: `${Math.round(Math.min(...ausSig))}–${Math.round(Math.max(...ausSig))}%`, sub: "for the two post-LLM exposure measures" },
+    { lbl: "Country × occupation cells", val: (nEU + nAUS).toLocaleString("en-US"), sub: `${nEU.toLocaleString("en-US")} EU · ${nAUS.toLocaleString("en-US")} Australia` },
+    { lbl: "Occupations tracked", val: String(DATA.panels.eu.occupations.length + DATA.panels.aus.occupations.length), sub: `${DATA.panels.eu.occupations.length} ISCO-3 (EU) · ${DATA.panels.aus.occupations.length} ANZSCO-4 (AUS)` }
+  ];
+  $("#kpis").append(...tiles.map(t => h("div", { class: "tile" },
+    h("div", { class: "lbl" }, t.lbl), h("div", { class: "val" }, t.val), h("div", { class: "sub" }, t.sub))));
+  $("#gen-note").textContent = "Data exported from the estimation pipeline on " + DATA.meta.generated + ".";
+  const euQ = DATA.panels.eu.quarters, ausQ = DATA.panels.aus.quarters;
+  $("#eu-window").textContent = euQ[0] + "–" + euQ[euQ.length - 1];
+  $("#aus-window").textContent = ausQ[0] + "–" + ausQ[ausQ.length - 1];
+})();
+
+/* ============================== coefficient chart ============================== */
+$("#headline-controls").append(
+  ctlGroup("Dataset", segmented(DS_ITEMS, state.headline.ds, v => { state.headline.ds = v; rerenderAll(); }))
+);
+function renderCoefChart() {
+  const cont = $("#coef-chart");
+  cont.textContent = "";
+  const est = DATA.estimates[state.headline.ds].delta;
+  const W = Math.max(320, cont.clientWidth), rowH = 46, mt = 8, mb = 40, ml = 78, mr = 24;
+  const H = mt + IDX.length * rowH + mb;
+  const vals = IDX_KEYS.flatMap(k => [est[k].est - 1.96 * est[k].se, est[k].est + 1.96 * est[k].se]);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const pad = (hi - lo) * 0.08;
+  const x = scaleLin(lo - pad, hi + pad, ml, W - mr);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Delta model coefficients by exposure measure" });
+
+  const tks = niceTicks(lo - pad, hi + pad, 6);
+  drawXAxis(svg, x, tks, H - mb + 6, v => fmt(v, 1));
+  svg.append(stext((ml + W - mr) / 2, H - 6, "coefficient δ  (Δ log postings, exposure 0→1)", { "text-anchor": "middle", class: "axis-title" }));
+  svg.append(s("line", { x1: x(0), x2: x(0), y1: mt, y2: H - mb + 6, stroke: cssVar("--axis"), "stroke-width": 1 }));
+
+  IDX.forEach((d, i) => {
+    const m = est[d.key], cy = mt + i * rowH + rowH / 2, col = seriesColor(d.key);
+    const sig = m.p < 0.05;
+    const g = s("g");
+    g.append(stext(ml - 10, cy + 4, d.short, { "text-anchor": "end", fill: cssVar("--ink") }));
+    g.append(s("line", { x1: x(m.est - 1.96 * m.se), x2: x(m.est + 1.96 * m.se), y1: cy, y2: cy, stroke: col, "stroke-width": 2, "stroke-linecap": "round" }));
+    for (const e of [-1.96, 1.96]) g.append(s("line", { x1: x(m.est + e * m.se), x2: x(m.est + e * m.se), y1: cy - 4, y2: cy + 4, stroke: col, "stroke-width": 2, "stroke-linecap": "round" }));
+    g.append(s("circle", { cx: x(m.est), cy, r: 5.5, fill: sig ? col : cssVar("--surface"), stroke: sig ? cssVar("--surface") : col, "stroke-width": 2 }));
+    g.append(stext(x(m.est), cy - 11, fmt(m.est), { "text-anchor": "middle", fill: cssVar("--ink"), "font-weight": 600 }));
+    // hover target
+    const hit = s("rect", { x: ml, y: mt + i * rowH, width: W - ml - mr, height: rowH, fill: "transparent" });
+    hit.addEventListener("pointermove", ev => ttShow(ev.clientX, ev.clientY, el => {
+      el.append(ttTitle(d.label),
+        ttRow(col, "coefficient (95% CI " + fmtCI(m.est, m.se) + ")", fmt(m.est, 3)),
+        ttRow(null, "implied change, most vs least exposed", fmtPct(impliedPct(m.est), 1)),
+        ttRow(null, `p = ${m.p < 0.001 ? "<0.001" : fmt(m.p, 3)} · n = ${m.n.toLocaleString("en-US")}`, ""));
+    }));
+    hit.addEventListener("pointerleave", ttHide);
+    g.append(hit);
+    svg.append(g);
+  });
+  cont.append(svg);
+
+  // table view
+  const tblWrap = $("#coef-table");
+  tblWrap.textContent = "";
+  const rows = IDX.map(d => {
+    const m = est[d.key];
+    return h("tr", {}, h("td", {}, d.label), h("td", {}, fmt(m.est, 3)), h("td", {}, fmt(m.se, 3)),
+      h("td", {}, m.p < 0.001 ? "<0.001" : fmt(m.p, 3)), h("td", {}, fmtPct(impliedPct(m.est), 1)), h("td", {}, String(m.n)));
+  });
+  tblWrap.append(h("table", { class: "data" },
+    h("tr", {}, ...["Measure", "δ", "SE", "p", "Implied change", "n"].map(t => h("th", {}, t))), ...rows));
+}
+register(renderCoefChart);
+
+/* ============================== partial-regression scatter ============================== */
+$("#scatter-controls").append(ctlGroup("Exposure measure", indexChips([state.headline.idx], v => { state.headline.idx = v; renderScatter(); }, { multi: false })));
+function renderScatter() {
+  const cont = $("#scatter-chart");
+  cont.textContent = "";
+  const ds = state.headline.ds, key = state.headline.idx;
+  const est = DATA.estimates[ds], panel = panelFor(ds);
+  const cm = est.countryMeans[key];
+  const sc = est.scatter;
+  const col = seriesColor(key);
+  $("#scatter-title").textContent = "Postings change vs " + idxMeta[key].short + " exposure — " + dsLabel(ds);
+
+  const pts = [];
+  for (let i = 0; i < sc.y.length; i++) {
+    const occ = panel.occupations[sc.occ[i]];
+    const score = occScore(occ, ds, key);
+    const mx = cm.mx[sc.ctry[i]], my = cm.my[sc.ctry[i]];
+    if (score == null || mx == null || my == null) continue;
+    pts.push({ occ, px: score - mx, py: sc.y[i] - my });
+  }
+  // occupation means
+  const byOcc = new Map();
+  for (const p of pts) {
+    let m = byOcc.get(p.occ);
+    if (!m) byOcc.set(p.occ, m = { occ: p.occ, sx: 0, sy: 0, n: 0 });
+    m.sx += p.px; m.sy += p.py; m.n++;
+  }
+  const means = [...byOcc.values()].map(m => ({ occ: m.occ, px: m.sx / m.n, py: m.sy / m.n, n: m.n }));
+
+  const W = Math.max(320, cont.clientWidth), H = 330, ml = 46, mr = 14, mt = 10, mb = 42;
+  const xs = pts.map(p => p.px), ys = pts.map(p => p.py);
+  const xlo = Math.min(...xs), xhi = Math.max(...xs);
+  const ylo = Math.max(Math.min(...ys), -1.05), yhi = Math.min(Math.max(...ys), 1.05);
+  const x = scaleLin(xlo - 0.03, xhi + 0.03, ml, W - mr);
+  const y = scaleLin(ylo - 0.05, yhi + 0.05, H - mb, mt);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Partial regression scatter" });
+
+  drawYGrid(svg, y, niceTicks(y.domain[0], y.domain[1], 5), ml, W - mr, v => fmt(v, 1));
+  drawXAxis(svg, x, niceTicks(x.domain[0], x.domain[1], 6), H - mb + 6, v => fmt(v, 1));
+  svg.append(stext((ml + W - mr) / 2, H - 6, `exposure, deviation from ${ds === "eu" ? "country" : "state"} mean`, { "text-anchor": "middle", class: "axis-title" }));
+  svg.append(stext(12, mt + 2, "Δ log postings", { class: "axis-title" }));
+  svg.append(s("line", { x1: ml, x2: W - mr, y1: y(0), y2: y(0), stroke: cssVar("--axis"), "stroke-width": 1 }));
+
+  const gp = s("g");
+  for (const p of pts) {
+    if (p.py < y.domain[0] || p.py > y.domain[1]) continue;
+    gp.append(s("circle", { cx: x(p.px), cy: y(p.py), r: 2.4, fill: cssVar("--pt"), "fill-opacity": 0.55 }));
+  }
+  svg.append(gp);
+
+  // fit line + CI wedge through origin (partial space)
+  const m = DATA.estimates[ds].delta[key];
+  const X0 = x.domain[0] + 0.01, X1 = x.domain[1] - 0.01;
+  const wedge = s("polygon", {
+    points: [[X0, (m.est - 1.96 * m.se) * X0], [X1, (m.est - 1.96 * m.se) * X1], [X1, (m.est + 1.96 * m.se) * X1], [X0, (m.est + 1.96 * m.se) * X0]]
+      .map(([px, py]) => x(px) + "," + y(py)).join(" "),
+    fill: col, "fill-opacity": 0.1
+  });
+  svg.append(wedge);
+  svg.append(s("line", { x1: x(X0), y1: y(m.est * X0), x2: x(X1), y2: y(m.est * X1), stroke: col, "stroke-width": 2, "stroke-linecap": "round" }));
+
+  for (const mn of means) {
+    svg.append(s("circle", { cx: x(mn.px), cy: y(mn.py), r: 4.5, fill: col, stroke: cssVar("--surface"), "stroke-width": 2 }));
+  }
+  svg.append(stext(W - mr, mt + 4, `δ = ${fmt(m.est, 3)} (SE ${fmt(m.se, 3)})`, { "text-anchor": "end", class: "anno", "font-weight": 600 }));
+
+  // nearest-mean hover
+  svg.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), k = W / r.width;
+    const mxp = (ev.clientX - r.left) * k, myp = (ev.clientY - r.top) * k;
+    let best = null, bd = 26 * 26;
+    for (const mn of means) {
+      const dx = x(mn.px) - mxp, dy = y(mn.py) - myp, d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; best = mn; }
+    }
+    if (!best) { ttHide(); return; }
+    ttShow(ev.clientX, ev.clientY, el => el.append(
+      ttTitle(best.occ.name + " (" + best.occ.code + ")"),
+      ttRow(col, "exposure score (0–1)", fmt(occScore(best.occ, ds, key), 2)),
+      ttRow(null, "avg Δ log postings across " + best.n + (ds === "eu" ? " countries" : " states"), fmt(best.py + 0, 2))
+    ));
+  });
+  svg.addEventListener("pointerleave", ttHide);
+  cont.append(svg);
+}
+register(renderScatter);
+
+/* ============================== event study ============================== */
+{
+  const ec = $("#event-controls");
+  ec.append(
+    ctlGroup("Dataset", segmented(DS_ITEMS, state.event.ds, v => { state.event.ds = v; renderEvent(); })),
+    ctlGroup("Measures", indexChips(state.event.sel, v => { state.event.sel = v; renderEvent(); })),
+    h("label", { class: "switch" },
+      h("input", { type: "checkbox", checked: "", onchange: e => { state.event.ci = e.target.checked; renderEvent(); } }),
+      "95% CI bands")
+  );
+}
+function renderEvent() {
+  const cont = $("#event-chart");
+  cont.textContent = "";
+  const ds = state.event.ds, sel = state.event.sel;
+  const ev = DATA.estimates[ds].event;
+  const series = sel.map(key => {
+    const e = ev[key];
+    const pts = e.t.map((t, i) => ({ t, est: e.est[i], se: e.se[i] }));
+    pts.push({ t: 0, est: 0, se: 0, ref: true });
+    pts.sort((a, b) => a.t - b.t);
+    return { key, pts };
+  });
+  const allT = series.flatMap(sr => sr.pts.map(p => p.t));
+  const tmin = Math.min(...allT), tmax = Math.max(...allT);
+  const allV = series.flatMap(sr => sr.pts.flatMap(p => state.event.ci ? [p.est - 1.96 * p.se, p.est + 1.96 * p.se] : [p.est]));
+  const W = Math.max(360, cont.clientWidth), H = 380, ml = 48, mr = 16, mt = 26, mb = 46;
+  const x = scaleLin(tmin - 0.5, tmax + 0.5, ml, W - mr);
+  const lo = Math.min(0, ...allV), hi = Math.max(0, ...allV);
+  const y = scaleLin(lo - 0.05, hi + 0.05, H - mb, mt);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Event study coefficients" });
+
+  // COVID band for the Australian window
+  if (ds !== "eu" && tmin <= -11) {
+    svg.append(s("rect", { x: x(-11.5), y: mt, width: x(-3.5) - x(-11.5), height: H - mb - mt, fill: cssVar("--div-neg"), "fill-opacity": 0.07 }));
+    svg.append(stext((x(-11.5) + x(-3.5)) / 2, mt + 12, "COVID-19", { "text-anchor": "middle", class: "anno" }));
+  }
+  drawYGrid(svg, y, niceTicks(y.domain[0], y.domain[1], 6), ml, W - mr, v => fmt(v, 1));
+  const step = (tmax - tmin) > 22 ? 4 : 2;
+  const xt = [];
+  for (let t = Math.ceil(tmin / step) * step; t <= tmax; t += step) xt.push(t);
+  drawXAxis(svg, x, xt, H - mb + 6, v => v);
+  svg.append(stext((ml + W - mr) / 2, H - 6, "quarters since ChatGPT release (0 = 2022Q4)", { "text-anchor": "middle", class: "axis-title" }));
+  svg.append(stext(12, mt - 10, "coefficient δᵗ", { class: "axis-title" }));
+  svg.append(s("line", { x1: ml, x2: W - mr, y1: y(0), y2: y(0), stroke: cssVar("--axis"), "stroke-width": 1 }));
+  svg.append(s("line", { x1: x(0), x2: x(0), y1: mt, y2: H - mb, stroke: cssVar("--axis"), "stroke-width": 1 }));
+  svg.append(stext(x(0) + 5, mt + 2, "ChatGPT", { class: "anno" }));
+
+  for (const sr of series) {
+    const col = seriesColor(sr.key);
+    if (state.event.ci) {
+      const up = sr.pts.map(p => x(p.t) + "," + y(p.est + 1.96 * p.se));
+      const dn = [...sr.pts].reverse().map(p => x(p.t) + "," + y(p.est - 1.96 * p.se));
+      svg.append(s("polygon", { points: up.concat(dn).join(" "), fill: col, "fill-opacity": 0.1 }));
+    }
+    svg.append(s("polyline", {
+      points: sr.pts.map(p => x(p.t) + "," + y(p.est)).join(" "),
+      fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round"
+    }));
+    for (const p of sr.pts) {
+      if (p.ref) continue;
+      svg.append(s("circle", { cx: x(p.t), cy: y(p.est), r: 3.2, fill: col, stroke: cssVar("--surface"), "stroke-width": 1.5 }));
+    }
+  }
+
+  // crosshair + tooltip
+  const cross = s("line", { y1: mt, y2: H - mb, stroke: cssVar("--muted"), "stroke-width": 1, "stroke-opacity": 0, "pointer-events": "none" });
+  svg.append(cross);
+  svg.addEventListener("pointermove", evn => {
+    const r = svg.getBoundingClientRect();
+    const t = Math.round(x.inv((evn.clientX - r.left) * W / r.width));
+    if (t < tmin || t > tmax) { cross.setAttribute("stroke-opacity", 0); ttHide(); return; }
+    cross.setAttribute("x1", x(t)); cross.setAttribute("x2", x(t));
+    cross.setAttribute("stroke-opacity", 0.5);
+    ttShow(evn.clientX, evn.clientY, el => {
+      el.append(ttTitle(quarterLabel(t) + "  (t = " + t + ")"));
+      for (const sr of series) {
+        const p = sr.pts.find(pp => pp.t === t);
+        if (!p) continue;
+        el.append(ttRow(seriesColor(sr.key), idxMeta[sr.key].short + (p.ref ? " (reference)" : "  " + fmtCI(p.est, p.se)), fmt(p.est, 2)));
+      }
+    });
+  });
+  svg.addEventListener("pointerleave", () => { cross.setAttribute("stroke-opacity", 0); ttHide(); });
+  cont.append(svg);
+
+  // table view
+  const tw = $("#event-table");
+  tw.textContent = "";
+  const ts = [...new Set(allT)].sort((a, b) => a - b);
+  tw.append(h("table", { class: "data" },
+    h("tr", {}, h("th", {}, "Quarter"), ...sel.map(k => h("th", {}, idxMeta[k].short + " δᵗ (SE)"))),
+    ...ts.map(t => h("tr", {}, h("td", {}, quarterLabel(t)),
+      ...sel.map(k => {
+        const sr = series.find(ss => ss.key === k);
+        const p = sr.pts.find(pp => pp.t === t);
+        return h("td", {}, p ? (p.ref ? "ref." : `${fmt(p.est, 3)} (${fmt(p.se, 3)})`) : "–");
+      })))));
+}
+register(renderEvent);
+
+/* ============================== occupation explorer ============================== */
+function explorerDsKey() { return state.explorer.ds === "eu" ? "eu" : (state.explorer.level === "l3" ? "aus_l3" : "aus_l4"); }
+function explorerDefaults() {
+  const panel = panelFor(state.explorer.ds);
+  const wanted = state.explorer.ds === "eu" ? ["251", "911"] : ["2613", "8991"];
+  const sel = [];
+  for (const w of wanted) if (panel.occupations.some(o => o.code === w && o.series)) sel.push(w);
+  while (sel.length < 2) {
+    const o = panel.occupations.find(oo => oo.series && !sel.includes(oo.code));
+    if (!o) break;
+    sel.push(o.code);
+  }
+  return sel;
+}
+function assignSlot(code) {
+  const used = new Set(Object.values(state.explorer.slots));
+  const free = SLOT_KEYS.find(k => !used.has(k));
+  state.explorer.slots[code] = free || SLOT_KEYS[0];
+}
+state.explorer.sel = explorerDefaults();
+state.explorer.sel.forEach(assignSlot);
+
+{
+  const ec = $("#explorer-controls");
+  const levelSeg = ctlGroup("Exposure level", segmented(
+    [{ v: "l3", label: "ISCO-3" }, { v: "l4", label: "ISCO-4" }], state.explorer.level,
+    v => { state.explorer.level = v; renderExplorer(); }));
+  levelSeg.id = "level-seg";
+  ec.append(
+    ctlGroup("Dataset", segmented([{ v: "eu", label: "EU" }, { v: "aus", label: "Australia" }], state.explorer.ds, v => {
+      state.explorer.ds = v;
+      state.explorer.slots = {};
+      state.explorer.sel = explorerDefaults();
+      state.explorer.sel.forEach(assignSlot);
+      $("#level-seg").style.display = v === "aus" ? "" : "none";
+      renderExplorer();
+    })),
+    levelSeg
+  );
+  levelSeg.style.display = "none";
+}
+
+/* search combobox */
+(function buildSearch() {
+  const wrap = $("#occ-search");
+  const input = h("input", { type: "search", placeholder: "Search occupations by name or code…", "aria-label": "Search occupations" });
+  const list = h("div", { class: "sr-list", role: "listbox" });
+  list.style.display = "none";
+  let items = [], active = -1;
+  function close() { list.style.display = "none"; list.textContent = ""; active = -1; }
+  function pick(code) {
+    if (!state.explorer.sel.includes(code) && state.explorer.sel.length < 5) {
+      state.explorer.sel.push(code);
+      assignSlot(code);
+      renderExplorer();
+    }
+    input.value = ""; close();
+  }
+  function update() {
+    const q = input.value.trim().toLowerCase();
+    list.textContent = ""; active = -1;
+    if (!q) { close(); return; }
+    const panel = panelFor(state.explorer.ds);
+    items = panel.occupations
+      .filter(o => o.series && (o.name.toLowerCase().includes(q) || o.code.startsWith(q)))
+      .slice(0, 12);
+    if (!items.length) { close(); return; }
+    for (const o of items) {
+      const it = h("div", { class: "sr-item", role: "option" }, h("span", { class: "code" }, o.code), h("span", {}, o.name));
+      it.addEventListener("pointerdown", e => { e.preventDefault(); pick(o.code); });
+      list.append(it);
+    }
+    list.style.display = "";
+  }
+  input.addEventListener("input", update);
+  input.addEventListener("blur", () => setTimeout(close, 120));
+  input.addEventListener("keydown", e => {
+    const opts = [...list.children];
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!opts.length) return;
+      active = (active + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length;
+      opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === active)));
+      opts[active].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter" && active >= 0 && items[active]) {
+      e.preventDefault(); pick(items[active].code);
+    } else if (e.key === "Escape") close();
+  });
+  wrap.append(input, list);
+})();
+
+function renderExplorer() {
+  const panel = panelFor(state.explorer.ds);
+  const ds = explorerDsKey();
+  const selOccs = state.explorer.sel
+    .map(code => panel.occupations.find(o => o.code === code))
+    .filter(Boolean);
+
+  /* chips */
+  const chipWrap = $("#sel-chips");
+  chipWrap.textContent = "";
+  for (const o of selOccs) {
+    const dot = h("span", { class: "dot" });
+    dot.style.background = seriesColor(state.explorer.slots[o.code]);
+    chipWrap.append(h("span", { class: "sel-chip" }, dot, o.name,
+      h("button", { type: "button", "aria-label": "Remove " + o.name, onclick: () => {
+        state.explorer.sel = state.explorer.sel.filter(c => c !== o.code);
+        delete state.explorer.slots[o.code];
+        renderExplorer();
+      } }, "×")));
+  }
+
+  /* line chart */
+  const cont = $("#explorer-chart");
+  cont.textContent = "";
+  const Q = panel.quarters, n = Q.length;
+  const seriesList = [
+    { name: "All occupations", color: cssVar("--muted"), vals: panel.avgSeries, avg: true },
+    ...selOccs.map(o => ({ name: o.name, color: seriesColor(state.explorer.slots[o.code]), vals: o.series }))
+  ];
+  const allVals = seriesList.flatMap(sr => sr.vals.filter(v => v != null));
+  const W = Math.max(360, cont.clientWidth), H = 360, ml = 46, mr = 14, mt = 20, mb = 44;
+  const x = scaleLin(0, n - 1, ml, W - mr);
+  const y = scaleLin(Math.min(60, ...allVals) - 6, Math.max(140, ...allVals) + 6, H - mb, mt);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Indexed job postings for selected occupations" });
+
+  drawYGrid(svg, y, niceTicks(y.domain[0], y.domain[1], 5), ml, W - mr, v => Math.round(v));
+  const t0i = panel.quarters.indexOf(DATA.meta.t0Quarter);
+  const lstep = Math.max(1, Math.round(n / 9));
+  const xt = [];
+  for (let i = 0; i < n; i += lstep) xt.push(i);
+  svg.append(s("line", { x1: ml, x2: W - mr, y1: y(100), y2: y(100), stroke: cssVar("--axis"), "stroke-width": 1 }));
+  for (const i of xt) {
+    svg.append(stext(x(i), H - mb + 16, Q[i], { "text-anchor": "middle", class: "tick" }));
+  }
+  svg.append(s("line", { x1: ml, x2: W - mr, y1: H - mb, y2: H - mb, stroke: cssVar("--axis"), "stroke-width": 1 }));
+  svg.append(stext((ml + W - mr) / 2, H - 8, "postings indexed to 100 = average of the four pre-ChatGPT quarters", { "text-anchor": "middle", class: "axis-title" }));
+  if (t0i >= 0) {
+    svg.append(s("line", { x1: x(t0i), x2: x(t0i), y1: mt, y2: H - mb, stroke: cssVar("--axis"), "stroke-width": 1 }));
+    svg.append(stext(x(t0i) + 5, mt + 2, "ChatGPT", { class: "anno" }));
+  }
+  for (const sr of seriesList) {
+    let seg = [];
+    const flush = () => {
+      if (seg.length > 1) svg.append(s("polyline", {
+        points: seg.join(" "), fill: "none", stroke: sr.color,
+        "stroke-width": sr.avg ? 2.5 : 2, "stroke-opacity": sr.avg ? 0.85 : 1,
+        "stroke-linejoin": "round", "stroke-linecap": "round"
+      }));
+      seg = [];
+    };
+    sr.vals.forEach((v, i) => { if (v == null) flush(); else seg.push(x(i) + "," + y(v)); });
+    flush();
+  }
+  // direct label on the average line's end
+  const lastAvg = [...panel.avgSeries].reverse().find(v => v != null);
+  if (lastAvg != null) svg.append(stext(W - mr, y(lastAvg) - 7, "All occupations", { "text-anchor": "end", class: "anno" }));
+
+  const cross = s("line", { y1: mt, y2: H - mb, stroke: cssVar("--muted"), "stroke-width": 1, "stroke-opacity": 0, "pointer-events": "none" });
+  svg.append(cross);
+  svg.addEventListener("pointermove", evn => {
+    const r = svg.getBoundingClientRect();
+    const i = Math.round(x.inv((evn.clientX - r.left) * W / r.width));
+    if (i < 0 || i >= n) { cross.setAttribute("stroke-opacity", 0); ttHide(); return; }
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i));
+    cross.setAttribute("stroke-opacity", 0.5);
+    ttShow(evn.clientX, evn.clientY, el => {
+      el.append(ttTitle(Q[i]));
+      for (const sr of seriesList) {
+        const v = sr.vals[i];
+        el.append(ttRow(sr.color, sr.name, v == null ? "–" : Math.round(v)));
+      }
+    });
+  });
+  svg.addEventListener("pointerleave", () => { cross.setAttribute("stroke-opacity", 0); ttHide(); });
+  cont.append(svg);
+
+  /* per-occupation cards */
+  const cards = $("#occ-cards");
+  cards.textContent = "";
+  for (const o of selOccs) {
+    const dot = h("span", { class: "dot" });
+    dot.style.background = seriesColor(state.explorer.slots[o.code]);
+    const d = occDelta(o, ds);
+    const dl = h("span", { class: "dl" }, d == null ? "–" : fmtPct(impliedPct(d), 0));
+    dl.style.color = d == null ? "inherit" : (d < 0 ? "var(--bad)" : "var(--good)");
+    cards.append(h("div", { class: "occ-card" },
+      h("div", { class: "nm" }, dot, o.name),
+      h("div", { class: "meta" }, (state.explorer.ds === "eu" ? "ISCO " : "ANZSCO ") + o.code + " · postings post vs pre ChatGPT: "),
+      dl));
+  }
+
+  renderStrips(panel, ds, selOccs);
+}
+function renderStrips(panel, ds, selOccs) {
+  const cont = $("#strips");
+  cont.textContent = "";
+  for (const d of IDX) {
+    const row = h("div", { class: "strip-row" }, h("div", { class: "lbl" }, d.short));
+    const stripBox = h("div", { class: "strip" });
+    const svg = s("svg", { viewBox: "0 0 100 26", preserveAspectRatio: "none" });
+    svg.append(s("line", { x1: 1, x2: 99, y1: 13, y2: 13, stroke: cssVar("--grid"), "stroke-width": 1 }));
+    const scores = [];
+    for (const o of panel.occupations) {
+      const v = occScore(o, ds, d.key);
+      if (v != null) scores.push(v);
+    }
+    for (const v of scores) {
+      svg.append(s("line", { x1: 1 + v * 98, x2: 1 + v * 98, y1: 8, y2: 18, stroke: cssVar("--axis"), "stroke-width": 0.35, "stroke-opacity": 0.7 }));
+    }
+    stripBox.append(svg);
+    // dots need non-scaled geometry: an absolutely-positioned HTML layer on top of the ticks
+    stripBox.append(...selOccs.map(o => {
+      const v = occScore(o, ds, d.key);
+      if (v == null) return null;
+      const dot = h("span", { title: "" });
+      dot.style.cssText = `position:absolute;top:50%;left:${(1 + v * 98)}%;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--surface);`;
+      dot.style.background = seriesColor(state.explorer.slots[o.code]);
+      const sorted = [...scores].sort((a, b) => a - b);
+      const pct = Math.round(100 * sorted.filter(sv => sv <= v).length / sorted.length);
+      dot.addEventListener("pointermove", ev => ttShow(ev.clientX, ev.clientY, el => el.append(
+        ttTitle(o.name),
+        ttRow(seriesColor(state.explorer.slots[o.code]), d.label, fmt(v, 2)),
+        ttRow(null, "percentile in sample", pct + "th"))));
+      dot.addEventListener("pointerleave", ttHide);
+      return dot;
+    }).filter(Boolean));
+    row.append(stripBox);
+    cont.append(row);
+  }
+}
+register(renderExplorer);
+
+/* ============================== automation vs augmentation ============================== */
+{
+  const ic = $("#intent-controls");
+  const bIdx = IDX.filter(d => d.hasBreakdown);
+  ic.append(
+    ctlGroup("Measure", segmented(bIdx.map(d => ({ v: d.key, label: d.short })), state.intent.measure, v => { state.intent.measure = v; renderIntent(); })),
+    ctlGroup("Dataset", segmented(DS_ITEMS, state.intent.ds, v => { state.intent.ds = v; renderIntent(); }))
+  );
+}
+function renderIntent() {
+  const cont = $("#intent-chart");
+  cont.textContent = "";
+  const ds = state.intent.ds, key = state.intent.measure;
+  const panel = panelFor(ds);
+  const pts = panel.occupations.map(o => ({
+    o, a: occScore(o, ds, key, "auto"), g: occScore(o, ds, key, "augm"), d: occDelta(o, ds)
+  })).filter(p => p.a != null && p.g != null && p.d != null);
+
+  const W = Math.max(320, cont.clientWidth), H = 340, ml = 46, mr = 14, mt = 12, mb = 44;
+  const x = scaleLin(-0.03, 1.03, ml, W - mr);
+  const y = scaleLin(-0.03, 1.03, H - mb, mt);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Automation vs augmentation scatter" });
+  const tk = [0, 0.25, 0.5, 0.75, 1];
+  drawYGrid(svg, y, tk, ml, W - mr, v => fmt(v, 2).replace(/0+$/, "").replace(/\.$/, ""));
+  drawXAxis(svg, x, tk, H - mb + 6, v => v);
+  svg.append(stext((ml + W - mr) / 2, H - 6, "automation exposure (0–1)", { "text-anchor": "middle", class: "axis-title" }));
+  svg.append(stext(12, mt + 2, "augmentation exposure", { class: "axis-title" }));
+  svg.append(s("line", { x1: x(0), y1: y(0), x2: x(1), y2: y(1), stroke: cssVar("--grid"), "stroke-width": 1 }));
+  svg.append(stext(x(0.03), y(0.93), "augmentation-tilted", { class: "anno", "fill-opacity": 0.8 }));
+  svg.append(stext(x(0.97), y(0.05), "automation-tilted", { class: "anno", "text-anchor": "end", "fill-opacity": 0.8 }));
+
+  const VMAX = 0.6;
+  for (const p of pts) {
+    svg.append(s("circle", {
+      cx: x(p.a), cy: y(p.g), r: 4, fill: divergingColor(p.d, VMAX),
+      stroke: cssVar("--surface"), "stroke-width": 1.5
+    }));
+  }
+  svg.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), k = W / r.width;
+    const mx = (ev.clientX - r.left) * k, my = (ev.clientY - r.top) * k;
+    let best = null, bd = 24 * 24;
+    for (const p of pts) {
+      const dx = x(p.a) - mx, dy = y(p.g) - my, d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; best = p; }
+    }
+    if (!best) { ttHide(); return; }
+    ttShow(ev.clientX, ev.clientY, el => el.append(
+      ttTitle(best.o.name + " (" + best.o.code + ")"),
+      ttRow(divergingColor(best.d, VMAX), "postings post vs pre", fmtPct(impliedPct(best.d), 0)),
+      ttRow(null, "automation exposure", fmt(best.a, 2)),
+      ttRow(null, "augmentation exposure", fmt(best.g, 2))
+    ));
+  });
+  svg.addEventListener("pointerleave", ttHide);
+  cont.append(svg);
+
+  // legend gradient
+  const lg = $("#intent-legend");
+  lg.textContent = "";
+  const ramp = h("span", { class: "ramp" });
+  ramp.style.background = `linear-gradient(90deg, ${cssVar("--div-neg")}, ${cssVar("--div-mid")}, ${cssVar("--div-pos")})`;
+  lg.append(h("span", { class: "it" }, "−45% or less"), ramp, h("span", { class: "it" }, "+45% or more"),
+    h("span", { class: "it", style: "color:var(--muted)" }, "change in postings, post vs pre ChatGPT"));
+
+  /* joint coefficients panel */
+  const cc = $("#intent-coef");
+  cc.textContent = "";
+  const bd = DATA.estimates[ds].deltaBreakdown[key];
+  const rows = [
+    { lbl: "Automation", m: bd.auto, col: cssVar("--div-neg") },
+    { lbl: "Augmentation", m: bd.augm, col: cssVar("--div-pos") }
+  ];
+  const W2 = Math.max(280, cc.clientWidth), rowH = 52, mt2 = 8, mb2 = 40, ml2 = 104, mr2 = 20;
+  const H2 = mt2 + rows.length * rowH + mb2;
+  const vals = rows.flatMap(r => [r.m.est - 1.96 * r.m.se, r.m.est + 1.96 * r.m.se]);
+  const lo2 = Math.min(0, ...vals), hi2 = Math.max(0, ...vals);
+  const pad2 = (hi2 - lo2) * 0.1;
+  const x2 = scaleLin(lo2 - pad2, hi2 + pad2, ml2, W2 - mr2);
+  const svg2 = s("svg", { viewBox: `0 0 ${W2} ${H2}`, role: "img", "aria-label": "Joint automation and augmentation coefficients" });
+  drawXAxis(svg2, x2, niceTicks(lo2 - pad2, hi2 + pad2, 5), H2 - mb2 + 6, v => fmt(v, 1));
+  svg2.append(s("line", { x1: x2(0), x2: x2(0), y1: mt2, y2: H2 - mb2 + 6, stroke: cssVar("--axis"), "stroke-width": 1 }));
+  svg2.append(stext((ml2 + W2 - mr2) / 2, H2 - 4, "coefficient (Δ log postings)", { "text-anchor": "middle", class: "axis-title" }));
+  rows.forEach((r, i) => {
+    const cy = mt2 + i * rowH + rowH / 2, sig = r.m.p < 0.05;
+    svg2.append(stext(ml2 - 10, cy + 4, r.lbl, { "text-anchor": "end", fill: cssVar("--ink") }));
+    svg2.append(s("line", { x1: x2(r.m.est - 1.96 * r.m.se), x2: x2(r.m.est + 1.96 * r.m.se), y1: cy, y2: cy, stroke: r.col, "stroke-width": 2, "stroke-linecap": "round" }));
+    svg2.append(s("circle", { cx: x2(r.m.est), cy, r: 5.5, fill: sig ? r.col : cssVar("--surface"), stroke: sig ? cssVar("--surface") : r.col, "stroke-width": 2 }));
+    svg2.append(stext(x2(r.m.est), cy - 11, fmt(r.m.est) + (sig ? "" : " (n.s.)"), { "text-anchor": "middle", fill: cssVar("--ink"), "font-weight": 600 }));
+  });
+  cc.append(svg2);
+  $("#intent-note").textContent =
+    `${idxMeta[key].label}, ${dsLabel(ds)}: automation ${fmt(bd.auto.est, 3)} (SE ${fmt(bd.auto.se, 3)}), ` +
+    `augmentation ${fmt(bd.augm.est, 3)} (SE ${fmt(bd.augm.se, 3)}), n = ${bd.n.toLocaleString("en-US")}. ` +
+    `Hollow marker = not significant at the 5% level.`;
+}
+register(renderIntent);
+
+/* ============================== biggest movers ============================== */
+{
+  const mc = $("#movers-controls");
+  mc.append(
+    ctlGroup("Dataset", segmented(DS_ITEMS, state.movers.ds, v => { state.movers.ds = v; renderMovers(); })),
+    ctlGroup("Color by exposure", indexChips([state.movers.idx], v => { state.movers.idx = v; renderMovers(); }, { multi: false }))
+  );
+}
+function renderMovers() {
+  const cont = $("#movers-chart");
+  cont.textContent = "";
+  const ds = state.movers.ds, key = state.movers.idx;
+  const panel = panelFor(ds);
+  const occs = panel.occupations
+    .map(o => ({ o, d: occDelta(o, ds), sc: occScore(o, ds, key) }))
+    .filter(p => p.d != null);
+  occs.sort((a, b) => a.d - b.d);
+  const NN = 12;
+  const shown = occs.slice(0, NN).concat(occs.slice(-NN));
+  const ranks = [...occs].map(p => p.sc).filter(v => v != null).sort((a, b) => a - b);
+  const pctOf = v => v == null ? null : ranks.filter(r => r <= v).length / ranks.length;
+
+  const rowH = 22, mt = 22, mb = 40, ml = 230, mr = 56;
+  const W = Math.max(520, cont.clientWidth);
+  const H = mt + shown.length * rowH + 34 + mb;
+  const pcts = shown.map(p => impliedPct(p.d) * 100);
+  const lo = Math.min(...pcts, 0), hi = Math.max(...pcts, 0);
+  const x = scaleLin(lo * 1.06, hi * 1.06, ml, W - mr);
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Occupations with largest posting changes" });
+  drawXAxis(svg, x, niceTicks(lo, hi, 6), H - mb + 8, v => v + "%");
+  svg.append(stext((ml + W - mr) / 2, H - 4, "change in postings, post vs pre ChatGPT", { "text-anchor": "middle", class: "axis-title" }));
+  svg.append(s("line", { x1: x(0), x2: x(0), y1: mt, y2: H - mb + 8, stroke: cssVar("--axis"), "stroke-width": 1 }));
+
+  svg.append(stext(8, mt - 7, "Largest declines", { class: "anno", "font-weight": 600 }));
+  svg.append(stext(8, mt + NN * rowH + 27, "Largest increases", { class: "anno", "font-weight": 600 }));
+  shown.forEach((p, i) => {
+    const cy = mt + i * rowH + (i >= NN ? 34 : 0);
+    const pv = impliedPct(p.d) * 100;
+    const barY = cy + 3, barH = rowH - 8;
+    const x0 = Math.min(x(0), x(pv)), x1 = Math.max(x(0), x(pv));
+    const pctl = pctOf(p.sc);
+    const fill = pctl == null ? cssVar("--pt") : seqColor(pctl);
+    const rx = 4;
+    const bar = s("path", {
+      d: pv >= 0
+        ? `M${x0},${barY} H${x1 - rx} a${rx},${rx} 0 0 1 ${rx},${rx} v${barH - 2 * rx} a${rx},${rx} 0 0 1 ${-rx},${rx} H${x0} Z`
+        : `M${x1},${barY} H${x0 + rx} a${rx},${rx} 0 0 0 ${-rx},${rx} v${barH - 2 * rx} a${rx},${rx} 0 0 0 ${rx},${rx} H${x1} Z`,
+      fill
+    });
+    svg.append(bar);
+    const nm = p.o.name.length > 34 ? p.o.name.slice(0, 33) + "…" : p.o.name;
+    svg.append(stext(ml - 8, cy + rowH / 2 + 3, nm, { "text-anchor": "end", fill: cssVar("--ink2") }));
+    svg.append(stext(pv >= 0 ? x1 + 5 : x0 - 5, cy + rowH / 2 + 3, (pv > 0 ? "+" : "") + Math.round(pv) + "%",
+      { "text-anchor": pv >= 0 ? "start" : "end", fill: cssVar("--ink"), "font-weight": 600, "font-size": "11px" }));
+    const hit = s("rect", { x: 0, y: cy, width: W, height: rowH, fill: "transparent" });
+    hit.addEventListener("pointermove", ev => ttShow(ev.clientX, ev.clientY, el => el.append(
+      ttTitle(p.o.name + " (" + p.o.code + ")"),
+      ttRow(fill, "change in postings", fmtPct(impliedPct(p.d), 0)),
+      ttRow(null, idxMeta[key].short + " exposure (percentile)", p.sc == null ? "n/a" : `${fmt(p.sc, 2)} (${Math.round(pctl * 100)}th)`)
+    )));
+    hit.addEventListener("pointerleave", ttHide);
+    svg.append(hit);
+  });
+  cont.append(svg);
+
+  const lg = $("#movers-legend");
+  lg.textContent = "";
+  const ramp = h("span", { class: "ramp" });
+  ramp.style.background = `linear-gradient(90deg, ${SEQ_RAMP[0]}, ${SEQ_RAMP[SEQ_RAMP.length - 1]})`;
+  lg.append(h("span", { class: "it" }, "low exposure"), ramp, h("span", { class: "it" }, "high exposure"),
+    h("span", { class: "it", style: "color:var(--muted)" }, idxMeta[key].short + " percentile · gray = no score"));
+}
+register(renderMovers);
+
+/* ============================== experience ============================== */
+$("#exp-controls").append(ctlGroup("Exposure measure", indexChips([state.exp.idx], v => { state.exp.idx = v; renderExp(); }, { multi: false })));
+function renderExp() {
+  const cont = $("#exp-chart");
+  cont.textContent = "";
+  const key = state.exp.idx, col = seriesColor(key);
+  const levels = DATA.experience.levels;
+  const cf = DATA.experience.coefs[key];
+  const W = Math.max(360, cont.clientWidth), H = 330, ml = 48, mr = 16, mt = 14, mb = 74;
+  const vals = cf.est.flatMap((e, i) => [e - 1.96 * cf.se[i], e + 1.96 * cf.se[i]]);
+  const y = scaleLin(Math.min(0, ...vals) - 0.1, Math.max(0, ...vals) + 0.1, H - mb, mt);
+  const x = i => ml + (i + 0.5) * (W - ml - mr) / levels.length;
+  const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Coefficients by experience level" });
+  drawYGrid(svg, y, niceTicks(y.domain[0], y.domain[1], 6), ml, W - mr, v => fmt(v, 1));
+  svg.append(s("line", { x1: ml, x2: W - mr, y1: y(0), y2: y(0), stroke: cssVar("--axis"), "stroke-width": 1 }));
+  levels.forEach((lv, i) => {
+    const t = stext(x(i), H - mb + 14, lv, { "text-anchor": "end", class: "tick", transform: `rotate(-33 ${x(i)} ${H - mb + 14})` });
+    svg.append(t);
+    const est = cf.est[i], se = cf.se[i], p = cf.p[i];
+    if (est == null) return;
+    const sig = p < 0.05;
+    svg.append(s("line", { x1: x(i), x2: x(i), y1: y(est - 1.96 * se), y2: y(est + 1.96 * se), stroke: col, "stroke-width": 2, "stroke-linecap": "round" }));
+    svg.append(s("circle", { cx: x(i), cy: y(est), r: 5, fill: sig ? col : cssVar("--surface"), stroke: sig ? cssVar("--surface") : col, "stroke-width": 2 }));
+    const hit = s("rect", { x: x(i) - 18, y: mt, width: 36, height: H - mb - mt, fill: "transparent" });
+    hit.addEventListener("pointermove", ev => ttShow(ev.clientX, ev.clientY, el => el.append(
+      ttTitle(lv),
+      ttRow(col, "coefficient " + fmtCI(est, se), fmt(est, 2)),
+      ttRow(null, "implied change at full exposure", fmtPct(impliedPct(est), 0)),
+      ttRow(null, "p = " + (p < 0.001 ? "<0.001" : fmt(p, 3)), "")
+    )));
+    hit.addEventListener("pointerleave", ttHide);
+    svg.append(hit);
+  });
+  svg.append(stext(12, mt - 2, "coefficient", { class: "axis-title" }));
+  cont.append(svg);
+}
+register(renderExp);
+
+/* ============================== chrome ============================== */
+$("#dl-data").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(DATA)], { type: "application/json" });
+  const a = h("a", { href: URL.createObjectURL(blob), download: "ai_labor_demand_dashboard_data.json" });
+  document.body.append(a); a.click(); a.remove();
+});
+
+let rsTimer = null;
+new ResizeObserver(() => {
+  clearTimeout(rsTimer);
+  rsTimer = setTimeout(rerenderAll, 150);
+}).observe(document.querySelector("main"));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rerenderAll);
+new MutationObserver(rerenderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>
