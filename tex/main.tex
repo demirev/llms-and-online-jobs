@@ -78,7 +78,7 @@ A central question raised by these results is whether the displacement we observ
 Taken together, these results are consistent with the outcome that Acemoglu and Restrepo call ``so-so automation'' \citep{acemoglu_automation_2019}. In this scenario, new technologies are just barely more productive than human labor: enough for firms to shift production to capital, but not enough to create widespread productivity effects that counteract the disemployment effects. 
 
 % caveats about macro dynamics
-Although these conclusions are troubling, they should be taken with appropriate caution. The release of ChatGPT is a salient date, and the event studies point towards a sharp transition; however, the same period coincides with major macroeconomic, policy, and trade shocks across the examined region. Specifically, the event period falls right around the time of a major central bank policy shift towards higher interest rates, and additionally roughly coincides with the wind-down of a number of pandemic-era policy changes. If the occupations that are most exposed to AI also tend to be the ones that are more sensitive to interest rate shocks, or the ones most likely to have seen abnormal dynamics due to COVID, our identification strategy would be muddied. This is especially concerning since professions in the software sector, which tends to be very interest-rate-sensitive, rank near the top of every exposure measure, and indeed appear among the largest decliners (Table~\ref{table:increase_and_decrease}). We partially address these concerns by examining the longer pre-period of our Australian dataset, as well as the relationship between AI exposure and teleworkability. Nevertheless, we cannot fully rule out non-AI related drivers of the observed dynamics. Despite these caveats, the results presented here underscore the importance of continuous monitoring of labor market outcomes for occupations at risk of automation and hint that an initial AI-driven labor disruption might already be underway.
+Although these conclusions are troubling, they should be taken with appropriate caution. The release of ChatGPT is a salient date, and the event studies point towards a sharp transition; however, the same period coincides with major macroeconomic, policy, and trade shocks across the examined region. Specifically, the event period falls right around the time of a major central bank policy shift towards higher interest rates, and additionally roughly coincides with the wind-down of a number of pandemic-era policy changes. If the occupations that are most exposed to AI also tend to be the ones that are more sensitive to interest rate shocks, or the ones most likely to have seen abnormal dynamics due to COVID, our identification strategy would be muddied. This is especially concerning since professions in the software sector, which tends to be very interest-rate-sensitive, rank near the top of every exposure measure, and indeed appear among the largest decliners (Table~\ref{table:increase_and_decrease}). We partially address these concerns by re-estimating the models with all ICT occupations excluded, by examining the longer pre-period of our Australian dataset, as well as the relationship between AI exposure and teleworkability. Nevertheless, we cannot fully rule out non-AI related drivers of the observed dynamics. Despite these caveats, the results presented here underscore the importance of continuous monitoring of labor market outcomes for occupations at risk of automation and hint that an initial AI-driven labor disruption might already be underway.
 
 % outline
 This paper proceeds as follows: section two presents a short overview of related literature; section three lays out the conceptual theoretical framework for studying AI automation; section four goes over the sources of data used; section five explains the empirical estimation strategy; section six presents the results, and section seven concludes.
@@ -348,7 +348,7 @@ Since the brevity of the pre-event period does not allow us to rule out this alt
 
 Table~\ref{table:delta_models} presents the results from estimating the log-linear relative change model with country fixed effects from Equation~\ref{eq:delta}. This is the main empirical result of this study. The dependent variable is the log of the ratio of the average number of job listings per period in the periods before and after the release of ChatGPT. The independent variable in each of the five models is one of the five exposure metrics. Country fixed effects are included and standard errors are clustered at the country level. From an initial dataset of 3,270 country-occupation pairs, all observations with 20 or fewer job adverts in either the pre or post periods were excluded. The final dataset thus includes 2,788 country-occupation pairs\footnote{Due to partial coverage of the O*NET to ISCO crosswalks, only 2,766 country-occupation pairs were used for some of the indices}.
 
-Each column of Table~\ref{table:delta_models} represents a different measure of occupational AI exposure. All estimates are negative and significant at the 1\% level, ranging in magnitude from -0.205 to -0.339. This means that an increase in AI exposure from the lowest to the highest possible level ($0$ to $1$) results in between 18.5\% and 28.8\% (one minus the exponents of the regression coefficients) decrease in the number of online job adverts relative to the baseline period.
+Each column of Table~\ref{table:delta_models} represents a different measure of occupational AI exposure. All estimates are negative and significant at the 1\% level, ranging in magnitude from -0.205 to -0.339. This means that an increase in AI exposure from the lowest to the highest possible level ($0$ to $1$) results in between 18.5\% and 28.8\% (one minus the exponents of the regression coefficients) decrease in the number of online job adverts relative to the baseline period. The estimates are stable across a battery of ablations, reported in Appendix~\ref{sec:sensitivity}: dropping any single occupation or country leaves them essentially unchanged, while excluding the entire ICT block at once attenuates them by 15--29\% without affecting their sign or significance.
 
 % Matches: results/logs/oja_models.txt -- "## Delta models:"
 \begin{table}[htbp]
@@ -380,7 +380,7 @@ Country FE & Yes & Yes & Yes & Yes & Yes \\
 \label{table:delta_models}
 \end{table}
 
-Figure~\ref{fig:partial_eloundou} illustrates the estimate for the Eloundou exposure metric. It shows the partial correlation plot derived by regressing both the dependent variables (log of the ratio of job listings before and after the event date) and the independent variable (any of the five AI exposure metrics) on the country fixed effects, and plotting the residuals of the two regressions against each other. Each dot is an individual country-occupation pair, while crosses represent occupation averages. Similar plots for the remaining exposure metrics are broadly similar and are presented in Appendix~\ref{fig:partial_all}.
+Figure~\ref{fig:partial_eloundou} illustrates the estimate for the Eloundou exposure metric. It shows the partial correlation plot derived by regressing both the dependent variables (log of the ratio of job listings before and after the event date) and the independent variable (any of the five AI exposure metrics) on the country fixed effects, and plotting the residuals of the two regressions against each other. Each dot is an individual country-occupation pair, while crosses represent occupation averages. Similar plots for the remaining exposure metrics are broadly similar and are presented in Figure~\ref{fig:partial_all} in the appendix.
 
 
 \begin{figure}[t]
@@ -566,7 +566,7 @@ The main empirical result of this paper is an application of a difference-in-dif
 
 Two of the used exposure scores offer an ``automation'' versus ``augmentation'' breakdown. When attempting to disentangle these two effects, we find stronger support for automation-driven contraction. Finally, we find descriptive evidence that the labor reduction follows an inverted-U shape with regard to job experience - postings for entry-level workers with no experience, as well as for seasoned professionals with over 10 years of experience show the highest relative contraction. 
 
-These results should be interpreted with several caveats in mind. First, the proportion of variance explained by the exposure variables within fixed effects groups is rather small, suggesting that AI automation is far from the main driving factor for recent occupational labor demand dynamics (even as it predicts how the decline is distributed across occupations). Second, despite the pseudo-experimental approach, we cannot rule out unrelated market developments influencing the results. For example, any factor that could affect both occupational AI exposure and occupational resilience to interest rate changes may lead to spurious estimates. The event studies further cast doubts on the assumptions of parallel trends across exposure groups, as some of the pre-event coefficients are significant in the European dataset. This concern, however, is partially alleviated in the Australian dataset, which does not show any notable pre-trends, suggesting that the observed post-LLM decline is not a reversion of a pre-existing trend. Finally, the data on online job adverts itself presents a partial view of the labor market and its dynamics; job postings might decline even if actual employment stays fixed, reflecting expectations more than the current standing.
+These results should be interpreted with several caveats in mind. First, the proportion of variance explained by the exposure variables within fixed effects groups is rather small, suggesting that AI automation is far from the main driving factor for recent occupational labor demand dynamics (even as it predicts how the decline is distributed across occupations). Second, despite the pseudo-experimental approach, we cannot rule out unrelated market developments influencing the results. For example, any factor that could affect both occupational AI exposure and occupational resilience to interest rate changes may lead to spurious estimates. The estimates survive excluding the ICT sector, where this concern is most acute, though subtler versions of it cannot be ruled out. The event studies further cast doubts on the assumptions of parallel trends across exposure groups, as some of the pre-event coefficients are significant in the European dataset. This concern, however, is partially alleviated in the Australian dataset, which does not show any notable pre-trends, suggesting that the observed post-LLM decline is not a reversion of a pre-existing trend. Finally, the data on online job adverts itself presents a partial view of the labor market and its dynamics; job postings might decline even if actual employment stays fixed, reflecting expectations more than the current standing.
 
 Two secondary results concern the change in skill composition across occupations and changes in labor and capital productivity. Changes in the skills associated with each occupation may be indicative of a change in the task mix of the occupation. Using a measure of the similarity between job skills and AI capabilities, we employ a similar difference-in-differences approach with continuous treatment. The results show that even within occupations, skills that are more similar to AI capabilities are mentioned less often in job adverts after the release of ChatGPT, with the most exposed skills exhibiting 12\% fewer mentions relative to the least exposed ones. Similar caveats apply as with the main result, as despite the significant coefficient estimate, the overall contribution of the exposure metric to the model fit is quite small. Furthermore, the pre-event coefficients raise questions about the parallel trends assumptions.
 
@@ -933,7 +933,7 @@ State/Territory FE & Yes & Yes & Yes & Yes \\
 \label{table:aus_intent}
 \end{table}
 
-Figure~\ref{fig:aus_event_study_appendix} shows the event-study estimates for all five measures over the full 2016--2026 window, with the acute COVID-19 lockdown and restriction period (2020 Q1--2021 Q4) shaded. Two features stand out. First, for the two measures that replicate the headline result the post-ChatGPT coefficients drift steadily negative, echoing the European event studies, whereas the other three measures remain flat or noisy throughout. Second, and importantly for the identifying assumption, the long pre-period shows no systematic negative pre-trend for the two significant measures: the \citet{handa2025economic} usage score is statistically indistinguishable from zero in every quarter after the onset of the pandemic, and the highly-exposed occupations under \citet{demirev2024assessing} if anything contracted \emph{relatively} during the pandemic rather than booming. This makes a mechanical reversion-to-the-mean from a pandemic-era swing an unlikely explanation for the post-ChatGPT decline.
+Figure~\ref{fig:aus_event_study_appendix} shows the event-study estimates for all five measures over the full 2016--2026 window, with the acute COVID-19 lockdown and restriction period (2020 Q1--2021 Q4) shaded. Two features stand out. First, for the two measures that replicate the headline result the post-ChatGPT coefficients drift steadily negative, echoing the European event studies, whereas the other three measures remain flat or noisy throughout. Second, and importantly for the identifying assumption, the long pre-period shows no systematic negative pre-trend for the two significant measures: the \citet{handa2025economic} usage score is statistically indistinguishable from zero in every quarter after the onset of the pandemic, and the highly-exposed occupations under \citet{demirev2024assessing} if anything contracted \emph{relatively} during the pandemic rather than booming. This makes a mechanical reversion-to-the-mean from a pandemic-era swing an unlikely explanation for the post-ChatGPT decline. Figure~\ref{fig:aus_partial} complements the event studies with the partial correlation plots underlying the long-difference estimates of Table~\ref{table:aus_delta}.
 
 \begin{figure}[H]
     \caption{Event Study of ChatGPT's Introduction against Number of OJA: Australian IVI, All Measures}
@@ -1009,7 +1009,7 @@ Besides our main specification, Equation~\ref{eq:delta} and the event study Equa
 
 Where the left-hand variable is the number of job adverts in a given country-occupation pair within a given period, and the right-hand side includes separate fixed effects for time, occupation, and country. As before, $X^{AI}_i$ is the continuous-treatment exposure to AI, only active in the post-period (after November 30th 2022).
 
-This specification is relegated to the Appendix, since TWFE estimates with continuous treatment require much stronger forms of the parallel trends assumption to recover average treatment effects \citep{Callaway2024}. Specifically, what \citet{Callaway2024} call ``strong parallel trends'', which in our case is roughly equivalent to positing that response curves to AI exposure across occupations have the same slopes, an unlikely assumption.\footnote{The main long-difference specification that we used is one of the recommendations of \citet{Callaway2024} for dealing with continuous treatment.}
+We relegate this specification to the Appendix and treat it as a robustness check rather than as an alternative source of identification. As \citet{Callaway2024} show, with a continuous treatment any comparison of outcome changes across exposure levels, whether implemented as a TWFE interaction or as the long-difference regression of Equation~\ref{eq:delta}, recovers an average causal response only under what they call ``strong parallel trends'': in our case, the assumption that occupations at different exposure levels would have responded identically had they received the same exposure. Since every occupation carries some degree of AI exposure, there is no untreated comparison group, and both formulations rest on this assumption equally. Our preference for the long difference is therefore one of transparency rather than of weaker identifying assumptions: it collapses each country-occupation pair to a single pre-post comparison, making the identifying variation explicit and guarding against overstated precision from serially correlated errors \citep{bertrand2004much}, and it weights all post-release quarters equally. The decile specification in Equation~\ref{eq:deciles} below is closer in spirit to what \citet{Callaway2024} in fact recommend for continuous treatments, namely flexible estimation of the dose-response of outcome changes on exposure, with the lowest-exposure group as the reference.
 
 Nevertheless, the results of estimating Equation~\ref{eq:twfe} are shown in Table~\ref{table:twfe_models}. The results are qualitatively similar to the main specification: all five exposure measures yield negative and significant interaction coefficients, ranging from $-0.168$ (Webb) to $-0.483$ (Anthropic Usage), in line with the long-difference estimates reported in the main text.
 
@@ -1105,7 +1105,8 @@ Country FE & Yes & Yes & Yes & Yes & Yes \\
     \label{fig:decile_all}
 \end{figure}
 
-\section{Robustness Against Individual Occupations or Countries}
+\section{Robustness to Occupation and Country Exclusions}
+\label{sec:sensitivity}
 
 In order to assess the sensitivity of our results to including or excluding given occupations or countries, we run an ablation study on our European dataset. We estimate separate versions of Equation~\ref{eq:delta} where we drop either one occupation or one country at a time. We then record whether the coefficient flips sign or becomes insignificant. We repeat the exercise at three levels of aggregation: dropping one ESCO level-3 occupation, one ESCO level-2 occupation, and one country. The results are summarized in Table~\ref{table:sensitivity}.
 
@@ -1151,6 +1152,40 @@ Anthropic Usage & -0.339 & -0.361 & -0.319 & 28 & 0 & 0 \\
 \multicolumn{7}{l}{\footnotesize exposure coefficient.} \\
 \end{tabular}
 \label{table:sensitivity}
+\end{table}
+
+One shortcoming of the leave-one-out exercise is that in the ISCO classification, ICT occupations are spread over three separate L2 groups (ICT service managers, OC133; ICT professionals, OC251--OC252; ICT technicians, OC351--OC352). This matters because these jobs combine top-ranking exposure scores with membership in the sector most sensitive to the interest rate increases that coincide with our event date. Table~\ref{table:delta_no_ict} therefore reports estimates of Equation~\ref{eq:delta} with all five ICT occupations excluded at once. The coefficients remain negative and significant for all five exposure measures, with the implied decline between the least and most exposed occupations attenuating to 15--21\%. The associated event studies retain the shape of Figure~\ref{fig:event_study_all}, with coefficients turning significantly negative from the second quarter after the event date and growing in magnitude thereafter.
+
+% Matches: results/logs/oja_models.txt -- "## Delta models, excluding ICT occupations (OC133, OC251, OC252, OC351, OC352):"
+\begin{table}[H]
+\centering
+\caption{Impact of AI Exposure on Online Job Ads, Excluding ICT Occupations}
+\begin{tabular}{lccccc}
+\hline\hline
+ & (1) & (2) & (3) & (4) & (5) \\
+\midrule
+Demirev Exposure & -0.160** & & & & \\
+ & (0.053) & & & & \\
+Felten AI Exposure & & -0.181** & & & \\
+ & & (0.058) & & & \\
+Webb AI Exposure & & & -0.159** & & \\
+ & & & (0.043) & & \\
+Eloundou Exposure & & & & -0.241** & \\
+ & & & & (0.069) & \\
+Anthropic Usage & & & & & -0.241* \\
+ & & & & & (0.103) \\
+\midrule
+Observations & 2,658 & 2,655 & 2,646 & 2,655 & 2,655 \\
+R$^2$ (within) & 0.007 & 0.019 & 0.009 & 0.022 & 0.002 \\
+Adjusted R$^2$ & 0.533 & 0.539 & 0.535 & 0.540 & 0.531 \\
+Country FE & Yes & Yes & Yes & Yes & Yes \\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Excluded ESCO level-3 occupations: OC133, OC251, OC252, OC351, OC352 (ICT service} \\
+\multicolumn{6}{l}{\footnotesize managers, ICT professionals, and ICT technicians)} \\
+\multicolumn{6}{l}{\footnotesize Standard errors clustered at country level in parentheses} \\
+\multicolumn{6}{l}{\footnotesize * p$<$0.05, ** p$<$0.01, *** p$<$0.001} \\
+\end{tabular}
+\label{table:delta_no_ict}
 \end{table}
 
 \end{document}

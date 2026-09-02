@@ -144,6 +144,9 @@ Thumbs.db
 chkp/
 .Rhistory
 
+# Journal submission bundles (self-contained, not tracked)
+tex/submissions/
+
 # LaTeX build artifacts
 *.aux
 *.bbl

@@ -724,6 +724,44 @@ sensitivity_result_countries %>%
   #filter(country == "Baseline (All)" | new_p_val > 0.05) %>%
   log_text("Sensitivity: drop-one country", n = Inf)
 
+# ICT exclusion ------------------------------------------------------------
+# The drop-one checks above never remove the tech sector as a whole: the ICT
+# block spans three separate L2 groups (managers OC133, professionals OC25x,
+# technicians OC35x). Dropping it jointly addresses the concern that the
+# estimates proxy the post-2022 rate-driven tech hiring contraction.
+ict_codes <- c("OC133", "OC251", "OC252", "OC351", "OC352")
+
+delta_models_no_ict <- map(
+  exposure_vars, function(exposure_var) {
+    feols(
+      as.formula(paste("delta_OJA_log ~", exposure_var, " | idcountry")),
+      data = oja_delta$l3_ap %>% filter(!idesco_level_3 %in% ict_codes),
+      cluster = "idcountry"
+    )
+  }
+)
+
+results$delta_no_ict <- delta_models_no_ict
+
+log_text(
+  delta_models_no_ict,
+  "Delta models, excluding ICT occupations (OC133, OC251, OC252, OC351, OC352):"
+)
+
+event_study_models_no_ict <- map(
+  exposure_vars,
+  ~run_event_study_model(
+    .x, filter(oja_twfe$l3, !idesco_level_3 %in% ict_codes), level = 3
+  )
+)
+
+results$event_study_no_ict <- event_study_models_no_ict
+
+log_text(
+  event_study_models_no_ict,
+  label = "Event study models, excluding ICT occupations:"
+)
+
 # save results ------------------------------------------------------------
 saveRDS(results, "results/RDS/oja_models.RDS")
 

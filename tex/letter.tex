@@ -29,7 +29,7 @@
 
 % Abstract
 \begin{abstract}
-This letter measures the early impact of generative AI on labor demand using online job postings across the European Union from 2021 to 2025. Using the release of ChatGPT as a cut-off date and five occupation-level measures of AI exposure as a continuous treatment, we document a 19-29\% relative decrease in job postings for the most exposed occupations, with the gap widening each quarter after the release. The result is robust across exposure measures and to leave-one-out ablations over occupations and countries, and is partially replicated on Australian data, where a decade-long pre-period shows no confounding pre-trends.
+This letter measures the early impact of generative AI on labor demand using online job postings across the European Union from 2021 to 2025. Using the release of ChatGPT as a cut-off date and five occupation-level measures of AI exposure as a continuous treatment, we document a 19-29\% relative decrease in job postings for the most exposed occupations, with the gap widening each quarter after the release. The result is robust across exposure measures and to occupation and country ablations, including the exclusion of the entire ICT sector, and is partially replicated on Australian data, where a decade-long pre-period shows no confounding pre-trends.
 \end{abstract}
 
 % JEL Classification Codes
@@ -65,7 +65,7 @@ Denoting the average number of online job adverts for occupation $i$ in country 
 \label{eq:delta}
 \end{equation}
 
-where $\xi_c$ are country fixed effects and $X_i$ is one of the five exposure measures, treated as a continuous treatment.\footnote{The long-difference specification is one of the recommendations of \citet{Callaway2024} for difference-in-differences designs with continuous treatment.} Standard errors are clustered at the country level. Cells with 20 or fewer adverts in either period are excluded, leaving roughly 2,788 country-occupation pairs. To study the time profile of the effect, we also estimate an event-study specification with country-occupation and time fixed effects:
+where $\xi_c$ are country fixed effects and $X_i$ is one of the five exposure measures, treated as a continuous treatment. Standard errors are clustered at the country level. Cells with 20 or fewer adverts in either period are excluded, leaving roughly 2,788 country-occupation pairs. To study the time profile of the effect, we also estimate an event-study specification with country-occupation and time fixed effects:
 
 \begin{equation}
 \log{y^t_{i,c}}=\gamma_t + \alpha_{c,i} + \delta^{t} X_{i} \times \mathbf{I}(t) + \varepsilon^t_{i,c}
@@ -76,7 +76,7 @@ The same two specifications are estimated on the Australian data, with states an
 
 \section{Results}
 
-Table~\ref{table:delta} reports the estimates of Equation~\ref{eq:delta}. In the European data (Panel A), all five exposure measures yield negative coefficients, significant at the 1\% level, ranging from $-0.205$ to $-0.339$. This means that an increase in AI exposure from the lowest to the highest possible level results in between 19\% and 29\% (one minus the exponents of the regression coefficients) decrease in the number of online job adverts relative to the baseline period. The estimates are remarkably stable: across leave-one-out ablations dropping one occupation or one country at a time, not a single estimate flips sign or loses significance at the 5\% level.
+Table~\ref{table:delta} reports the estimates of Equation~\ref{eq:delta}. In the European data (Panel A), all five exposure measures yield negative coefficients, significant at the 1\% level, ranging from $-0.205$ to $-0.339$. This means that an increase in AI exposure from the lowest to the highest possible level results in between 19\% and 29\% (one minus the exponents of the regression coefficients) decrease in the number of online job adverts relative to the baseline period. The estimates are remarkably stable: across leave-one-out ablations dropping one occupation or one country at a time, not a single estimate flips sign or loses significance at the 5\% level. Excluding the entire ICT block - ICT service managers, professionals, and technicians - at once attenuates the implied decline to 15-21\%, but again leaves all five coefficients negative and significant.
 
 \begin{table}[H]
 \centering
@@ -104,7 +104,7 @@ Observations & 1,197 & 1,197 & 1,197 & 1,197 & 1,197 \\
 \label{table:delta}
 \end{table}
 
-Figure~\ref{fig:event_study} presents the corresponding event studies. For four of the five measures, the coefficients turn significantly negative from the second quarter after the event date and grow in absolute magnitude with each successive period, reaching between 46\% and 59\% relative decrease by mid-2025; \citet{webb_impact_2022}, a pre-LLM measure oriented towards earlier AI technologies, is the exception, with all periods insignificant. The pre-event coefficients, while much closer to zero, are significant for at least one period for the remaining four indices. The pre-event trend is, if anything, opposite in direction to the post-event one (rising rather than declining) - but a rising pre-event profile is also consistent with exposed occupations entering the treatment window at a cyclical peak. This concern is not innocuous: the 2022-2023 monetary tightening hit technology-intensive hiring particularly hard, and any factor affecting both occupational AI exposure and sensitivity to interest rate changes could bias the estimates.
+Figure~\ref{fig:event_study} presents the corresponding event studies. For four of the five measures, the coefficients turn significantly negative from the second quarter after the event date and grow in absolute magnitude with each successive period, reaching between 46\% and 59\% relative decrease by mid-2025; \citet{webb_impact_2022}, a pre-LLM measure oriented towards earlier AI technologies, is the exception, with all periods insignificant. The pre-event coefficients, while much closer to zero, are significant for at least one period for the remaining four indices. The pre-event trend is, if anything, opposite in direction to the post-event one (rising rather than declining) - but a rising pre-event profile is also consistent with exposed occupations entering the treatment window at a cyclical peak. This concern is not innocuous: the 2022-2023 monetary tightening hit technology-intensive hiring particularly hard, and any factor affecting both occupational AI exposure and sensitivity to interest rate changes could bias the estimates. The stability of the estimates to dropping the ICT block noted above suggests the result is not simply a relabeling of the post-2022 technology hiring contraction, but subtler versions of the concern remain.
 
 \begin{figure}[H]
     \caption{Event Study of ChatGPT's Introduction against Number of OJA}
