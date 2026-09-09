@@ -27,7 +27,7 @@ font_add_google("Merriweather", "merriweather")
 showtext_auto()
 
 # functions --------------------------------------------------------------
-plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5) {
+plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5, index_date = NULL) {
   esco_level_col <- paste0("idesco_level_", level)
   esco_level_short_col <- paste0("esco_level_", level, "_short")
   
@@ -55,12 +55,16 @@ plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5) {
     ) %>%
     group_by(score_percentile) %>%
     mutate(
-      OJA_index = sum_OJA / first(sum_OJA) * 100
+      OJA_index = if (is.null(index_date)) {
+        sum_OJA / first(sum_OJA) * 100
+      } else {
+        sum_OJA / sum_OJA[dmax == index_date] * 100 # index to the release window
+      }
     ) %>%
     ggplot(
       aes(
         x = dmax, 
-        y = sum_OJA,
+        y = if (is.null(index_date)) sum_OJA else OJA_index,
         color = score_percentile, 
         lty = score_percentile
       )
@@ -71,7 +75,7 @@ plot_exposure_quintiles <- function(data, level, exposure_var, n_tiles = 5) {
     labs(
       title = paste("OJA Index by", names(exposure_vars)[exposure_vars == exposure_var], "Exposure"),
       x = "Date",
-      y = "OJA Index",
+      y = if (is.null(index_date)) "OJA" else paste0("OJA index (", format(index_date, "%Y Q4"), " = 100)"),
       color = paste(n_tiles, "-tiles"),
       linetype = paste(n_tiles, "-tiles")
     ) +
@@ -302,6 +306,7 @@ results$oja_time_series <- oja$l3 %>%
     )
   ) + 
   geom_line() +
+  geom_vline(xintercept = t0, linetype = "dashed") +
   theme_minimal() +
   scale_color_grey(start = 0, end = .7) +
   scale_y_continuous(labels = scales::comma) +
@@ -471,6 +476,139 @@ l2_time_plots_combined <- wrap_plots(l2_time_plots, ncol = 2)
 
 results$l3_time_plots <- l3_time_plots # not used in manuscript
 
+# Raw series by exposure quartile, indexed to the ChatGPT release window
+# (dmax 2022-12-31, the 12 months ending Dec 2022). Used in the manuscript as
+# tex/img/oja_by_exposure_quartile_main.eps (Figure "Online Job Adverts by AI
+# Exposure Quartile", usage-based and Eloundou scores) and
+# tex/img/oja_by_exposure_quartile_rest.eps (appendix, the other three scores):
+# shows that the top quartile of occupations fell further than the bottom
+# quartile in the raw counts, before any regression.
+l3_quartile_plots <- map(exposure_vars, function(var) {
+  plot_exposure_quintiles(
+    oja_twfe$l3, 
+    level = 3, 
+    exposure_var = var, 
+    n_tiles = 4,
+    index_date = as.Date("2022-12-31")
+  ) +
+    # ntile() assigns 1 to the lowest scores: quartile 1 is the least exposed
+    scale_color_grey(
+      start = 0.8, end = 0.2,
+      labels = c("1 (least exposed)", "2", "3", "4 (most exposed)")
+    ) +
+    scale_linetype_discrete(
+      labels = c("1 (least exposed)", "2", "3", "4 (most exposed)")
+    ) +
+    labs(color = "Exposure quartile", linetype = "Exposure quartile")
+})
+names(l3_quartile_plots) <- exposure_vars
+l3_quartile_plots$combined <- wrap_plots(l3_quartile_plots, ncol = 2) +
+  plot_layout(guides = "collect")
+# main text: the usage-based score and the Eloundou score; appendix: the rest
+l3_quartile_plots$main <- wrap_plots(
+  l3_quartile_plots[c("anthropic_usage_score", "beta_eloundou")], ncol = 2
+) +
+  plot_layout(guides = "collect")
+l3_quartile_plots$rest <- wrap_plots(
+  l3_quartile_plots[c("ai_product_exposure_score", "felten_exposure_score", "webb_exposure_score")],
+  ncol = 2
+) +
+  plot_layout(guides = "collect")
+
+results$l3_quartile_plots <- l3_quartile_plots
+
+# log the index values at the end of the sample for the top and bottom quartile
+quartile_endpoints <- map_dfr(exposure_vars, function(var) {
+  oja_twfe$l3 %>%
+    group_by(idesco_level_3) %>%
+    filter(!is.na(!!sym(var))) %>%
+    summarise(mean_score = mean(!!sym(var)), .groups = "drop") %>%
+    mutate(quartile = ntile(mean_score, 4)) %>%
+    inner_join(select(oja_twfe$l3, idesco_level_3, dmax, OJA), by = "idesco_level_3") %>%
+    group_by(quartile, dmax) %>%
+    summarise(sum_OJA = sum(OJA), .groups = "drop") %>%
+    group_by(quartile) %>%
+    arrange(dmax) %>%
+    mutate(index = sum_OJA / sum_OJA[dmax == as.Date("2022-12-31")] * 100) %>%
+    filter(dmax %in% as.Date(c("2022-03-31", "2022-09-30", "2025-06-30"))) %>%
+    mutate(exposure_var = var) %>%
+    select(exposure_var, quartile, dmax, index)
+}) %>%
+  pivot_wider(names_from = dmax, values_from = index)
+
+log_text(
+  as.data.frame(quartile_endpoints),
+  "OJA index by exposure quartile (2022 Q4 window = 100), selected windows",
+  digits = 3
+)
+
+# Same figure for the Australian IVI (appendix, tex/img/aus_oja_by_exposure_quartile.eps).
+# Data pipeline as in model_aus.R; the window is trimmed to the EU sample
+# (2022 Q1 to 2025 Q2) so the two figures are directly comparable. The IVI is a
+# quarterly mean of monthly 3-month moving averages, not a rolling 12-month total.
+aus_quartile_data <- format_aus_oja(
+  ivi_quarterly(read_ivi() %>% filter(date >= as.Date("2021-10-01"))),
+  build_anzsco_exposure(
+    read_anzsco_correspondence(),
+    read_ai_exposure_file("data/ai_exposure_scores/scored_esco_occupations_matched.csv", level = 3),
+    isco_level = 3
+  ),
+  level = 3,
+  t0 = t0
+) %>%
+  filter(dmax >= as.Date("2022-03-31"), dmax <= as.Date("2025-06-30"))
+
+aus_quartile_plots <- map(exposure_vars, function(var) {
+  plot_exposure_quintiles(
+    aus_quartile_data,
+    level = 3,
+    exposure_var = var,
+    n_tiles = 4,
+    index_date = as.Date("2022-12-31")
+  ) +
+    scale_color_grey(
+      start = 0.8, end = 0.2,
+      labels = c("1 (least exposed)", "2", "3", "4 (most exposed)")
+    ) +
+    scale_linetype_discrete(
+      labels = c("1 (least exposed)", "2", "3", "4 (most exposed)")
+    ) +
+    labs(
+      title = paste("IVI Index by", names(exposure_vars)[exposure_vars == var], "Exposure"),
+      y = "IVI index (2022 Q4 = 100)",
+      color = "Exposure quartile", linetype = "Exposure quartile"
+    )
+})
+names(aus_quartile_plots) <- exposure_vars
+aus_quartile_plots$combined <- wrap_plots(aus_quartile_plots, ncol = 2) +
+  plot_layout(guides = "collect")
+
+results$aus_quartile_plots <- aus_quartile_plots
+
+aus_quartile_endpoints <- map_dfr(exposure_vars, function(var) {
+  aus_quartile_data %>%
+    group_by(idesco_level_3) %>%
+    filter(!is.na(!!sym(var))) %>%
+    summarise(mean_score = mean(!!sym(var)), .groups = "drop") %>%
+    mutate(quartile = ntile(mean_score, 4)) %>%
+    inner_join(select(aus_quartile_data, idesco_level_3, dmax, OJA), by = "idesco_level_3") %>%
+    group_by(quartile, dmax) %>%
+    summarise(sum_OJA = sum(OJA), .groups = "drop") %>%
+    group_by(quartile) %>%
+    arrange(dmax) %>%
+    mutate(index = sum_OJA / sum_OJA[dmax == as.Date("2022-12-31")] * 100) %>%
+    filter(dmax %in% as.Date(c("2022-03-31", "2022-09-30", "2025-06-30"))) %>%
+    mutate(exposure_var = var) %>%
+    select(exposure_var, quartile, dmax, index)
+}) %>%
+  pivot_wider(names_from = dmax, values_from = index)
+
+log_text(
+  as.data.frame(aus_quartile_endpoints),
+  "Australia: IVI index by exposure quartile (2022 Q4 = 100), selected quarters",
+  digits = 3
+)
+
 
 # EURES by experience -----------------------------------------------------
 # just checking - we don't have data before 2024
@@ -512,4 +650,32 @@ save_plot(
   results$oja_time_series,
   width = 12,
   height = 5
+)
+
+save_plot(
+  "oja_by_exposure_quartile.eps",
+  results$l3_quartile_plots$combined,
+  width = 12,
+  height = 10
+)
+
+save_plot(
+  "oja_by_exposure_quartile_main.eps",
+  results$l3_quartile_plots$main,
+  width = 12,
+  height = 4.5
+)
+
+save_plot(
+  "oja_by_exposure_quartile_rest.eps",
+  results$l3_quartile_plots$rest,
+  width = 12,
+  height = 7
+)
+
+save_plot(
+  "aus_oja_by_exposure_quartile.eps",
+  results$aus_quartile_plots$combined,
+  width = 12,
+  height = 10
 )

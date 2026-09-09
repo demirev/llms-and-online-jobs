@@ -146,10 +146,19 @@ combined_plot <- (plots[[1]] + plots[[2]]) /
 combined_breakdown_plot <- (plots_breakdown[[1]] + plots_breakdown[[2]]) /
   (plots_breakdown[[3]] + plots_breakdown[[4]])
 
+# Main text shows the usage-based (Anthropic) and Eloundou scores side by side;
+# the remaining three go to the appendix (tex/img/event_study_main.eps and
+# tex/img/event_study_rest.eps)
+main_plot <- (plots[[1]] + plots[[3]]) +
+  plot_layout(guides = "collect")
+rest_plot <- (plots[[2]] + plots[[4]]) /
+  (plots[[5]] + (ggplot() + theme_minimal())) +
+  plot_layout(guides = "collect")
+
 # Print combined plot
 print(combined_plot)
 
-results$event_study_plots <- c(plots, plots_breakdown, list(combined = combined_plot, combined_breakdown = combined_breakdown_plot))
+results$event_study_plots <- c(plots, plots_breakdown, list(combined = combined_plot, combined_breakdown = combined_breakdown_plot, main = main_plot, rest = rest_plot))
 
 # delta models ----
 delta_models <- map(
@@ -404,6 +413,11 @@ partial_plots <- map(
       theme(text = element_text(family = "merriweather"))
   }
 )
+
+# same split as the event studies: Anthropic + Eloundou in the main text
+partial_plots$main <- (partial_plots[[1]] + partial_plots[[3]])
+partial_plots$rest <- (partial_plots[[2]] + partial_plots[[4]]) /
+  (partial_plots[[5]] + (ggplot() + theme_minimal()))
 
 partial_plots$combined <- (partial_plots[[1]] + partial_plots[[2]]) / 
   (partial_plots[[3]] + partial_plots[[4]]) +
@@ -669,6 +683,17 @@ results$eures_plot <- eures_plot_df %>%
 results$eures_plot_anthropic <- eures_plot_df %>%
   filter(var_label == var_labels["anthropic_usage_score"]) %>%
   make_eures_plot(facet = FALSE)
+
+# same split as the other main-text figures: Anthropic + Eloundou in the main
+# text (tex/img/by_experience_main.eps), the other three in the appendix
+# (tex/img/by_experience_rest.eps)
+results$eures_plot_main <- eures_plot_df %>%
+  filter(var %in% c("anthropic_usage_score", "beta_eloundou")) %>%
+  make_eures_plot(facet = TRUE)
+
+results$eures_plot_rest <- eures_plot_df %>%
+  filter(var %in% c("ai_product_exposure_score", "felten_exposure_score", "webb_exposure_score")) %>%
+  make_eures_plot(facet = TRUE)
 
 # sensitivity to occupations ----------------------------------------------
 # Run sensitivity analysis
@@ -974,6 +999,38 @@ save_plot(
 )
 
 save_plot(
+  "event_study_main.eps",
+  results$event_study_plots$main,
+  width = 10,
+  height = 3.5,
+  device = cairo_ps
+)
+
+save_plot(
+  "event_study_rest.eps",
+  results$event_study_plots$rest,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
+  "partial_plots_main.eps",
+  results$partial_plots$main,
+  width = 10,
+  height = 4,
+  device = cairo_ps
+)
+
+save_plot(
+  "partial_plots_rest.eps",
+  results$partial_plots$rest,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
   "event_study_eloundou.eps",
   results$event_study_plots$`Eloundou Exposure Score`,
   width = 10,
@@ -1024,6 +1081,22 @@ save_plot(
 save_plot(
   "by_experience_anthropic.eps",
   results$eures_plot_anthropic,
+  width = 10,
+  height = 6,
+  device = cairo_ps
+)
+
+save_plot(
+  "by_experience_main.eps",
+  results$eures_plot_main,
+  width = 10,
+  height = 4.5,
+  device = cairo_ps
+)
+
+save_plot(
+  "by_experience_rest.eps",
+  results$eures_plot_rest,
   width = 10,
   height = 6,
   device = cairo_ps
