@@ -38,11 +38,11 @@ print_model_summaries <- function(models, model_name) {
 }
 
 exposure_vars <- c(
+  "Anthropic Usage Score" = "anthropic_usage_score",
   "AI Product Exposure Score" = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Beta Score" = "beta_eloundou",
-  "Anthropic Usage Score" = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score"
 )
 breakdown_vars <- c(
   "Automation Exposure Score" = "ai_product_automation_score",

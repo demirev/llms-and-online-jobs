@@ -37,11 +37,11 @@ event_window_start <- as.Date("2016-01-01")
 delta_window_start <- as.Date("2021-10-01")
 
 exposure_vars <- c(
+  "Anthropic Usage Score" = "anthropic_usage_score",
   "Demirev Exposure Score" = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Exposure Score" = "beta_eloundou",
-  "Anthropic Usage Score" = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score"
 )
 breakdown_vars <- c(
   "Automation Exposure Score" = "ai_product_automation_score",
@@ -50,63 +50,14 @@ breakdown_vars <- c(
   "Anthropic Augmentation Score" = "anthropic_augmentation_score"
 )
 
-# all exposure score columns carried through the pipeline (for scaling / joins)
-exposure_cols <- c(
-  "ai_product_exposure_score", "ai_product_automation_score",
-  "ai_product_augmentation_score", "felten_exposure_score",
-  "webb_exposure_score", "beta_eloundou", "anthropic_usage_score",
-  "anthropic_automation_score", "anthropic_augmentation_score"
-)
-
 results <- list()
 
 font_add_google("Merriweather", "merriweather")
 showtext_auto()
 
 # local helpers --------------------------------------------------------------
-# Average the ISCO-level exposure scores up to ANZSCO 4-digit occupations.
-# `ai_exposure` is the output of read_ai_exposure_file() at `isco_level`; an
-# ANZSCO occupation that the ABS correspondence maps to several ISCO groups
-# receives the simple mean of those groups' scores.
-build_anzsco_exposure <- function(correspondence, ai_exposure, isco_level) {
-  isco_col <- paste0("isco_level_", isco_level)
-
-  correspondence %>%
-    transmute(
-      anzsco_4digit,
-      isco_key = substr(isco08_4digit, 1, isco_level)
-    ) %>%
-    distinct() %>%
-    left_join(ai_exposure, by = setNames(isco_col, "isco_key")) %>%
-    group_by(anzsco_4digit) %>%
-    summarise(
-      across(all_of(exposure_cols), ~ mean(.x, na.rm = TRUE)),
-      .groups = "drop"
-    )
-}
-
-# Shape the long IVI data into the same schema format_delta_data() /
-# run_event_study_model() expect from the EU pipeline: state -> idcountry,
-# ANZSCO occupation -> idesco_level_<level>, title -> esco_level_<level>_short.
-# Exposure is scaled 0-1 across the analysis sample, as in format_twfe_oja_data.
-format_aus_oja <- function(oja_long, anzsco_exposure, level, t0) {
-  id_col <- paste0("idesco_level_", level)
-  short_col <- paste0("esco_level_", level, "_short")
-
-  oja_long %>%
-    left_join(anzsco_exposure, by = "anzsco_4digit") %>%
-    filter(!is.na(ai_product_exposure_score)) %>%
-    mutate(
-      idcountry = state,
-      !!id_col := paste0("OC", anzsco_4digit),
-      !!short_col := anzsco_title,
-      post_chatgpt = ifelse(dmax >= t0, 1, 0),
-      log_OJA = log(OJA + 1),
-      country_occupation_pair = paste0(state, "_", anzsco_4digit),
-      across(all_of(exposure_cols), scale_zero_to_one),
-      event_time = as.integer((year(dmax) - year(t0)) * 4 + (quarter(dmax) - quarter(t0)))
-    )
-}
+# (build_anzsco_exposure / format_aus_oja / read_ivi live in R/helpers.R,
+# shared with the horse-race pipeline)
 
 # Delta scatter (mirror of the delta_plots block in model_oja.R), generalised
 # over the occupation id column so it can be reused for both ISCO levels.
@@ -213,38 +164,14 @@ combine_five <- function(plots, title) {
 
 # read data ------------------------------------------------------------------
 # Internet Vacancy Index: ANZSCO 4-digit x state x month, 3-month moving
-# averages. Read everything as text so the "." (suppressed) cells and the
-# Excel-serial date headers come through predictably, then reshape to long.
-ivi_path <- file.path(
-  "data/aus",
-  "internet_vacancies_anzsco4_occupations_states_and_territories_-_may_2026.xlsx"
-)
-
-ivi_long <- read_excel(ivi_path, sheet = "4 digit 3 month average", col_types = "text") %>%
-  rename(anzsco_4digit = ANZSCO_CODE, anzsco_title = ANZSCO_TITLE) %>%
-  filter(anzsco_4digit != "0", state != "AUST") %>% # drop national / all-occupation totals
-  pivot_longer(
-    cols = -c(anzsco_4digit, anzsco_title, state),
-    names_to = "date_serial", values_to = "OJA"
-  ) %>%
-  mutate(
-    OJA = suppressWarnings(as.numeric(OJA)), # "." -> NA
-    date = as.Date(as.numeric(date_serial), origin = "1899-12-30")
-  ) %>%
-  filter(!is.na(OJA), date >= event_window_start) # widest window needed (event study)
-
-# collapse the monthly 3-month-averages to quarterly mean levels so the
-# (quarterly) event_time logic from the EU pipeline carries over unchanged
-oja_q <- ivi_long %>%
-  mutate(dmax = ceiling_date(date, "quarter") - days(1)) %>%
-  group_by(anzsco_4digit, anzsco_title, state, dmax) %>%
-  summarise(OJA = mean(OJA, na.rm = TRUE), .groups = "drop")
+# averages, restricted to the widest window needed (event study), then
+# collapsed to quarterly mean levels so the (quarterly) event_time logic from
+# the EU pipeline carries over unchanged
+ivi_long <- read_ivi() %>% filter(date >= event_window_start)
+oja_q <- ivi_quarterly(ivi_long)
 
 # AI exposure, keyed to ISCO and aggregated to ANZSCO --------------------------
-correspondence <- read_csv(
-  "data/aus/anzsco_isco08_correspondence.csv",
-  col_types = cols(.default = col_character())
-)
+correspondence <- read_anzsco_correspondence()
 
 ai_exposure_isco <- list(
   l3 = read_ai_exposure_file("data/ai_exposure_scores/scored_esco_occupations_matched.csv", level = 3),
@@ -363,6 +290,10 @@ run_level <- function(tag, level, fmt, delta) {
 results$l3 <- run_level("l3", 3, aus_fmt$l3, aus_delta$l3)
 results$l4 <- run_level("l4", 4, aus_fmt$l4, aus_delta$l4)
 
+# The run-up control (state x occupation hiring run-up into the pre-ChatGPT
+# baseline) now lives in R/model_aus_runup.R and is raced against exposure in
+# R/model_horse_race.R together with the other controls.
+
 # save results ---------------------------------------------------------------
 saveRDS(results, "results/RDS/aus_models.RDS")
 
@@ -371,9 +302,9 @@ saveRDS(results, "results/RDS/aus_models.RDS")
 # EU figures already in results/plots and tex/img
 save_level_plots <- function(tag, level_results) {
   measure_files <- c(
-    `Demirev Exposure Score` = "demirev", `Felten AI Exposure Score` = "felten",
-    `Webb AI Exposure Score` = "webb", `Eloundou Exposure Score` = "eloundou",
-    `Anthropic Usage Score` = "anthropic"
+    `Anthropic Usage Score` = "anthropic", `Demirev Exposure Score` = "demirev",
+    `Eloundou Exposure Score` = "eloundou", `Felten AI Exposure Score` = "felten",
+    `Webb AI Exposure Score` = "webb"
   )
 
   specs <- list(

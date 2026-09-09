@@ -13,6 +13,10 @@
 # levels at which the exposure indices enter the regressions.
 
 library(tidyverse)
+library(fixest)
+library(broom)
+library(lubridate)
+library(readxl)
 library(patchwork)
 library(showtext)
 library(sysfonts)
@@ -24,11 +28,11 @@ font_add_google("Merriweather", "merriweather")
 showtext_auto()
 
 exposure_vars <- c(
+  "Anthropic Usage Score"    = "anthropic_usage_score",
   "Demirev Exposure Score"   = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score"   = "webb_exposure_score",
   "Eloundou Exposure Score"  = "beta_eloundou",
-  "Anthropic Usage Score"    = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score"   = "webb_exposure_score"
 )
 
 # SOC 2010 -> 2019 vintage remap ----------------------------------------------
@@ -177,5 +181,38 @@ scatter_combined <- (scatter_plots[[1]] + scatter_plots[[2]]) /
 save_plot("wfh_exposure_heatmap.eps", heatmap_plot, width = 8, height = 6, device = cairo_ps)
 save_plot("wfh_exposure_scatter_l3.eps", scatter_combined, width = 10, height = 8, device = cairo_ps)
 
-saveRDS(list(cor_table = cor_table, levels_data = levels_data),
-        "results/RDS/wfh_correlation.RDS")
+# Export as horse-race controls ------------------------------------------------
+# Whether the teleworkable share explains the post-ChatGPT gradient is tested
+# in model_horse_race.R, on the same delta samples as model_oja.R (EU, ISCO-3)
+# and model_aus.R (Australia, ANZSCO-4 keyed to ISCO-3 and ISCO-4 exposure).
+# EU: the ISCO-3 share. Australia: an ANZSCO 4-digit occupation gets the mean
+# share of the ISCO groups the ABS correspondence maps it to, at the ISCO level
+# matching each sample's exposure (mirror of build_anzsco_exposure in helpers.R).
+write_controls(
+  levels_data[["ISCO 3-digit"]] %>% rename(isco_level_3 = isco),
+  sample = "eu_l3", key = "isco_level_3", controls = "wfh_teleworkable", file = "wfh_eu_l3"
+)
+
+correspondence <- read_anzsco_correspondence()
+wfh_anzsco <- function(isco_level) {
+  correspondence %>%
+    transmute(anzsco_4digit, isco = substr(isco08_4digit, 1, isco_level)) %>%
+    distinct() %>%
+    inner_join(
+      levels_data[[paste0("ISCO ", isco_level, "-digit")]] %>% select(isco, wfh_teleworkable),
+      by = "isco"
+    ) %>%
+    group_by(anzsco_4digit) %>%
+    summarise(wfh_teleworkable = mean(wfh_teleworkable), .groups = "drop")
+}
+for (level in c(3, 4)) {
+  write_controls(
+    wfh_anzsco(level), sample = paste0("aus_l", level), key = "anzsco_4digit",
+    controls = "wfh_teleworkable", file = paste0("wfh_aus_l", level)
+  )
+}
+
+saveRDS(
+  list(cor_table = cor_table, levels_data = levels_data),
+  "results/RDS/wfh_correlation.RDS"
+)

@@ -50,6 +50,8 @@ data or models change:
 4. Run `R/model_oja.R`. This will run the main models on the effect of ChatGPT on job listings.
 5. Run `R/model_skill_demand.R`. This will run the models on the effect of ChatGPT on skill mention frequency.
 6. Run `R/model_nama.R`. This will calculate exposure scores on the NACE Rev. 2 level and run the models on the effect of ChatGPT on NACE Rev. 2 level productivity.
+7. Run `R/model_aus.R`. This re-runs the delta and event-study models on the Australian Internet Vacancy Index.
+8. Run `Rscript R/run_horse_races.R`. This rebuilds every confounder control (RBA rate sensitivity, EU and Australian pre-ChatGPT hiring run-ups, teleworkable share; each score script writes `results/controls/*.csv`) and then runs `R/model_horse_race.R`, which races all of them against the exposure measures on the same delta samples. The one-table view is `results/intermediate_datasets/horse_race_summary.csv`; the compact matrices are at the top of `results/logs/horse_race.txt`. Use `--race-only` to rerun just the race after editing the control sets.
 
 
 ## Citation

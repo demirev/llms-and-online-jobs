@@ -733,3 +733,165 @@ run_country_sensitivity <- function(data, exposure_vars) {
   
   return(results_table)
 }
+
+# Shared builders for the horse-race pipeline ---------------------------------
+# The delta samples that every horse race runs on (EU ISCO-3, Australia keyed
+# to ISCO-3 and ISCO-4 exposure) are built here once, so that the score
+# scripts (model_rate_sensitivity_rba.R, model_eu_runup.R, model_aus_runup.R,
+# wfh_correlation.R) and the unified race (model_horse_race.R) all see the
+# same sample as the headline specifications in model_oja.R / model_aus.R.
+
+exposure_score_cols <- c(
+  "ai_product_exposure_score", "ai_product_automation_score",
+  "ai_product_augmentation_score", "felten_exposure_score",
+  "webb_exposure_score", "beta_eloundou", "anthropic_usage_score",
+  "anthropic_automation_score", "anthropic_augmentation_score"
+)
+
+ai_exposure_path <- "data/ai_exposure_scores/scored_esco_occupations_matched.csv"
+ivi_path <- file.path(
+  "data/aus",
+  "internet_vacancies_anzsco4_occupations_states_and_territories_-_may_2026.xlsx"
+)
+controls_dir <- "results/controls"
+
+# CEDEFOP OJA at ESCO/ISCO level 3, all countries, EU27 aggregate dropped
+read_oja_l3 <- function(
+  dir = "data/cedefop_skills_ovate_skill_demand/csv/05_occupation_skill_across_occupations_hyper"
+) {
+  list.files(dir, full.names = TRUE) %>%
+    map_dfr(read_csv, show_col_types = FALSE) %>%
+    mutate(
+      idcountry = ifelse(is.na(idcountry), countryset, idcountry),
+      esco_level_3_short = esco_level_3
+    ) %>%
+    select(-c(countryset, esco_level_3)) %>%
+    filter(!str_detect(idcountry, "EU27"))
+}
+
+# EU delta sample: identical to oja_delta$l3_ap in model_oja.R, plus the
+# occupation keys the controls are joined on
+build_eu_delta <- function(t0 = as.Date("2022-11-30"), min_oja = 20, oja_l3 = read_oja_l3()) {
+  ai_exposure <- read_ai_exposure_file(ai_exposure_path, level = 3)
+  format_twfe_oja_data(oja_l3, ai_exposure, level = 3, t0 = t0) %>%
+    format_delta_data(n_periods = Inf, base_date = t0, level = 3, across_countries = FALSE) %>%
+    filter(pre_OJA > min_oja & post_OJA > min_oja) %>%
+    mutate(
+      occupation_id = idesco_level_3,
+      isco_level_3 = substr(idesco_level_3, 3, 5),
+      isco_level_2 = substr(idesco_level_3, 3, 4)
+    )
+}
+
+# Internet Vacancy Index: ANZSCO 4-digit x state x month (3-month moving
+# averages), national and all-occupation totals dropped, long format
+read_ivi <- function(path = ivi_path) {
+  readxl::read_excel(path, sheet = "4 digit 3 month average", col_types = "text") %>%
+    rename(anzsco_4digit = ANZSCO_CODE, anzsco_title = ANZSCO_TITLE) %>%
+    filter(anzsco_4digit != "0", state != "AUST") %>%
+    pivot_longer(
+      cols = -c(anzsco_4digit, anzsco_title, state),
+      names_to = "date_serial", values_to = "OJA"
+    ) %>%
+    mutate(
+      OJA = suppressWarnings(as.numeric(OJA)), # "." -> NA
+      date = as.Date(as.numeric(date_serial), origin = "1899-12-30"),
+      month = floor_date(date, "month")
+    ) %>%
+    filter(!is.na(OJA)) %>%
+    select(anzsco_4digit, anzsco_title, state, date, month, OJA)
+}
+
+# quarterly mean levels, so the (quarterly) EU pipeline logic carries over
+ivi_quarterly <- function(ivi_long) {
+  ivi_long %>%
+    mutate(dmax = ceiling_date(date, "quarter") - days(1)) %>%
+    group_by(anzsco_4digit, anzsco_title, state, dmax) %>%
+    summarise(OJA = mean(OJA, na.rm = TRUE), .groups = "drop")
+}
+
+read_anzsco_correspondence <- function(path = "data/aus/anzsco_isco08_correspondence.csv") {
+  read_csv(path, col_types = cols(.default = col_character()))
+}
+
+# Average the ISCO-level exposure scores up to ANZSCO 4-digit occupations. An
+# ANZSCO occupation that the ABS correspondence maps to several ISCO groups
+# receives the simple mean of those groups' scores.
+build_anzsco_exposure <- function(correspondence, ai_exposure, isco_level) {
+  isco_col <- paste0("isco_level_", isco_level)
+  correspondence %>%
+    transmute(anzsco_4digit, isco_key = substr(isco08_4digit, 1, isco_level)) %>%
+    distinct() %>%
+    left_join(ai_exposure, by = setNames(isco_col, "isco_key")) %>%
+    group_by(anzsco_4digit) %>%
+    summarise(across(all_of(exposure_score_cols), ~ mean(.x, na.rm = TRUE)), .groups = "drop")
+}
+
+# Shape the quarterly IVI data into the schema format_delta_data() /
+# run_event_study_model() expect from the EU pipeline: state -> idcountry,
+# ANZSCO occupation -> idesco_level_<level>, title -> esco_level_<level>_short.
+format_aus_oja <- function(oja_long, anzsco_exposure, level, t0) {
+  id_col <- paste0("idesco_level_", level)
+  short_col <- paste0("esco_level_", level, "_short")
+  oja_long %>%
+    left_join(anzsco_exposure, by = "anzsco_4digit") %>%
+    filter(!is.na(ai_product_exposure_score)) %>%
+    mutate(
+      idcountry = state,
+      !!id_col := paste0("OC", anzsco_4digit),
+      !!short_col := anzsco_title,
+      post_chatgpt = ifelse(dmax >= t0, 1, 0),
+      log_OJA = log(OJA + 1),
+      country_occupation_pair = paste0(state, "_", anzsco_4digit),
+      across(all_of(exposure_score_cols), scale_zero_to_one),
+      event_time = as.integer((year(dmax) - year(t0)) * 4 + (quarter(dmax) - quarter(t0)))
+    )
+}
+
+# Australian delta sample: identical to aus_delta$l<level> in model_aus.R,
+# plus occupation keys. `ivi_long` can be passed to avoid re-reading the file.
+build_aus_delta <- function(
+  level, t0 = as.Date("2022-11-30"), delta_window_start = as.Date("2021-10-01"),
+  min_oja = 20, ivi_long = read_ivi()
+) {
+  ai_exposure <- read_ai_exposure_file(ai_exposure_path, level = level)
+  anzsco_exposure <- build_anzsco_exposure(read_anzsco_correspondence(), ai_exposure, level)
+  id_col <- paste0("idesco_level_", level)
+  ivi_long %>%
+    filter(date >= delta_window_start) %>%
+    ivi_quarterly() %>%
+    format_aus_oja(anzsco_exposure, level = level, t0 = t0) %>%
+    format_delta_data(n_periods = Inf, base_date = t0, level = level, across_countries = FALSE) %>%
+    filter(pre_OJA > min_oja & post_OJA > min_oja) %>%
+    mutate(
+      occupation_id = .data[[id_col]],
+      anzsco_4digit = substr(occupation_id, 3, 6)
+    )
+}
+
+# Write horse-race controls in the common long format read by
+# model_horse_race.R: one row per (sample, key, idcountry, occupation_id,
+# control). `key` names the column of the delta sample to join on
+# (isco_level_3, isco_level_2, anzsco_4digit); `idcountry` NA means the
+# score applies in every country / state.
+write_controls <- function(df, sample, key, controls, file, idcountry_col = NULL) {
+  if (!dir.exists(controls_dir)) dir.create(controls_dir, recursive = TRUE)
+  out <- df %>%
+    mutate(
+      sample = sample, key = key,
+      idcountry = if (is.null(idcountry_col)) NA_character_ else as.character(.data[[idcountry_col]]),
+      occupation_id = as.character(.data[[key]])
+    ) %>%
+    select(sample, key, idcountry, occupation_id, all_of(controls)) %>%
+    pivot_longer(all_of(controls), names_to = "control", values_to = "value") %>%
+    filter(!is.na(value))
+  path <- file.path(controls_dir, paste0(file, ".csv"))
+  write_csv(out, path)
+  message("wrote ", nrow(out), " control values to ", path)
+  invisible(out)
+}
+
+read_controls <- function(dir = controls_dir) {
+  list.files(dir, "\\.csv$", full.names = TRUE) %>%
+    map_dfr(read_csv, col_types = cols(.default = col_character(), value = col_double()))
+}

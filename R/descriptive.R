@@ -12,11 +12,11 @@ init_text_log("descriptive.txt")
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
 exposure_vars <- c(
+  "Anthropic Usage Score" = "anthropic_usage_score",
   "AI Product Exposure Score" = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Beta Score" = "beta_eloundou",
-  "Anthropic Usage Score" = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score"
   #, "Anthropic Automation Score" = "anthropic_automation_score",
   #, "Anthropic Augmentation Score" = "anthropic_augmentation_score"
 )
@@ -206,11 +206,11 @@ skills <- list.files(
 # Calculate correlation matrix across exposure scores ------------------------
 results$l3_exposure_correlation <- ai_exposure$l3 %>%
   select(
-    ai_product_exposure_score,
-    felten_exposure_score,
-    webb_exposure_score,
-    beta_eloundou,
     anthropic_usage_score,
+    ai_product_exposure_score,
+    beta_eloundou,
+    felten_exposure_score,
+    webb_exposure_score
   ) %>%
   cor(use = "complete.obs") # used in manuscript
 
@@ -230,19 +230,31 @@ l3_exposure_correlation_plot <- corrplot::corrplot(
   tl.cex = 0.8
 )
 
+l3_exposure_chart_data <- ai_exposure$l3 %>%
+  select(
+    "Anthropic 2025" = anthropic_usage_score,
+    "Demirev 2024" = ai_product_exposure_score,
+    "Eloundou et al 2023" = beta_eloundou,
+    "Felten et al 2018" = felten_exposure_score,
+    "Webb 2022" = webb_exposure_score
+  ) %>%
+  na.omit()
+
 results$l3_exposure_correlation_plot_2 <- PerformanceAnalytics::chart.Correlation(
-  ai_exposure$l3 %>%
-    select(
-      "Demirev 2024" = ai_product_exposure_score,
-      "Felten et al 2018" = felten_exposure_score,
-      "Webb 2022" = webb_exposure_score,
-      "Eloundou et al 2023" = beta_eloundou,
-      "Anthropic 2025" = anthropic_usage_score
-    ) %>%
-    na.omit(),
+  l3_exposure_chart_data,
   histogram = TRUE,
   pch = 19
 ) # used in manuscript
+
+# tex/img/index_correlations.eps (Figure "Correlation between Indices of AI
+# Exposure"). chart.Correlation draws with base graphics, so it is written to
+# each output directory directly instead of through save_plot()
+for (dir in c("results/plots", "tex/img")) {
+  if (!dir.exists(dir)) dir.create(dir, recursive = TRUE)
+  cairo_ps(file.path(dir, "index_correlations.eps"), width = 10, height = 6)
+  PerformanceAnalytics::chart.Correlation(l3_exposure_chart_data, histogram = TRUE, pch = 19)
+  dev.off()
+}
 
 # biggest changes ---------------------------------------------------------
 results$oja_changes_table <- oja_delta$l3_ap %>% 

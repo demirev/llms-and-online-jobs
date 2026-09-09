@@ -1,0 +1,271 @@
+sample,control_set,n_obs,exposure,control,coef,p
+eu_l3,rate_sens_rba,2340,(controls only),rate_sens_rba,-0.09647575352453573,0.04823528164318148
+eu_l3,rate_sens_rba,2340,ai_product_exposure_score,rate_sens_rba,-0.012444392070051366,0.8086446258953892
+eu_l3,rate_sens_rba,2340,felten_exposure_score,rate_sens_rba,0.010491165158380583,0.8410065439066743
+eu_l3,rate_sens_rba,2340,webb_exposure_score,rate_sens_rba,-0.09395334122667184,0.056265516463917226
+eu_l3,rate_sens_rba,2340,beta_eloundou,rate_sens_rba,0.05269005946795513,0.3039967165066927
+eu_l3,rate_sens_rba,2340,anthropic_usage_score,rate_sens_rba,-0.04793425944900105,0.32210997303087957
+eu_l3,rate_sens_rba_broad,2642,(controls only),rate_sens_rba_broad,0.16481408456877208,0.015012088291448743
+eu_l3,rate_sens_rba_broad,2642,ai_product_exposure_score,rate_sens_rba_broad,0.16415276276103594,0.015624033861101108
+eu_l3,rate_sens_rba_broad,2642,felten_exposure_score,rate_sens_rba_broad,0.07901014069158142,0.1562441347522502
+eu_l3,rate_sens_rba_broad,2642,webb_exposure_score,rate_sens_rba_broad,0.08334396291087258,0.12570178558169764
+eu_l3,rate_sens_rba_broad,2642,beta_eloundou,rate_sens_rba_broad,0.034741310661469516,0.4923948779690197
+eu_l3,rate_sens_rba_broad,2642,anthropic_usage_score,rate_sens_rba_broad,0.11941644505480739,0.05945166587862393
+eu_l3,wfh_teleworkable,2776,(controls only),wfh_teleworkable,-0.13288360143300396,6.962452540905505e-4
+eu_l3,wfh_teleworkable,2776,ai_product_exposure_score,wfh_teleworkable,-0.10296589321375377,0.0023215089986611567
+eu_l3,wfh_teleworkable,2776,felten_exposure_score,wfh_teleworkable,-0.003972831947808508,0.9163652702239117
+eu_l3,wfh_teleworkable,2776,webb_exposure_score,wfh_teleworkable,-0.13418324450559574,6.127908331711099e-4
+eu_l3,wfh_teleworkable,2776,beta_eloundou,wfh_teleworkable,0.03657990253519866,0.38244020950273416
+eu_l3,wfh_teleworkable,2776,anthropic_usage_score,wfh_teleworkable,-0.0899719732958072,0.020848331184040312
+eu_l3,runup_from_2019,2451,(controls only),runup_from_2019,0.010170444285076964,0.8877679054766565
+eu_l3,runup_from_2019,2451,ai_product_exposure_score,runup_from_2019,0.03376553387407391,0.6352329220356121
+eu_l3,runup_from_2019,2451,felten_exposure_score,runup_from_2019,0.0338071490218,0.6334918646447534
+eu_l3,runup_from_2019,2451,webb_exposure_score,runup_from_2019,0.010070214329648022,0.8770569291692654
+eu_l3,runup_from_2019,2451,beta_eloundou,runup_from_2019,0.03239960229077061,0.6363654026142185
+eu_l3,runup_from_2019,2451,anthropic_usage_score,runup_from_2019,0.03396020869734717,0.6425876755978832
+eu_l3,runup_from_2020,2349,(controls only),runup_from_2020,-0.08142819522264315,0.04710023663530771
+eu_l3,runup_from_2020,2349,ai_product_exposure_score,runup_from_2020,-0.08143675668593658,0.03596815796906616
+eu_l3,runup_from_2020,2349,felten_exposure_score,runup_from_2020,-0.12099492363456811,0.003657788151885047
+eu_l3,runup_from_2020,2349,webb_exposure_score,runup_from_2020,-0.05682646668942028,0.13848740196519974
+eu_l3,runup_from_2020,2349,beta_eloundou,runup_from_2020,-0.10726262810327869,0.009484774333200031
+eu_l3,runup_from_2020,2349,anthropic_usage_score,runup_from_2020,-0.073787830564818635,0.061506667822618134
+eu_l3,runup_from_2019_vac,2215,(controls only),runup_from_2019_vac,0.02000794085285124,0.7292433928005001
+eu_l3,runup_from_2019_vac,2215,ai_product_exposure_score,runup_from_2019_vac,0.042187860807071334,0.39794306195855644
+eu_l3,runup_from_2019_vac,2215,felten_exposure_score,runup_from_2019_vac,0.05825345548599102,0.1832833103046651
+eu_l3,runup_from_2019_vac,2215,webb_exposure_score,runup_from_2019_vac,0.03302104127520675,0.5331820625062487
+eu_l3,runup_from_2019_vac,2215,beta_eloundou,runup_from_2019_vac,0.0649881677354559,0.112627637952929
+eu_l3,runup_from_2019_vac,2215,anthropic_usage_score,runup_from_2019_vac,0.0665433404267943,0.17655724650953855
+eu_l3,runup_from_2019_mix,2542,(controls only),runup_from_2019_mix,-0.8112777864281964,8.076528931379353e-4
+eu_l3,runup_from_2019_mix,2542,ai_product_exposure_score,runup_from_2019_mix,-0.6463604740298095,0.0031362735381479496
+eu_l3,runup_from_2019_mix,2542,felten_exposure_score,runup_from_2019_mix,-0.5771010414353632,0.00491158322801839
+eu_l3,runup_from_2019_mix,2542,webb_exposure_score,runup_from_2019_mix,-0.8789501272541947,7.152904888277219e-4
+eu_l3,runup_from_2019_mix,2542,beta_eloundou,runup_from_2019_mix,-0.5871342920402064,0.004667355872214189
+eu_l3,runup_from_2019_mix,2542,anthropic_usage_score,runup_from_2019_mix,-0.7075240581684668,0.0023703764806264744
+eu_l3,runup_from_2019_pooled,2542,(controls only),runup_from_2019_pooled,-0.9132897317628457,3.2331193598292366e-4
+eu_l3,runup_from_2019_pooled,2542,ai_product_exposure_score,runup_from_2019_pooled,-0.7370727489786523,0.001152639856067348
+eu_l3,runup_from_2019_pooled,2542,felten_exposure_score,runup_from_2019_pooled,-0.6573312933403224,0.001993422303234202
+eu_l3,runup_from_2019_pooled,2542,webb_exposure_score,runup_from_2019_pooled,-1.005709078321382,2.632300015141926e-4
+eu_l3,runup_from_2019_pooled,2542,beta_eloundou,runup_from_2019_pooled,-0.6600998604480839,0.0020435294641363458
+eu_l3,runup_from_2019_pooled,2542,anthropic_usage_score,runup_from_2019_pooled,-0.7984829804600186,9.93251171690078e-4
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,(controls only),wfh_teleworkable,-0.13263635799576848,0.0018651170415721824
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,(controls only),rate_sens_rba,0.014266963359976736,0.7995751434801838
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,ai_product_exposure_score,wfh_teleworkable,-0.10531005420110903,0.005055412131695124
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,ai_product_exposure_score,rate_sens_rba,0.04447298298614624,0.45884827196278466
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,felten_exposure_score,wfh_teleworkable,0.0017128037626372196,0.9675431769133704
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,felten_exposure_score,rate_sens_rba,0.012514571883282685,0.8228211982443264
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,webb_exposure_score,wfh_teleworkable,-0.1344181792859325,0.001607310206405879
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,webb_exposure_score,rate_sens_rba,0.015645384062758033,0.7822434949202899
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,beta_eloundou,wfh_teleworkable,0.0418400714567849,0.3578667443660538
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,beta_eloundou,rate_sens_rba,0.04688723206799829,0.3997834089225992
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,anthropic_usage_score,wfh_teleworkable,-0.08857448720316043,0.03689266247663911
+eu_l3,wfh_teleworkable + rate_sens_rba,2331,anthropic_usage_score,rate_sens_rba,0.01236639301445061,0.825439929763612
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,(controls only),wfh_teleworkable,-0.12672945921421136,7.058395066435601e-4
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,(controls only),runup_from_2019_mix,-0.6895970759404575,0.002517908377037208
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,ai_product_exposure_score,wfh_teleworkable,-0.1059645604223404,0.0016570884219190274
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,ai_product_exposure_score,runup_from_2019_mix,-0.6241312653262783,0.005483441225943907
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,felten_exposure_score,wfh_teleworkable,0.010233409637120574,0.8014511908973845
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,felten_exposure_score,runup_from_2019_mix,-0.6118984000420091,0.00528381613573588
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,webb_exposure_score,wfh_teleworkable,-0.12813455930269202,5.72046375037813e-4
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,webb_exposure_score,runup_from_2019_mix,-0.7047842745027962,0.002184337124850323
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,beta_eloundou,wfh_teleworkable,0.049949068547288006,0.2670102793329068
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,beta_eloundou,runup_from_2019_mix,-0.6316159365429304,0.004228007289709373
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,anthropic_usage_score,wfh_teleworkable,-0.08396990460467299,0.0255052749539693
+eu_l3,wfh_teleworkable + runup_from_2019_mix,2531,anthropic_usage_score,runup_from_2019_mix,-0.6725520762706553,0.0032035309695909514
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,(controls only),rate_sens_rba,-0.03901874428880955,0.40795614160093696
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,(controls only),runup_from_2019_mix,-0.7989676239480099,5.290010659698918e-4
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,ai_product_exposure_score,rate_sens_rba,0.03434725536731719,0.5222587710499822
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,ai_product_exposure_score,runup_from_2019_mix,-0.6300490646363126,0.0019501163781377611
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,felten_exposure_score,rate_sens_rba,0.05278189019418321,0.32331825501593503
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,felten_exposure_score,runup_from_2019_mix,-0.5608259666246631,0.0030032655948788608
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,webb_exposure_score,rate_sens_rba,-0.03488192792859976,0.45594225687565426
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,webb_exposure_score,runup_from_2019_mix,-0.859118632654479,5.884684766724946e-4
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,beta_eloundou,rate_sens_rba,0.1022657132073635,0.06321259537400926
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,beta_eloundou,runup_from_2019_mix,-0.5710320407731015,0.0023202859446593304
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,anthropic_usage_score,rate_sens_rba,0.001152861041123207,0.9809785545948246
+eu_l3,rate_sens_rba + runup_from_2019_mix,2133,anthropic_usage_score,runup_from_2019_mix,-0.6769914036735319,0.001847243003816839
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,(controls only),wfh_teleworkable,-0.13749503146457137,0.0019254201876997233
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,(controls only),rate_sens_rba,0.06434851975108827,0.278628356607312
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,(controls only),runup_from_2019_mix,-0.7177642269711496,0.0017602529883276447
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,ai_product_exposure_score,wfh_teleworkable,-0.1132131993033631,0.004417594513819756
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,ai_product_exposure_score,rate_sens_rba,0.09268240554334868,0.1471153369067557
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,ai_product_exposure_score,runup_from_2019_mix,-0.6385308898615444,0.004350543050685732
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,felten_exposure_score,wfh_teleworkable,0.014819784923819258,0.7440599372807117
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,felten_exposure_score,rate_sens_rba,0.048186666174713,0.41467858853297535
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,felten_exposure_score,runup_from_2019_mix,-0.6172293301519429,0.004500660942574482
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,webb_exposure_score,wfh_teleworkable,-0.14205445981807616,0.0014111970570568212
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,webb_exposure_score,rate_sens_rba,0.06979718477876831,0.24180138303217433
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,webb_exposure_score,runup_from_2019_mix,-0.6722534223765511,0.002178554604643369
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,beta_eloundou,wfh_teleworkable,0.04618503351735851,0.3476937093575231
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,beta_eloundou,rate_sens_rba,0.09149044841322758,0.1254812873274341
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,beta_eloundou,runup_from_2019_mix,-0.6207935253547134,0.003761209904247394
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,anthropic_usage_score,wfh_teleworkable,-0.09423948291201135,0.034043938692346454
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,anthropic_usage_score,rate_sens_rba,0.06031270414580375,0.30899280208642993
+eu_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019_mix,2125,anthropic_usage_score,runup_from_2019_mix,-0.6782790832707619,0.002999989900142405
+aus_l3,rate_sens_rba,1197,(controls only),rate_sens_rba,-0.06946366152450065,0.4862981046336199
+aus_l3,rate_sens_rba,1197,ai_product_exposure_score,rate_sens_rba,0.018695589208334737,0.8346849172275795
+aus_l3,rate_sens_rba,1197,felten_exposure_score,rate_sens_rba,-0.10608437678381152,0.23791719084087176
+aus_l3,rate_sens_rba,1197,webb_exposure_score,rate_sens_rba,-0.07028986649756634,0.4811281638051961
+aus_l3,rate_sens_rba,1197,beta_eloundou,rate_sens_rba,-0.06530548997030777,0.47350471476603295
+aus_l3,rate_sens_rba,1197,anthropic_usage_score,rate_sens_rba,-0.026049412512478484,0.7886562221034078
+aus_l3,rate_sens_rba_broad,1189,(controls only),rate_sens_rba_broad,0.6869590040881286,0.027143066892327015
+aus_l3,rate_sens_rba_broad,1189,ai_product_exposure_score,rate_sens_rba_broad,0.6141465210896722,0.041257864753086536
+aus_l3,rate_sens_rba_broad,1189,felten_exposure_score,rate_sens_rba_broad,0.8338128553131234,0.01952060781796741
+aus_l3,rate_sens_rba_broad,1189,webb_exposure_score,rate_sens_rba_broad,0.8957289036499474,0.015932047127735955
+aus_l3,rate_sens_rba_broad,1189,beta_eloundou,rate_sens_rba_broad,0.6955161614402481,0.04295042528883842
+aus_l3,rate_sens_rba_broad,1189,anthropic_usage_score,rate_sens_rba_broad,0.5978322062245405,0.04599088352673413
+aus_l3,wfh_teleworkable,1197,(controls only),wfh_teleworkable,-0.010097884739038027,0.7524308419485605
+aus_l3,wfh_teleworkable,1197,ai_product_exposure_score,wfh_teleworkable,0.039180673039387666,0.244156394454543
+aus_l3,wfh_teleworkable,1197,felten_exposure_score,wfh_teleworkable,-0.23348073588578047,1.0289736769285749e-4
+aus_l3,wfh_teleworkable,1197,webb_exposure_score,wfh_teleworkable,-0.014807187186547477,0.6266843342703976
+aus_l3,wfh_teleworkable,1197,beta_eloundou,wfh_teleworkable,-0.0020716930121691575,0.9175587686385558
+aus_l3,wfh_teleworkable,1197,anthropic_usage_score,wfh_teleworkable,0.05885791145332577,0.0961440422755213
+aus_l3,runup_from_2019,1197,(controls only),runup_from_2019,-0.17397785199336402,3.2876426252388745e-4
+aus_l3,runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.2048437368060311,5.0260425362420725e-5
+aus_l3,runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.15753158645083737,8.132528247124903e-5
+aus_l3,runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.17142841665483682,3.449510806781977e-4
+aus_l3,runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.20243569000591266,4.3618696479345715e-5
+aus_l3,runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.21036134608994975,6.778761045620203e-5
+aus_l3,runup_from_2020,1197,(controls only),runup_from_2020,-0.2860877678245456,0.003169830496578404
+aus_l3,runup_from_2020,1197,ai_product_exposure_score,runup_from_2020,-0.2826117979184786,0.004097501475813476
+aus_l3,runup_from_2020,1197,felten_exposure_score,runup_from_2020,-0.2766330268720993,0.0025572428737095
+aus_l3,runup_from_2020,1197,webb_exposure_score,runup_from_2020,-0.2876865301451784,0.0043752587267461614
+aus_l3,runup_from_2020,1197,beta_eloundou,runup_from_2020,-0.2879782816748979,0.0031712863862128145
+aus_l3,runup_from_2020,1197,anthropic_usage_score,runup_from_2020,-0.3106127031304995,0.001671649811855175
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,(controls only),wfh_teleworkable,-0.008206041541620267,0.7884011734498297
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,(controls only),rate_sens_rba,-0.061432373956422856,0.4423828201055262
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,ai_product_exposure_score,wfh_teleworkable,0.03929467934423853,0.2324425060794984
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,ai_product_exposure_score,rate_sens_rba,-0.005011159909714694,0.9492831715156349
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,felten_exposure_score,wfh_teleworkable,-0.2365292771335566,8.477977781958714e-5
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,felten_exposure_score,rate_sens_rba,0.052365303034182145,0.536385967624008
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,webb_exposure_score,wfh_teleworkable,-0.013016264293668017,0.652637438893086
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,webb_exposure_score,rate_sens_rba,-0.05757942292884164,0.4762924241560591
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,beta_eloundou,wfh_teleworkable,0.0013988258791600705,0.9390212745655964
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,beta_eloundou,rate_sens_rba,-0.0662895181533966,0.44484186423339744
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,anthropic_usage_score,wfh_teleworkable,0.06141970499148001,0.07239476052405908
+aus_l3,wfh_teleworkable + rate_sens_rba,1197,anthropic_usage_score,rate_sens_rba,-0.07946406436098827,0.306472021399041
+aus_l3,wfh_teleworkable + runup_from_2019,1197,(controls only),wfh_teleworkable,-0.06916476838448994,0.06005236405440752
+aus_l3,wfh_teleworkable + runup_from_2019,1197,(controls only),runup_from_2019,-0.1988624674789186,7.390986762120946e-5
+aus_l3,wfh_teleworkable + runup_from_2019,1197,ai_product_exposure_score,wfh_teleworkable,-0.016355510405067622,0.6079296740976646
+aus_l3,wfh_teleworkable + runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.2093084185542901,4.564111038544465e-5
+aus_l3,wfh_teleworkable + runup_from_2019,1197,felten_exposure_score,wfh_teleworkable,-0.25930692246293535,1.4142448974605322e-4
+aus_l3,wfh_teleworkable + runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.17623008292661282,1.0682931552992562e-4
+aus_l3,wfh_teleworkable + runup_from_2019,1197,webb_exposure_score,wfh_teleworkable,-0.07009096669322723,0.052237906568483344
+aus_l3,wfh_teleworkable + runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.19591048783166023,1.2825571890014243e-4
+aus_l3,wfh_teleworkable + runup_from_2019,1197,beta_eloundou,wfh_teleworkable,-0.031086213157643604,0.1730884869133101
+aus_l3,wfh_teleworkable + runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.2049797582606982,4.805787666628622e-5
+aus_l3,wfh_teleworkable + runup_from_2019,1197,anthropic_usage_score,wfh_teleworkable,7.600356670838526e-4,0.9804997942448281
+aus_l3,wfh_teleworkable + runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.21013888012531048,2.5688789148606293e-5
+aus_l3,rate_sens_rba + runup_from_2019,1197,(controls only),rate_sens_rba,-0.2625687068363501,0.017483876845000582
+aus_l3,rate_sens_rba + runup_from_2019,1197,(controls only),runup_from_2019,-0.18445486810622577,2.4552425532823534e-4
+aus_l3,rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,rate_sens_rba,-0.1710559099010172,0.057696601990212266
+aus_l3,rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.2108169390560536,4.60696135698788e-5
+aus_l3,rate_sens_rba + runup_from_2019,1197,felten_exposure_score,rate_sens_rba,-0.26270355477934676,0.016369771595094618
+aus_l3,rate_sens_rba + runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.16800397308623824,8.271662016897432e-5
+aus_l3,rate_sens_rba + runup_from_2019,1197,webb_exposure_score,rate_sens_rba,-0.2603690045176692,0.021389692964112077
+aus_l3,rate_sens_rba + runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.1821410723080481,2.993608969837585e-4
+aus_l3,rate_sens_rba + runup_from_2019,1197,beta_eloundou,rate_sens_rba,-0.264941514157033,0.0187769377585623
+aus_l3,rate_sens_rba + runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.21311485736844932,5.502798710468421e-5
+aus_l3,rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,rate_sens_rba,-0.24697180818463607,0.021950549107251697
+aus_l3,rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.22009065433673425,5.076934915784835e-5
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,(controls only),wfh_teleworkable,-0.06445453098047456,0.06949840156731388
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,(controls only),rate_sens_rba,-0.2220725740150976,0.02157574930527956
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,(controls only),runup_from_2019,-0.20602892267235537,8.321235609814407e-5
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,wfh_teleworkable,-0.013943509540254084,0.6594025315868289
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,rate_sens_rba,-0.1659078167612539,0.05152950928332484
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.21444343021363366,4.9192214802951447e-5
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,felten_exposure_score,wfh_teleworkable,-0.25381048452509636,1.1088360350730418e-4
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,felten_exposure_score,rate_sens_rba,-0.10383524697334263,0.20408058477714827
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.179973014720031,1.0070402744628955e-4
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,webb_exposure_score,wfh_teleworkable,-0.0653644507564703,0.05977165839476869
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,webb_exposure_score,rate_sens_rba,-0.218571825650614,0.027227261644625623
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.20325251042926087,1.52990361444697e-4
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,beta_eloundou,wfh_teleworkable,-0.01917163693229354,0.3321105418940081
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,beta_eloundou,rate_sens_rba,-0.2524531108407095,0.01673639492534772
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.21418046914425581,5.865281888879553e-5
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,wfh_teleworkable,0.0065880648542141,0.8277398082979532
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,rate_sens_rba,-0.2509217767917762,0.010585046041136472
+aus_l3,wfh_teleworkable + rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.2183179038758884,2.7897905061546023e-5
+aus_l4,rate_sens_rba,1197,(controls only),rate_sens_rba,-0.06946366152450065,0.4862981046336199
+aus_l4,rate_sens_rba,1197,ai_product_exposure_score,rate_sens_rba,-0.021991661220054033,0.8165588635514799
+aus_l4,rate_sens_rba,1197,felten_exposure_score,rate_sens_rba,-0.11713184231112816,0.17550265448736135
+aus_l4,rate_sens_rba,1197,webb_exposure_score,rate_sens_rba,-0.3498933949752939,0.006351992197649501
+aus_l4,rate_sens_rba,1197,beta_eloundou,rate_sens_rba,-0.06366888454976959,0.4869649327558353
+aus_l4,rate_sens_rba,1197,anthropic_usage_score,rate_sens_rba,-0.033179525416000964,0.7350527128556414
+aus_l4,rate_sens_rba_broad,1189,(controls only),rate_sens_rba_broad,0.6869590040881286,0.027143066892327015
+aus_l4,rate_sens_rba_broad,1189,ai_product_exposure_score,rate_sens_rba_broad,0.6362402406229772,0.03648532616321794
+aus_l4,rate_sens_rba_broad,1189,felten_exposure_score,rate_sens_rba_broad,0.865412284324173,0.02054864287874112
+aus_l4,rate_sens_rba_broad,1189,webb_exposure_score,rate_sens_rba_broad,0.9510916623267656,0.010805289053254945
+aus_l4,rate_sens_rba_broad,1189,beta_eloundou,rate_sens_rba_broad,0.6895137974335501,0.04927793675864545
+aus_l4,rate_sens_rba_broad,1189,anthropic_usage_score,rate_sens_rba_broad,0.5851312100459087,0.04815334776559097
+aus_l4,wfh_teleworkable,1176,(controls only),wfh_teleworkable,0.009297192711122853,0.7497139307672298
+aus_l4,wfh_teleworkable,1176,ai_product_exposure_score,wfh_teleworkable,0.04076462242151105,0.21076112453599852
+aus_l4,wfh_teleworkable,1176,felten_exposure_score,wfh_teleworkable,-0.11169539679883844,0.0029353408788980683
+aus_l4,wfh_teleworkable,1176,webb_exposure_score,wfh_teleworkable,0.003268276165389731,0.906604430206704
+aus_l4,wfh_teleworkable,1176,beta_eloundou,wfh_teleworkable,0.0687069713176694,0.02002009494076786
+aus_l4,wfh_teleworkable,1176,anthropic_usage_score,wfh_teleworkable,0.05536146037475706,0.10304363071447711
+aus_l4,runup_from_2019,1197,(controls only),runup_from_2019,-0.17397785199336402,3.2876426252388745e-4
+aus_l4,runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.19696261062689388,5.470047147390706e-5
+aus_l4,runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.15836959631098013,4.9950364188412406e-5
+aus_l4,runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.13936548240269644,0.0012624148072202439
+aus_l4,runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.2060772490183224,3.771014663625604e-5
+aus_l4,runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.20645021403454783,1.0689818287284514e-4
+aus_l4,runup_from_2020,1197,(controls only),runup_from_2020,-0.2860877678245456,0.003169830496578404
+aus_l4,runup_from_2020,1197,ai_product_exposure_score,runup_from_2020,-0.2819545421593286,0.0039343520523629875
+aus_l4,runup_from_2020,1197,felten_exposure_score,runup_from_2020,-0.27636198779041277,0.0023781671650173375
+aus_l4,runup_from_2020,1197,webb_exposure_score,runup_from_2020,-0.2683393411306149,0.005982494708800774
+aus_l4,runup_from_2020,1197,beta_eloundou,runup_from_2020,-0.2884354734416313,0.0032544679471111604
+aus_l4,runup_from_2020,1197,anthropic_usage_score,runup_from_2020,-0.3088251614362485,0.0019282826206556726
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,(controls only),wfh_teleworkable,0.012014174025731855,0.6687562720153963
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,(controls only),rate_sens_rba,-0.15003182544588348,0.13291299277588503
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,ai_product_exposure_score,wfh_teleworkable,0.04322239622550352,0.1766267529846983
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,ai_product_exposure_score,rate_sens_rba,-0.1429372411784414,0.1449780899896852
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,felten_exposure_score,wfh_teleworkable,-0.10844055223708886,0.002815177868403389
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,felten_exposure_score,rate_sens_rba,-0.1219845213514971,0.2121380443935829
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,webb_exposure_score,wfh_teleworkable,0.0059739640392759905,0.8235520361774055
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,webb_exposure_score,rate_sens_rba,-0.14885650158722505,0.1282743149648483
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,beta_eloundou,wfh_teleworkable,0.0744093652226649,0.010045972214740111
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,beta_eloundou,rate_sens_rba,-0.1800111967103801,0.08976655639556676
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,anthropic_usage_score,wfh_teleworkable,0.058314244118392165,0.08044261001176273
+aus_l4,wfh_teleworkable + rate_sens_rba,1176,anthropic_usage_score,rate_sens_rba,-0.15885826236331396,0.09877706587245762
+aus_l4,wfh_teleworkable + runup_from_2019,1176,(controls only),wfh_teleworkable,-0.034962769717938116,0.21840298287347854
+aus_l4,wfh_teleworkable + runup_from_2019,1176,(controls only),runup_from_2019,-0.15447603423865966,4.2788698949201305e-4
+aus_l4,wfh_teleworkable + runup_from_2019,1176,ai_product_exposure_score,wfh_teleworkable,-0.0020666961418740054,0.9435518602051963
+aus_l4,wfh_teleworkable + runup_from_2019,1176,ai_product_exposure_score,runup_from_2019,-0.16221046232303205,1.679444127120016e-4
+aus_l4,wfh_teleworkable + runup_from_2019,1176,felten_exposure_score,wfh_teleworkable,-0.13901518279491448,0.0013075254979951862
+aus_l4,wfh_teleworkable + runup_from_2019,1176,felten_exposure_score,runup_from_2019,-0.1433612405031702,4.381209553095684e-4
+aus_l4,wfh_teleworkable + runup_from_2019,1176,webb_exposure_score,wfh_teleworkable,-0.03823769638986794,0.17081695916137868
+aus_l4,wfh_teleworkable + runup_from_2019,1176,webb_exposure_score,runup_from_2019,-0.14959601315113685,6.44910476105627e-4
+aus_l4,wfh_teleworkable + runup_from_2019,1176,beta_eloundou,wfh_teleworkable,0.039126718096376495,0.1092228989536164
+aus_l4,wfh_teleworkable + runup_from_2019,1176,beta_eloundou,runup_from_2019,-0.16640065890242894,1.96978577854513e-4
+aus_l4,wfh_teleworkable + runup_from_2019,1176,anthropic_usage_score,wfh_teleworkable,0.010156853511229497,0.7168844750368015
+aus_l4,wfh_teleworkable + runup_from_2019,1176,anthropic_usage_score,runup_from_2019,-0.16795198393519936,1.303338604514266e-4
+aus_l4,rate_sens_rba + runup_from_2019,1197,(controls only),rate_sens_rba,-0.2625687068363501,0.017483876845000582
+aus_l4,rate_sens_rba + runup_from_2019,1197,(controls only),runup_from_2019,-0.18445486810622577,2.4552425532823534e-4
+aus_l4,rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,rate_sens_rba,-0.21704593581680992,0.030496896030474084
+aus_l4,rate_sens_rba + runup_from_2019,1197,ai_product_exposure_score,runup_from_2019,-0.20502506790903496,4.332025328610801e-5
+aus_l4,rate_sens_rba + runup_from_2019,1197,felten_exposure_score,rate_sens_rba,-0.26722977802304515,0.013511727668271994
+aus_l4,rate_sens_rba + runup_from_2019,1197,felten_exposure_score,runup_from_2019,-0.16863100673689418,5.6376395046966206e-5
+aus_l4,rate_sens_rba + runup_from_2019,1197,webb_exposure_score,rate_sens_rba,-0.45860037673255705,0.003593312647022347
+aus_l4,rate_sens_rba + runup_from_2019,1197,webb_exposure_score,runup_from_2019,-0.1520181050237381,0.001285338076618406
+aus_l4,rate_sens_rba + runup_from_2019,1197,beta_eloundou,rate_sens_rba,-0.2673631142696982,0.020619820063716928
+aus_l4,rate_sens_rba + runup_from_2019,1197,beta_eloundou,runup_from_2019,-0.21694952496611453,4.9615587697508e-5
+aus_l4,rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,rate_sens_rba,-0.25098307821892735,0.020848244477105166
+aus_l4,rate_sens_rba + runup_from_2019,1197,anthropic_usage_score,runup_from_2019,-0.21636145815461916,8.053981656442449e-5
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,(controls only),wfh_teleworkable,-0.03222004380001884,0.249247740786142
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,(controls only),rate_sens_rba,-0.2532642183443711,0.026863950689854935
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,(controls only),runup_from_2019,-0.16091101231179344,4.4594900105589475e-4
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,ai_product_exposure_score,wfh_teleworkable,5.622455832506451e-4,0.9846793884110157
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,ai_product_exposure_score,rate_sens_rba,-0.25023487807821254,0.022441305534701417
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,ai_product_exposure_score,runup_from_2019,-0.16854943113546342,1.782539127513245e-4
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,felten_exposure_score,wfh_teleworkable,-0.134231014241616,0.0014155692161595286
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,felten_exposure_score,rate_sens_rba,-0.22127583032464476,0.04531725759906474
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,felten_exposure_score,runup_from_2019,-0.14923852182121516,4.445704736365401e-4
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,webb_exposure_score,wfh_teleworkable,-0.03548633387304904,0.19527619853690306
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,webb_exposure_score,rate_sens_rba,-0.24921972521835226,0.028348113382368225
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,webb_exposure_score,runup_from_2019,-0.15600636449785713,7.295208677720044e-4
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,beta_eloundou,wfh_teleworkable,0.04719777953148552,0.054569212514092295
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,beta_eloundou,rate_sens_rba,-0.30220733292976215,0.015600513631262353
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,beta_eloundou,runup_from_2019,-0.17485147376751184,2.284786155290176e-4
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,anthropic_usage_score,wfh_teleworkable,0.013330109363854294,0.6337932354737505
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,anthropic_usage_score,rate_sens_rba,-0.27167187984313634,0.0162647404162916
+aus_l4,wfh_teleworkable + rate_sens_rba + runup_from_2019,1176,anthropic_usage_score,runup_from_2019,-0.17492371495739376,1.264471664114466e-4

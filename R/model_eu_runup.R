@@ -4,91 +4,162 @@ library(broom)
 library(lubridate)
 
 source("R/helpers.R")
-init_text_log("rate_sensitivity.txt", overwrite = TRUE)
+init_text_log("eu_runup.txt", overwrite = TRUE)
 
-# Rate-sensitivity horse race. Occupations concentrated in sectors whose
-# hiring contracted during the 2022-2023 monetary tightening may drive the
-# AI exposure estimates. We build an occupation-level "contraction exposure"
-# score by weighting each sector's job vacancy rate decline (Eurostat JVS,
-# a non-CEDEFOP source) by the occupation's employment mix across sectors,
-# and race it against the AI exposure measures in the delta specification.
+# EU run-up control -----------------------------------------------------------
+# Counterpart of the run-up check in model_aus.R. There, each state x
+# occupation's own hiring run-up into the pre-ChatGPT baseline,
+#
+#   runup = log(mean OJA in the pre-period) - log(mean OJA in 2019 [or 2020]),
+#
+# enters the delta specification alongside exposure (the race itself runs in
+# model_horse_race.R): if the exposure gradient were mean reversion from an
+# AI-correlated 2021-2022 hiring boom, the run-up should absorb it. The CEDEFOP OJA series only starts in 2022 Q1, so the EU
+# run-up cannot be measured at the occupation level. Instead we build it from
+# two non-CEDEFOP sources:
+#
+#   1. Eurostat JVS (jvs_q_nace2): quarterly job vacancy rates by NACE
+#      section and country, back to 2018. The sector run-up is the log change
+#      in the vacancy rate between the 2019 (or 2020) quarters and the SAME
+#      calendar quarters of the OJA pre-period (2022 Q1-Q3), so the NSA
+#      series is seasonally comparable at both ends.
+#   2. CEDEFOP Skills Intelligence sectoral employment: each ISCO 2-digit
+#      occupation's employment across NACE sections, by country. An
+#      occupation's run-up is the employment-weighted mean of the run-ups of
+#      the sectors it works in.
+#
+# The headline score is country-specific in both ingredients (sector run-up
+# and occupation mix), so it varies across country x occupation cells exactly
+# as the Australian state x occupation run-up does, and it is identified from
+# within-country variation under the country fixed effect. Unlike the
+# sector-contraction score this file used to build (log JVR change 2022-2024,
+# which straddled the AI "treatment"), every input here is pre-ChatGPT.
+#
+# Two limitations are inherent to the construction. The score only picks up
+# the part of an occupation's boom that runs through its sector mix, so any
+# within-sector over-hiring of, say, software developers relative to other
+# ICT-sector staff is missed. And the occupation mix is ISCO-2, so the score
+# is constant across the ISCO-3 groups within a 2-digit minor group.
+#
+# Variants: base year 2019 (last pre-pandemic year, headline) or 2020
+# (pandemic trough); vacancy rate (headline) or vacancy count (JOBVAC, closer
+# in spirit to an OJA count but with patchier country coverage); a hybrid
+# that keeps the own-country occupation mix but replaces each country's
+# sector run-up with the EU median across countries (less noise from small
+# countries' sectoral series, variation across countries only through the
+# mix); and an EU-pooled version (median sector run-up, pooled weights),
+# which varies only across occupations.
 
 t0 <- as.Date("2022-11-30") # chatgpt release date
+min_covered_share <- 0.5 # drop occupation x country cells whose sectors mostly lack JVS data
 
 exposure_vars <- c(
+  "Anthropic Usage Score" = "anthropic_usage_score",
   "Demirev Exposure Score" = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Exposure Score" = "beta_eloundou",
-  "Anthropic Usage Score" = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score"
 )
 
 results <- list()
 
-# read OJA data (same prep as model_oja.R) ---------------------------------
-oja_l3 <- list.files(
-  "data/cedefop_skills_ovate_skill_demand/csv/05_occupation_skill_across_occupations_hyper",
-  full.names = TRUE
-) %>%
-  map_dfr(read_csv) %>%
-  mutate(
-    idcountry = ifelse(is.na(idcountry), countryset, idcountry),
-    esco_level_3_short = esco_level_3
-  ) %>%
-  select(-c(countryset, esco_level_3)) %>%
-  filter(!str_detect(idcountry, "EU27"))
+# EU delta sample (build_eu_delta in helpers.R, same as model_oja.R) --------
+oja_l3 <- read_oja_l3()
+oja_delta_l3 <- build_eu_delta(t0, oja_l3 = oja_l3)
 
-ai_exposure_l3 <- read_ai_exposure_file(
-  "data/ai_exposure_scores/scored_esco_occupations_matched.csv",
-  level = 3
+# the pre-period quarters of the delta specification, in Eurostat notation
+as_eurostat_q <- function(d) paste0(year(d), "-Q", quarter(d))
+pre_quarters <- oja_l3 %>%
+  mutate(dmax = as.Date(dmax)) %>%
+  filter(dmax < t0) %>%
+  distinct(dmax) %>%
+  pull(dmax) %>%
+  sort() %>%
+  as_eurostat_q()
+base_quarters <- list(
+  runup_from_2019 = str_replace(pre_quarters, "^\\d{4}", "2019"),
+  runup_from_2020 = str_replace(pre_quarters, "^\\d{4}", "2020")
 )
 
-oja_delta_l3 <- format_twfe_oja_data(oja_l3, ai_exposure_l3, level = 3, t0 = t0) %>%
-  format_delta_data(
-    n_periods = Inf, base_date = t0, level = 3, across_countries = FALSE
+log_text(
+  tibble(window = c("pre", names(base_quarters)), quarters = c(
+    paste(pre_quarters, collapse = ", "),
+    map_chr(base_quarters, paste, collapse = ", ")
+  )),
+  "Run-up windows (OJA pre-period vs base-year quarters):"
+)
+
+# sector run-up (Eurostat jvs_q_nace2) --------------------------------------
+# Job vacancy rates (JVR) and counts (JOBVAC) by NACE section, all reporting
+# countries, NSA, 2018Q1-2025Q4; cached from the Eurostat API, see
+# data/eurostat_jvs/README.md. Geo aggregates (EU*/EA*) are dropped.
+jvs <- read_csv("data/eurostat_jvs/jvs_q_nace2_countries.csv", show_col_types = FALSE) %>%
+  filter(str_length(geo) == 2) %>%
+  transmute(
+    indicator = indic_em, geo, nace_rev2_code = nace_r2,
+    period = TIME_PERIOD, value = OBS_VALUE
   ) %>%
-  filter(pre_OJA > 20 & post_OJA > 20) # same infrequent-occupation filter as model_oja.R
+  filter(!is.na(value) & value > 0)
 
-# sectoral vacancy contraction (Eurostat jvs_q_nace2) -----------------------
-# Job vacancy rates by NACE section, cached from the Eurostat API:
-# https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/jvs_q_nace2/
-#   Q.NSA.A+B+C+D+E+F+G+H+I+J+K+M+N+O+P+Q+R.TOTAL.JVR.?format=SDMX-CSV
-# Individual-country series are used because the EU27 aggregate is not
-# published for sections A and O-R.
-jvr <- read_csv("data/eurostat_jvs/jvs_q_nace2_jvr_countries.csv") %>%
-  filter(str_length(geo) == 2) %>% # drop EU/EA aggregates
-  select(nace_rev2_code = nace_r2, geo, period = TIME_PERIOD, jvr = OBS_VALUE) %>%
-  filter(!is.na(jvr) & jvr > 0)
-
-# Sector contraction: log change in the vacancy rate over the tightening
-# cycle, median across countries. Same quarter at both endpoints so the NSA
-# series is seasonally comparable. 2024-Q4 endpoint kept as an alternative.
-sector_contraction <- jvr %>%
-  filter(period %in% c("2022-Q2", "2024-Q2", "2024-Q4")) %>%
-  pivot_wider(names_from = period, values_from = jvr) %>%
+# Mean over each window, requiring every quarter of the window to be present,
+# then the log change from the base window to the pre-period.
+sector_runup <- jvs %>%
+  mutate(window = case_when(
+    period %in% pre_quarters ~ "pre",
+    period %in% base_quarters$runup_from_2019 ~ "y2019",
+    period %in% base_quarters$runup_from_2020 ~ "y2020",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(window)) %>%
+  group_by(indicator, geo, nace_rev2_code, window) %>%
+  summarise(value = mean(value), n_q = n(), .groups = "drop") %>%
+  filter(n_q == length(pre_quarters)) %>%
+  select(-n_q) %>%
+  pivot_wider(names_from = window, values_from = value) %>%
   mutate(
-    d_jvr_log     = log(`2024-Q2` / `2022-Q2`),
-    d_jvr_log_alt = log(`2024-Q4` / `2022-Q2`)
+    runup_from_2019 = log(pre) - log(y2019),
+    runup_from_2020 = log(pre) - log(y2020)
   ) %>%
-  group_by(nace_rev2_code) %>%
-  summarise(
-    contraction     = -median(d_jvr_log, na.rm = TRUE),
-    contraction_alt = -median(d_jvr_log_alt, na.rm = TRUE),
-    n_countries = sum(!is.na(d_jvr_log)),
-    .groups = "drop"
-  )
+  select(-c(pre, y2019, y2020))
 
 log_text(
-  sector_contraction %>% arrange(desc(contraction)),
-  "Sectoral vacancy contraction (JVR log change 2022Q2 to 2024Q2, sign flipped, median across countries):",
+  sector_runup %>%
+    filter(indicator == "JVR") %>%
+    group_by(nace_rev2_code) %>%
+    summarise(
+      median_runup_from_2019 = median(runup_from_2019, na.rm = TRUE),
+      median_runup_from_2020 = median(runup_from_2020, na.rm = TRUE),
+      n_countries = sum(!is.na(runup_from_2019)),
+      .groups = "drop"
+    ) %>%
+    arrange(desc(median_runup_from_2019)),
+  "Sector run-up (log change in JVR, base-year quarters to 2022 Q1-Q3), median across countries:",
   n = Inf
 )
 
-# occupation-level rate sensitivity ----------------------------------------
+log_text(
+  sector_runup %>%
+    group_by(indicator, geo) %>%
+    summarise(
+      n_sectors_2019 = sum(!is.na(runup_from_2019)),
+      n_sectors_2020 = sum(!is.na(runup_from_2020)),
+      .groups = "drop"
+    ) %>%
+    pivot_wider(names_from = indicator, values_from = starts_with("n_sectors")),
+  "Sector coverage by country (of 17 NACE sections):",
+  n = Inf
+)
+
+# occupation run-up -----------------------------------------------------------
 # Transpose of the industry exposure construction in model_nama.R: each
-# occupation's score is the employment-weighted average contraction of the
-# sectors it is employed in.
-cedefop_sectoral <- read_csv("data/cedefop_skills_intelligence/cedefop_sectoral_employment_data.csv") %>%
+# ISCO-2 occupation's run-up is the employment-weighted mean run-up of the
+# sectors it is employed in. Sectors with no JVS series in a country drop out
+# of the weighted mean; cells where those sectors hold more than half of the
+# occupation's employment are dropped.
+cedefop_sectoral <- read_csv(
+  "data/cedefop_skills_intelligence/cedefop_sectoral_employment_data.csv",
+  show_col_types = FALSE
+) %>%
   filter(str_detect(occupation_code, "\\.")) %>%
   mutate(
     isco_level_2 = substr(occupation_code, 3, 4),
@@ -96,128 +167,191 @@ cedefop_sectoral <- read_csv("data/cedefop_skills_intelligence/cedefop_sectoral_
   ) %>%
   filter(!is.na(n) & n > 0)
 
-occupation_rate_sensitivity <- cedefop_sectoral %>%
-  inner_join(sector_contraction, by = "nace_rev2_code") %>%
-  group_by(isco_level_2) %>%
-  summarise(
-    rate_sensitivity     = weighted.mean(contraction, n, na.rm = TRUE),
-    rate_sensitivity_alt = weighted.mean(contraction_alt, n, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    rate_sensitivity     = scale_zero_to_one(rate_sensitivity),
-    rate_sensitivity_alt = scale_zero_to_one(rate_sensitivity_alt)
-  )
-
-# country-specific version (weights vary by country, contraction EU-wide)
-occupation_rate_sensitivity_cntry <- cedefop_sectoral %>%
-  inner_join(sector_contraction, by = "nace_rev2_code") %>%
-  group_by(country_code, isco_level_2) %>%
-  summarise(
-    rate_sensitivity_cntry = weighted.mean(contraction, n, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  mutate(rate_sensitivity_cntry = scale_zero_to_one(rate_sensitivity_cntry))
-
-oja_delta_rs <- oja_delta_l3 %>%
-  mutate(isco_level_2 = substr(idesco_level_3, 3, 4)) %>%
-  left_join(occupation_rate_sensitivity, by = "isco_level_2") %>%
-  left_join(
-    occupation_rate_sensitivity_cntry,
-    by = c("idcountry" = "country_code", "isco_level_2")
-  ) %>%
-  filter(!is.na(rate_sensitivity))
-
-log_text(
-  oja_delta_rs %>%
-    distinct(isco_level_2, across(all_of(unname(exposure_vars))), rate_sensitivity) %>%
-    summarise(across(
-      all_of(unname(exposure_vars)),
-      ~cor(.x, rate_sensitivity, use = "complete.obs")
-    )),
-  "Correlation between rate sensitivity and AI exposure (ISCO level-2 occupations):"
-)
-
-# models --------------------------------------------------------------------
-run_delta <- function(rhs, dat = oja_delta_rs) {
-  feols(
-    as.formula(paste("delta_OJA_log ~", rhs, " | idcountry")),
-    data = dat,
-    cluster = "idcountry"
-  )
+weight_sector_runup <- function(weights, sector_scores, group_cols) {
+  weights %>%
+    left_join(sector_scores, by = intersect(names(weights), names(sector_scores))) %>%
+    group_by(across(all_of(group_cols))) %>%
+    summarise(
+      covered_share = sum(n[!is.na(runup_from_2019)]) / sum(n),
+      runup_from_2019 = weighted.mean(runup_from_2019, n, na.rm = TRUE),
+      runup_from_2020 = weighted.mean(runup_from_2020, n, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    filter(covered_share >= min_covered_share)
 }
 
-rate_only_model <- run_delta("rate_sensitivity")
+# country-specific: own-country sector run-up, own-country occupation mix
+runup_cntry <- map(
+  c(jvr = "JVR", vac = "JOBVAC"),
+  ~ weight_sector_runup(
+    cedefop_sectoral %>% select(geo = country_code, nace_rev2_code, isco_level_2, n),
+    sector_runup %>% filter(indicator == .x) %>% select(-indicator),
+    group_cols = c("geo", "isco_level_2")
+  )
+)
+
+# EU-median sector run-up (JVR), used by the hybrid and pooled variants
+sector_runup_eu <- sector_runup %>%
+  filter(indicator == "JVR") %>%
+  group_by(nace_rev2_code) %>%
+  summarise(across(starts_with("runup"), ~ median(.x, na.rm = TRUE)), .groups = "drop")
+
+# hybrid: EU-median sector run-up, own-country occupation mix
+runup_mix <- weight_sector_runup(
+  cedefop_sectoral %>% select(geo = country_code, nace_rev2_code, isco_level_2, n),
+  sector_runup_eu,
+  group_cols = c("geo", "isco_level_2")
+)
+
+# EU-pooled: EU-median sector run-up, occupation mix pooled across countries;
+# one score per ISCO-2 group
+runup_pooled <- weight_sector_runup(
+  cedefop_sectoral %>% count(nace_rev2_code, isco_level_2, wt = n, name = "n"),
+  sector_runup_eu,
+  group_cols = "isco_level_2"
+)
+
+occupation_runup <- runup_cntry$jvr %>%
+  rename(idcountry = geo) %>%
+  full_join(
+    runup_cntry$vac %>%
+      transmute(idcountry = geo, isco_level_2, runup_from_2019_vac = runup_from_2019),
+    by = c("idcountry", "isco_level_2")
+  ) %>%
+  full_join(
+    runup_mix %>%
+      transmute(idcountry = geo, isco_level_2, runup_from_2019_mix = runup_from_2019),
+    by = c("idcountry", "isco_level_2")
+  ) %>%
+  left_join(
+    runup_pooled %>% transmute(isco_level_2, runup_from_2019_pooled = runup_from_2019),
+    by = "isco_level_2"
+  )
 
 log_text(
-  rate_only_model,
-  "Rate sensitivity alone:"
-)
-
-baseline_models <- map(exposure_vars, ~run_delta(.x))
-
-log_text(
-  baseline_models,
-  "Baseline (merged sample, for comparison):"
-)
-
-horse_race_models <- map(
-  exposure_vars, ~run_delta(paste(.x, "+ rate_sensitivity"))
-)
-
-log_text(
-  horse_race_models,
-  "Horse race: exposure + rate sensitivity:"
-)
-
-horse_race_models_cntry <- map(
-  exposure_vars, ~run_delta(paste(.x, "+ rate_sensitivity_cntry"))
-)
-
-log_text(
-  horse_race_models_cntry,
-  "Horse race with country-specific rate sensitivity:"
-)
-
-horse_race_models_alt <- map(
-  exposure_vars, ~run_delta(paste(.x, "+ rate_sensitivity_alt"))
-)
-
-log_text(
-  horse_race_models_alt,
-  "Horse race with alternative endpoint (2022Q2 to 2024Q4):"
-)
-
-# attenuation summary
-attenuation <- map2_dfr(
-  baseline_models, horse_race_models,
-  function(base_m, hr_m) {
-    v <- setdiff(names(coef(base_m)), "rate_sensitivity")
-    tibble(
-      exposure_var = v,
-      baseline = coef(base_m)[v],
-      horse_race = coef(hr_m)[v],
-      horse_race_p = tidy(hr_m) %>% filter(term == v) %>% pull(p.value),
-      rate_coef = coef(hr_m)["rate_sensitivity"],
-      rate_p = tidy(hr_m) %>% filter(term == "rate_sensitivity") %>% pull(p.value)
-    ) %>%
-      mutate(pct_attenuation = (1 - horse_race / baseline) * 100)
-  }
-)
-
-log_text(
-  attenuation,
-  "Attenuation summary (exposure coefficient with vs without rate sensitivity):",
+  occupation_runup %>%
+    group_by(idcountry) %>%
+    summarise(
+      n_isco2 = sum(!is.na(runup_from_2019)),
+      mean_covered_share = mean(covered_share, na.rm = TRUE),
+      n_isco2_vac = sum(!is.na(runup_from_2019_vac)),
+      .groups = "drop"
+    ),
+  "Occupation run-up coverage by country (ISCO-2 groups scored, employment share of sectors with JVS data):",
   n = Inf
 )
 
-results$sector_contraction <- sector_contraction
-results$occupation_rate_sensitivity <- occupation_rate_sensitivity
-results$rate_only <- rate_only_model
-results$baseline <- baseline_models
-results$horse_race <- horse_race_models
-results$horse_race_cntry <- horse_race_models_cntry
-results$horse_race_alt <- horse_race_models_alt
-results$attenuation <- attenuation
+log_text(
+  occupation_runup %>%
+    group_by(isco_level_2) %>%
+    summarise(
+      mean_runup_from_2019 = mean(runup_from_2019, na.rm = TRUE),
+      sd_across_countries = sd(runup_from_2019, na.rm = TRUE),
+      pooled = first(runup_from_2019_pooled),
+      .groups = "drop"
+    ) %>%
+    arrange(desc(mean_runup_from_2019)),
+  "Occupation run-up (JVR, from 2019) by ISCO-2 group: mean and s.d. across countries, and the pooled score:",
+  n = Inf
+)
 
-saveRDS(results, "results/RDS/rate_sensitivity.RDS")
+# merge with the delta sample -------------------------------------------------
+oja_delta_ru <- oja_delta_l3 %>%
+  left_join(occupation_runup, by = c("idcountry", "isco_level_2"))
+
+log_text(
+  oja_delta_ru %>%
+    group_by(idcountry) %>%
+    summarise(
+      n_obs = n(),
+      n_scored = sum(!is.na(runup_from_2019)),
+      n_scored_vac = sum(!is.na(runup_from_2019_vac)),
+      .groups = "drop"
+    ),
+  "Delta sample: country x occupation observations with a run-up score, by country:",
+  n = Inf
+)
+
+# How much do the variants agree within countries? If the own-country score
+# were mostly measurement error from thin sectoral series, its two readings
+# (vacancy rate, vacancy count) would disagree with each other as much as
+# with the EU-median version.
+runup_variants <- c(
+  "runup_from_2019", "runup_from_2020", "runup_from_2019_vac",
+  "runup_from_2019_mix", "runup_from_2019_pooled"
+)
+log_text(
+  oja_delta_ru %>%
+    group_by(idcountry) %>%
+    mutate(across(all_of(runup_variants), ~ .x - mean(.x, na.rm = TRUE))) %>%
+    ungroup() %>%
+    select(all_of(runup_variants)) %>%
+    cor(use = "pairwise.complete.obs") %>%
+    round(2),
+  "Correlation between the run-up variants within countries (delta sample, demeaned by country):"
+)
+
+# Why the own-country and EU-median scores behave differently: decompose the
+# own-country run-up into the EU-median score plus the country-specific
+# sector deviation, own = mix + dev, and compare their within-country spread
+# and their separate slopes. The slope on `own` is roughly the variance-
+# weighted average of the two.
+runup_decomp <- oja_delta_ru %>%
+  filter(!is.na(runup_from_2019), !is.na(runup_from_2019_mix)) %>%
+  mutate(runup_dev = runup_from_2019 - runup_from_2019_mix)
+
+log_text(
+  runup_decomp %>%
+    group_by(idcountry) %>%
+    mutate(across(
+      c(delta_OJA_log, runup_from_2019, runup_from_2019_mix, runup_dev),
+      ~ .x - mean(.x)
+    )) %>%
+    ungroup() %>%
+    summarise(across(c(delta_OJA_log, runup_from_2019, runup_from_2019_mix, runup_dev), sd)) %>%
+    as.data.frame(),
+  "Within-country s.d. of the outcome, the own-country run-up, the EU-median run-up and their difference:"
+)
+
+log_text(
+  etable(
+    feols(delta_OJA_log ~ runup_from_2019 | idcountry, runup_decomp, cluster = "idcountry"),
+    feols(delta_OJA_log ~ runup_from_2019_mix | idcountry, runup_decomp, cluster = "idcountry"),
+    feols(delta_OJA_log ~ runup_from_2019_mix + runup_dev | idcountry, runup_decomp, cluster = "idcountry"),
+    digits = 3
+  ),
+  "Run-up alone: own-country, EU-median, and decomposed into EU-median + country-specific deviation:"
+)
+
+# correlations with the outcome and with exposure --------------------------------
+# within countries (variables demeaned by country), which is the variation
+# the country fixed effect leaves for the race
+log_text(
+  oja_delta_ru %>%
+    group_by(idcountry) %>%
+    mutate(across(
+      c(delta_OJA_log, all_of(unname(exposure_vars)), all_of(runup_variants)),
+      ~ .x - mean(.x, na.rm = TRUE)
+    )) %>%
+    ungroup() %>%
+    select(delta_OJA_log, all_of(unname(exposure_vars)), all_of(runup_variants)) %>%
+    cor(use = "pairwise.complete.obs") %>%
+    .[runup_variants, c("delta_OJA_log", unname(exposure_vars)), drop = FALSE] %>%
+    round(2),
+  "Within-country correlation of each run-up variant with the post-ChatGPT change and with exposure:"
+)
+
+# export as horse-race controls ---------------------------------------------------
+write_controls(
+  occupation_runup, sample = "eu_l3", key = "isco_level_2",
+  controls = runup_variants, file = "eu_runup_eu_l3", idcountry_col = "idcountry"
+)
+
+# save ---------------------------------------------------------------------------
+results$pre_quarters <- pre_quarters
+results$base_quarters <- base_quarters
+results$sector_runup <- sector_runup
+results$occupation_runup <- occupation_runup
+
+saveRDS(results, "results/RDS/eu_runup.RDS")
+write_csv(occupation_runup, "results/intermediate_datasets/eu_runup_isco2.csv")

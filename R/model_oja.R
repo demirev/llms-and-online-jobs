@@ -12,11 +12,11 @@ init_text_log("oja_models.txt", overwrite = TRUE)
 t0 <- as.Date("2022-11-30") # chatgpt release date
 
 exposure_vars <- c(
+  "Anthropic Usage Score" = "anthropic_usage_score",
   "Demirev Exposure Score" = "ai_product_exposure_score",
-  "Felten AI Exposure Score" = "felten_exposure_score",
-  "Webb AI Exposure Score" = "webb_exposure_score",
   "Eloundou Exposure Score" = "beta_eloundou",
-  "Anthropic Usage Score" = "anthropic_usage_score"
+  "Felten AI Exposure Score" = "felten_exposure_score",
+  "Webb AI Exposure Score" = "webb_exposure_score"
 )
 breakdown_vars <- c(
   "Automation Exposure Score" = "ai_product_automation_score",
@@ -552,7 +552,8 @@ decile_plots <- map2(
 )
 
 decile_plots$combined <- (decile_plots[[1]] + decile_plots[[2]]) / 
-  (decile_plots[[3]] + decile_plots[[4]]) +
+  (decile_plots[[3]] + decile_plots[[4]]) /
+  (decile_plots[[5]] + (ggplot() + theme_minimal())) +
   plot_layout(guides = "collect") +
   plot_annotation(
     title = "Decile Effects Across Different AI Exposure Measures",
@@ -600,17 +601,18 @@ log_text(
   n = Inf
 )
 
-# Nicer facet labels for the exposure measures
+# Nicer facet labels for the exposure measures; the order here is the facet
+# order (headline measures alphabetically by author, then the intent splits)
 var_labels <- c(
-  ai_product_exposure_score = "AI Product Exposure",
-  beta_eloundou            = "Eloundou et al.",
-  felten_exposure_score    = "Felten Exposure",
-  webb_exposure_score      = "Webb Exposure",
-  ai_product_augmentation_score = "Augmentation Exposure",
-  ai_product_automation_score = "Automation Exposure",
   anthropic_usage_score        = "Anthropic Usage",
-  anthropic_augmentation_score = "Anthropic Augmentation",
-  anthropic_automation_score   = "Anthropic Automation"
+  ai_product_exposure_score    = "Demirev Exposure",
+  beta_eloundou                = "Eloundou et al.",
+  felten_exposure_score        = "Felten Exposure",
+  webb_exposure_score          = "Webb Exposure",
+  ai_product_automation_score  = "Automation Exposure",
+  ai_product_augmentation_score = "Augmentation Exposure",
+  anthropic_automation_score   = "Anthropic Automation",
+  anthropic_augmentation_score = "Anthropic Augmentation"
 )
 
 eures_plot_df <- eures_models %>%
@@ -626,7 +628,7 @@ eures_plot_df <- eures_models %>%
     sig = factor(sig, levels = c("p < 0.01", "p < 0.05", "p < 0.10", "n.s.")),
     ci_lo = estimate - 1.96 * std.error,
     ci_hi = estimate + 1.96 * std.error,
-    var_label = var_labels[var]
+    var_label = factor(var_labels[var], levels = var_labels)
   )
 
 # Shared builder for the by-experience coefficient plots. `facet` toggles the
@@ -660,7 +662,7 @@ make_eures_plot <- function(df, facet = TRUE) {
 
 # no automation / augmentation breakdown here
 results$eures_plot <- eures_plot_df %>%
-  filter(var_label %in% var_labels[c(1:4, 7)]) %>%
+  filter(var_label %in% var_labels[exposure_vars]) %>%
   make_eures_plot(facet = TRUE)
 
 # single-index version (Anthropic) for the main text
@@ -760,6 +762,60 @@ results$event_study_no_ict <- event_study_models_no_ict
 log_text(
   event_study_models_no_ict,
   label = "Event study models, excluding ICT occupations:"
+)
+
+# Early hikers ------------------------------------------------------------
+# If the exposure gradient were a by-product of monetary tightening, it should
+# be absent where policy rates did not change between the pre- and post-ChatGPT
+# windows. Czechia, Hungary, Poland and Romania completed their hiking cycles
+# by autumn 2022 (CZ 0.25 -> 7.00 by Jun 2022, HU 0.60 -> 13.00 by Sep 2022,
+# PL 0.10 -> 6.75 by Sep 2022, RO 1.25 -> 6.75 by Nov 2022, with one final 25bp
+# step in Jan 2023), so their pre-period already carries the full tightening.
+# The euro area, by contrast, went from -0.50 to 4.00 between Jul 2022 and
+# Sep 2023, almost entirely inside the post-period. We re-estimate the delta
+# specification separately on the two groups. With four clusters in the
+# early-hiker group the standard errors are indicative only.
+early_hikers <- c("CZ", "HU", "PL", "RO")
+
+delta_models_early_hikers <- map(
+  c(early_hikers = TRUE, others = FALSE),
+  function(is_early) {
+    dat <- oja_delta$l3_ap %>% filter((idcountry %in% early_hikers) == is_early)
+    map(exposure_vars, function(exposure_var) {
+      feols(
+        as.formula(paste("delta_OJA_log ~", exposure_var, " | idcountry")),
+        data = dat, cluster = "idcountry"
+      )
+    })
+  }
+)
+
+results$delta_early_hikers <- delta_models_early_hikers
+
+log_text(
+  oja_delta$l3_ap %>%
+    mutate(group = ifelse(idcountry %in% early_hikers, "early_hikers", "others")) %>%
+    group_by(group) %>%
+    summarise(
+      n_countries = n_distinct(idcountry), n_obs = n(),
+      mean_delta_OJA_log = mean(delta_OJA_log), .groups = "drop"
+    ),
+  "Early hikers (CZ, HU, PL, RO: tightening completed before ChatGPT) vs others, sample and mean change:"
+)
+
+log_text(
+  imap_dfr(delta_models_early_hikers, function(models, group) {
+    imap_dfr(models, function(m, nm) {
+      v <- exposure_vars[[nm]]
+      tibble(
+        group = group, exposure = nm,
+        estimate = coef(m)[[v]], std.error = se(m)[[v]], p.value = pvalue(m)[[v]]
+      )
+    })
+  }) %>%
+    arrange(exposure, desc(group)),
+  "Delta models, early hikers vs others (exposure coefficient, cluster = country):",
+  n = Inf
 )
 
 # save results ------------------------------------------------------------
